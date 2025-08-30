@@ -17,7 +17,7 @@ public interface ITransportService : IDisposable
     /// <summary>
     /// Connects the client to the configured endpoint
     /// </summary>
-    /// <param name="cancellationToken"></param>
+    /// <param name="cancellationToken">Cancellation token passed into the internal websocket client</param>
     /// <returns></returns>
     public Task ConnectAsync(CancellationToken? cancellationToken = null);
 

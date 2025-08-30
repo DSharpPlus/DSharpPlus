@@ -43,7 +43,7 @@ internal sealed class TransportServiceCore : IDisposable
     /// Starts the connection to the remote uri.
     /// Also starts the loop for receiving messages from remote to our local.
     /// </summary>
-    /// <param name="cancellationToken"></param>
+    /// <param name="cancellationToken">Cancellation token passed into the internal websocket client</param>
     /// <returns></returns>
     public async Task ConnectAsync(CancellationToken? cancellationToken = null)
     {
@@ -57,7 +57,7 @@ internal sealed class TransportServiceCore : IDisposable
     /// Sends a data frame to the configured remote uri.
     /// </summary>
     /// <param name="data">data frame</param>
-    /// <param name="token"></param>
+    /// <param name="token">Cancelation token passed into the internal websocket client for this messsage</param>
     /// <returns></returns>
     public async Task SendAsync(ReadOnlyMemory<byte> data, CancellationToken? token = null)
     {
@@ -78,8 +78,8 @@ internal sealed class TransportServiceCore : IDisposable
     /// Sends JSON data to the remote uri.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <param name="data"></param>
-    /// <param name="token"></param>
+    /// <param name="data">data frame to send to remote uri</param>
+    /// <param name="token">Cancellation token passed into internal websocket client for this message</param>
     /// <returns></returns>
     public async Task SendAsync<T>(T data, CancellationToken? token = null)
     {
@@ -103,7 +103,7 @@ internal sealed class TransportServiceCore : IDisposable
     /// This method waits for messages from the remote uri to local.
     /// When a message is received then we call our callback method.
     /// </summary>
-    /// <param name="token"></param>
+    /// <param name="token">Cancellation token passed into internal websocket client</param>
     /// <returns></returns>
     private async Task ReceiveLoopAsync(CancellationToken? token = null)
     {

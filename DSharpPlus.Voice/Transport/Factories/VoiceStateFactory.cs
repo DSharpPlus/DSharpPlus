@@ -49,13 +49,6 @@ public class VoiceStateFactory : IVoiceStateFactory
     /// <summary>
     /// Creates a voice state with the required initial data.
     /// </summary>
-    /// <param name="userId"></param>
-    /// <param name="serverId"></param>
-    /// <param name="channelId"></param>
-    /// <param name="token"></param>
-    /// <param name="sessionId"></param>
-    /// <param name="endpoint"></param>
-    /// <returns></returns>
     private static VoiceState CreateInitialVoiceState(string userId, string serverId, string channelId, string token, string sessionId, string endpoint) =>
         new()
         {
@@ -203,22 +196,22 @@ public class VoiceStateFactory : IVoiceStateFactory
 
             (string ip, int port) = ParseIpDiscoveryResponse(resp);
 
-            var selectProtocol = new
+            VoiceSelectProtocolPayload payload = new()
             {
-                op = 1,
-                d = new
+                Data = new()
                 {
-                    protocol = "udp",
-                    data = new
+                    Protocol = "udp",
+                    InnerData = new()
                     {
-                        address = ip,
-                        port,
-                        mode = selectedMode
+                        Address = ip,
+                        Port = port,
+                        Mode = selectedMode
                     }
-                }
+                },
+                OpCode = 1
             };
 
-            await client.SendAsync(selectProtocol);
+            await client.SendAsync(payload);
         });
 
         // (8) Lets us know that we are ready to send data.

@@ -16,13 +16,13 @@ public class DaveStateHandler : IDisposable
     private uint? pendingTransitionId;
     private uint? pendingEpochId;
     private bool pendingDowngrade;
-    private readonly MlsSession mls;
+    private readonly MlsSession mlsSession;
     private readonly ITransportService voiceNegotiationTransportService;
     private readonly Action<bool> setE2eeActive;
 
-    internal DaveStateHandler(MlsSession mls, ITransportService voiceNegotiationTransportService, Action<bool> setE2eeActive)
+    internal DaveStateHandler(MlsSession mlsSession, ITransportService voiceNegotiationTransportService, Action<bool> setE2eeActive)
     {
-        this.mls = mls;
+        this.mlsSession = mlsSession;
         this.voiceNegotiationTransportService = voiceNegotiationTransportService;
         this.setE2eeActive = setE2eeActive;
     }
@@ -30,14 +30,14 @@ public class DaveStateHandler : IDisposable
     /// <summary>
     /// Sets the version of DAVE we are using
     /// </summary>
-    /// <param name="v">DAVE version</param>
-    public void SetNegotiatedDaveVersion(ushort v) => this.ProtocolVersion = v;
+    /// <param name="version">DAVE version</param>
+    public void SetNegotiatedDaveVersion(ushort version) => this.ProtocolVersion = version;
 
     /// <summary>
     /// add an external send to the MLS group's extensions
     /// </summary>
     /// <param name="payload"></param>
-    public void OnExternalSender(ReadOnlySpan<byte> payload) => this.mls.SetExternalSender(payload);
+    public void OnExternalSender(ReadOnlySpan<byte> payload) => this.mlsSession.SetExternalSender(payload);
 
     /// <summary>
     /// Lets us know that we are moving to a new epoch. The payload includes the new epochs upcoming protocol.
@@ -49,7 +49,7 @@ public class DaveStateHandler : IDisposable
     {
         if (payload.Data.ProtocolVersion != this.ProtocolVersion || this.CurrentEpoch == 0)
         {
-            this.mls.ReinitializeE2EESession(payload.Data.ProtocolVersion);
+            this.mlsSession.ReinitializeE2EESession(payload.Data.ProtocolVersion);
             this.ProtocolVersion = payload.Data.ProtocolVersion;
         }
 
@@ -66,7 +66,7 @@ public class DaveStateHandler : IDisposable
     public async Task SendMlsKeyPackageAsync()
     {
         CommunityToolkit.HighPerformance.Buffers.ArrayPoolBufferWriter<byte> writer = new();
-        this.mls.WriteKeyPackage(writer);
+        this.mlsSession.WriteKeyPackage(writer);
         await SendDaveBinaryAsync(this.voiceNegotiationTransportService, 26, writer.WrittenSpan);
     }
 
@@ -129,7 +129,7 @@ public class DaveStateHandler : IDisposable
     /// <returns></returns>
     public async Task OnProposalsAsync(byte[] payload, ulong[] roster)
     {
-        byte[] commitBytes = this.mls.ProcessProposals(payload, roster);
+        byte[] commitBytes = this.mlsSession.ProcessProposals(payload, roster);
         if (commitBytes is { Length: > 0 })
         {
             await SendDaveBinaryAsync(this.voiceNegotiationTransportService, 28, commitBytes);  // MLS Commit/Welcome
@@ -140,14 +140,14 @@ public class DaveStateHandler : IDisposable
     /// Proccesses a commit made to the MLS group
     /// </summary>
     /// <param name="payload"></param>
-    public void OnAnnounceCommitTransition(ReadOnlySpan<byte> payload) => this.mls.ProcessCommit(payload.ToArray());
+    public void OnAnnounceCommitTransition(ReadOnlySpan<byte> payload) => this.mlsSession.ProcessCommit(payload.ToArray());
 
     /// <summary>
     /// Processes the MLS welcome message
     /// </summary>
     /// <param name="payload">Welcome Message</param>
     /// <param name="roster">Roster of users in the media channel</param>
-    public void OnWelcome(ReadOnlySpan<byte> payload, ReadOnlySpan<ulong> roster) => this.mls.ProcessWelcome(payload.ToArray(), roster.ToArray());
+    public void OnWelcome(ReadOnlySpan<byte> payload, ReadOnlySpan<ulong> roster) => this.mlsSession.ProcessWelcome(payload.ToArray(), roster.ToArray());
 
 
     /// <summary>
@@ -167,7 +167,7 @@ public class DaveStateHandler : IDisposable
 
     public void Dispose()
     {
-        this.mls.Dispose();
+        this.mlsSession.Dispose();
         this.voiceNegotiationTransportService.Dispose();
     }
 }
