@@ -7,12 +7,17 @@ namespace DSharpPlus.Voice.Transport;
 /// <summary>
 /// Represents a mechanism for transporting data to and from the voice gateway server.
 /// </summary>
-public interface ITransportService
+public interface ITransportService : IDisposable
 {
+    /// <summary>
+    /// Current Sequence number for the active connection
+    /// </summary>
+    public ushort SequenceNumber { get; }
+
     /// <summary>
     /// Connects the client to the configured endpoint
     /// </summary>
-    /// <param name="cancellationToken"></param>
+    /// <param name="cancellationToken">Cancellation token passed into the internal websocket client</param>
     /// <returns></returns>
     public Task ConnectAsync(CancellationToken? cancellationToken = null);
 
@@ -31,5 +36,5 @@ public interface ITransportService
     /// <param name="data"></param>
     /// <param name="token"></param>
     /// <returns></returns>
-    public Task SendAsync<T>(T data, CancellationToken? token = null);
+    public Task SendAsync<T>(T data, CancellationToken? token = null) where T : class;
 }
