@@ -30,10 +30,10 @@ public class VoiceStateFactory : IVoiceStateFactory
     }
 
     /// <inheritdoc/>
-    public VoiceState Create(string userId, string serverId, string channelId, string token, string sessionId, string endpoint)
+    public VoiceConnectionState Create(string userId, string serverId, string channelId, string token, string sessionId, string endpoint)
     {
         // Create Initial voice state with known values
-        VoiceState state = CreateInitialVoiceState(userId, serverId, channelId, token, sessionId, endpoint);
+        VoiceConnectionState state = CreateInitialVoiceState(userId, serverId, channelId, token, sessionId, endpoint);
 
         // Create builder for the Voice State Negotiator Service
         IInitializedTransportServiceBuilder voiceDiscordServiceBuilder = this.transportServiceBuilder.CreateBuilder();
@@ -52,7 +52,7 @@ public class VoiceStateFactory : IVoiceStateFactory
     /// <summary>
     /// Creates a voice state with the required initial data.
     /// </summary>
-    private static VoiceState CreateInitialVoiceState(string userId, string serverId, string channelId, string token, string sessionId, string endpoint) =>
+    private static VoiceConnectionState CreateInitialVoiceState(string userId, string serverId, string channelId, string token, string sessionId, string endpoint) =>
         new()
         {
             UserId = userId,
@@ -69,7 +69,7 @@ public class VoiceStateFactory : IVoiceStateFactory
     /// </summary>
     /// <param name="transportServiceBuilder"></param>
     /// <param name="state"></param>
-    private void SetupInitialCallbacks(IInitializedTransportServiceBuilder transportServiceBuilder, VoiceState state)
+    private void SetupInitialCallbacks(IInitializedTransportServiceBuilder transportServiceBuilder, VoiceConnectionState state)
     {
         void setEncryptionStatusCb(bool active) => state.E2EEIsActive = active;
         MlsSession? e2ee = null;

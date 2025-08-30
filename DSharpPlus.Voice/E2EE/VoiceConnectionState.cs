@@ -14,13 +14,13 @@ using DSharpPlus.Voice.Transport.Models.VoicePayloads.Outbound;
 /// <summary>
 /// Stores all state data related to voice connections to discord
 /// </summary>
-public class VoiceState : IDisposable
+public class VoiceConnectionState : IDisposable
 {
     /// <summary>
     /// Internal constructor as this type should be 
     /// created using its corresponding factory
     /// </summary>
-    internal VoiceState() => _ = Task.Run(SendHeartbeatTaskAsync);
+    internal VoiceConnectionState() => _ = Task.Run(SendHeartbeatTaskAsync);
 
     /// <summary>
     /// CancellationToken for when we dispose of this class
@@ -128,7 +128,7 @@ public class VoiceState : IDisposable
     /// discord know we are starting to send voice data
     /// </summary>
     /// <returns></returns>
-    public async Task OnStartSpeakingAsync()
+    public async Task StartSpeakingAsync()
     {
         await this.VoiceNegotiationTransportService.SendAsync<DiscordGatewayMessage<VoiceSpeakingData>>(new()
         {
@@ -148,7 +148,7 @@ public class VoiceState : IDisposable
     /// discord know we are done sending voice data
     /// </summary>
     /// <returns></returns>
-    public async Task OnStopSpeakingAsync()
+    public async Task StopSpeakingAsync()
     {
         await this.VoiceNegotiationTransportService.SendAsync<DiscordGatewayMessage<VoiceSpeakingData>>(new()
         {
