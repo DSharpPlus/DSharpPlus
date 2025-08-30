@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 using DSharpPlus.Voice.Cryptors;
 using DSharpPlus.Voice.E2EE;
-using DSharpPlus.Voice.Protocol.Dave.V1.Gateway.Payloads;
 using DSharpPlus.Voice.Transport;
 using DSharpPlus.Voice.Transport.Models.VoicePayloads;
+using DSharpPlus.Voice.Transport.Models.VoicePayloads.Bidirectional;
 using DSharpPlus.Voice.Transport.Models.VoicePayloads.Inbound;
 using DSharpPlus.Voice.Transport.Models.VoicePayloads.Outbound;
 
@@ -135,7 +135,7 @@ public class VoiceState : IDisposable
             Data = new()
             {
                 Delay = 0,
-                Speaking = 5,
+                Speaking = VoiceSpeakingFlags.Microphone,
                 Ssrc = this.Ssrc,
             }
         });
@@ -155,7 +155,7 @@ public class VoiceState : IDisposable
             Data = new()
             {
                 Delay = 0,
-                Speaking = 0,
+                Speaking = VoiceSpeakingFlags.None,
                 Ssrc = this.Ssrc,
             }
         });

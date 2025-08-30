@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
 
+using DSharpPlus.Voice.Transport.Models.VoicePayloads.Bidirectional;
+
 namespace DSharpPlus.Voice.Transport.Models.VoicePayloads.Outbound;
 /// <summary>
 /// Represents the data included in a voice "speaking" event.
@@ -14,7 +16,7 @@ public class VoiceSpeakingData
     /// the user is speaking via microphone, soundshare, etc.
     /// </summary>
     [JsonPropertyName("speaking")]
-    public int Speaking { get; set; }
+    public VoiceSpeakingFlags Speaking { get; set; }
 
     /// <summary>
     /// Gets or sets the delay (in milliseconds) before audio data

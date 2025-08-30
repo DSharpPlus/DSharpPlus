@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 /// This data provides information about the cryptographic epoch and
 /// protocol version the voice server is preparing to transition to.
 /// </summary>
-public class VoicePrepareEpochData
+public class DavePrepareEpochData
 {
     /// <summary>
     /// Gets or sets the target protocol version that the new

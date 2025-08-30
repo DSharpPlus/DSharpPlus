@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 /// This data indicates details about a pending protocol or version transition
 /// for the active Discord voice connection.
 /// </summary>
-public class VoicePrepareTransitionData
+public class DavePrepareTransitionData
 {
     /// <summary>
     /// Gets or sets the target protocol version that the voice

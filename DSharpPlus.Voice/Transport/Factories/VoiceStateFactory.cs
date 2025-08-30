@@ -11,8 +11,6 @@ using CommunityToolkit.HighPerformance;
 
 using DSharpPlus.Voice.Cryptors;
 using DSharpPlus.Voice.E2EE;
-using DSharpPlus.Voice.Protocol.Dave.V1.Gateway.Payloads;
-using DSharpPlus.Voice.Protocol.Dave.V1.Gateway.Payloads.Clientbound;
 using DSharpPlus.Voice.Transport.Models.VoicePayloads;
 using DSharpPlus.Voice.Transport.Models.VoicePayloads.Inbound;
 using DSharpPlus.Voice.Transport.Models.VoicePayloads.Outbound;
@@ -85,7 +83,7 @@ public class VoiceStateFactory : IVoiceStateFactory
 
         // Prepare Epoch (24 - DAVE) - Lets us know that we are moving to a new epoch. Includes the new epochs upcoming protocol.
         // If the epoch is 1 then we know it is actually a new MLS group we are creating with the given protocol
-        transportServiceBuilder.AddJsonHandler<DiscordGatewayMessage<VoicePrepareEpochData>>((int)VoiceGatewayOpcode.PrepareEpoch, async (frame, client) =>
+        transportServiceBuilder.AddJsonHandler<DiscordGatewayMessage<DavePrepareEpochData>>((int)VoiceGatewayOpcode.PrepareEpoch, async (frame, client) =>
         {
             if (state.DaveStateHandler != null)
             {
@@ -95,7 +93,7 @@ public class VoiceStateFactory : IVoiceStateFactory
 
         // Prepare Transition (21 - DAVE) - This informs us that we are about to transition to a new protocol?
         // If the transition id is 0 then its a (re)initialization and it can be executed immediately. 
-        transportServiceBuilder.AddJsonHandler<DiscordGatewayMessage<VoicePrepareTransitionData>>((int)VoiceGatewayOpcode.PrepareTransition, async (frame, client) =>
+        transportServiceBuilder.AddJsonHandler<DiscordGatewayMessage<DavePrepareTransitionData>>((int)VoiceGatewayOpcode.PrepareTransition, async (frame, client) =>
         {
             if (state.DaveStateHandler != null)
             {
@@ -104,7 +102,7 @@ public class VoiceStateFactory : IVoiceStateFactory
         });
 
         // Execute Transition (22 - DAVE) - Informs us to execute the transition we were warned about in OPCODE 21
-        transportServiceBuilder.AddJsonHandler<DiscordGatewayMessage<VoicePrepareTransitionData>>((int)VoiceGatewayOpcode.ExecuteTransition, (frame, client) =>
+        transportServiceBuilder.AddJsonHandler<DiscordGatewayMessage<DavePrepareTransitionData>>((int)VoiceGatewayOpcode.ExecuteTransition, (frame, client) =>
         {
             state.DaveStateHandler?.OnExecuteTransition(frame.Data.TransitionId);
             return Task.CompletedTask;

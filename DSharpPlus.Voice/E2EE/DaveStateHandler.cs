@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 
-using DSharpPlus.Voice.Protocol.Dave.V1.Gateway.Payloads;
 using DSharpPlus.Voice.Transport;
 using DSharpPlus.Voice.Transport.Models.VoicePayloads;
 
@@ -56,7 +55,7 @@ public class DaveStateHandler : IDisposable
     /// </summary>
     /// <param name="payload"></param>
     /// <returns></returns>
-    public async Task OnPrepareEpochAsync(DiscordGatewayMessage<VoicePrepareEpochData> payload)
+    public async Task OnPrepareEpochAsync(DiscordGatewayMessage<DavePrepareEpochData> payload)
     {
         if (payload.Data.ProtocolVersion != this.ProtocolVersion || this.CurrentEpoch == 0)
         {
@@ -78,7 +77,7 @@ public class DaveStateHandler : IDisposable
     {
         CommunityToolkit.HighPerformance.Buffers.ArrayPoolBufferWriter<byte> writer = new();
         this.mlsSession.WriteKeyPackage(writer);
-        await SendDaveBinaryAsync(this.voiceNegotiationTransportService, 26, writer.WrittenSpan);
+        await SendDaveBinaryAsync(this.voiceNegotiationTransportService, (int)VoiceGatewayOpcode.MlsKeyPackage, writer.WrittenSpan);
     }
 
     /// <summary>
@@ -86,14 +85,14 @@ public class DaveStateHandler : IDisposable
     /// </summary>
     /// <param name="payload"></param>
     /// <returns></returns>
-    public async Task OnPrepareTransitionAsync(DiscordGatewayMessage<VoicePrepareTransitionData> payload)
+    public async Task OnPrepareTransitionAsync(DiscordGatewayMessage<DavePrepareTransitionData> payload)
     {
         uint transitionId = payload.Data.TransitionId;
         this.pendingTransitionId = transitionId;
         this.pendingEpochId = null;
         this.pendingDowngrade = true;
 
-        await this.voiceNegotiationTransportService.SendAsync<DiscordGatewayMessage<VoicePrepareTransitionData>>(
+        await this.voiceNegotiationTransportService.SendAsync<DiscordGatewayMessage<DavePrepareTransitionData>>(
             new()
             {
                 OpCode = (int)VoiceGatewayOpcode.TransitionReady,

@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
 
+using DSharpPlus.Voice.Transport.Models.VoicePayloads.Bidirectional;
+
 namespace DSharpPlus.Voice.Transport.Models.VoicePayloads.Inbound;
 /// <summary>
 /// Represents the data for another user's speaking state in a voice channel.
@@ -14,7 +16,7 @@ public class VoiceOtherUserSpeakingData
     /// the user is speaking via microphone, soundshare, etc.
     /// </summary>
     [JsonPropertyName("speaking")]
-    public int Speaking { get; set; }
+    public VoiceSpeakingFlags Speaking { get; set; }
 
     /// <summary>
     /// Gets or sets the SSRC (synchronization source) identifier
