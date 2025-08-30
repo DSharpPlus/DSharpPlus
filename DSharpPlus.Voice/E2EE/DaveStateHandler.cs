@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-
+using DSharpPlus.Voice.Protocol.Dave.V1.Gateway.Payloads;
 using DSharpPlus.Voice.Transport;
 
 namespace DSharpPlus.Voice.E2EE;
@@ -10,7 +10,13 @@ namespace DSharpPlus.Voice.E2EE;
 /// </summary>
 public class DaveStateHandler : IDisposable
 {
+    /// <summary>
+    /// Dave protocol we are using
+    /// </summary>
     public ushort ProtocolVersion { get; private set; }
+    /// <summary>
+    /// Current epoch for our dave session
+    /// </summary>
     public uint CurrentEpoch { get; private set; }
 
     private uint? pendingTransitionId;
@@ -20,6 +26,9 @@ public class DaveStateHandler : IDisposable
     private readonly ITransportService voiceNegotiationTransportService;
     private readonly Action<bool> setE2eeActive;
 
+    /// <summary>
+    /// Internal constructor as this type should be constructed with its corresponding factory
+    /// </summary>
     internal DaveStateHandler(MlsSession mlsSession, ITransportService voiceNegotiationTransportService, Action<bool> setE2eeActive)
     {
         this.mlsSession = mlsSession;
@@ -85,7 +94,7 @@ public class DaveStateHandler : IDisposable
         await this.voiceNegotiationTransportService.SendAsync<VoicePrepareTransitionPayload>(
             new()
             {
-                OpCode = 23,
+                OpCode = (int)VoiceGatewayOpcode.TransitionReady,
                 Data = new() { TransitionId = payload.Data.TransitionId }
             }); // Transition Ready
     }
@@ -132,7 +141,7 @@ public class DaveStateHandler : IDisposable
         byte[] commitBytes = this.mlsSession.ProcessProposals(payload, roster);
         if (commitBytes is { Length: > 0 })
         {
-            await SendDaveBinaryAsync(this.voiceNegotiationTransportService, 28, commitBytes);  // MLS Commit/Welcome
+            await SendDaveBinaryAsync(this.voiceNegotiationTransportService, (int)VoiceGatewayOpcode.MlsCommitWelcome, commitBytes);  // MLS Commit/Welcome
         }
     }
 
@@ -149,7 +158,6 @@ public class DaveStateHandler : IDisposable
     /// <param name="roster">Roster of users in the media channel</param>
     public void OnWelcome(ReadOnlySpan<byte> payload, ReadOnlySpan<ulong> roster) => this.mlsSession.ProcessWelcome(payload.ToArray(), roster.ToArray());
 
-
     /// <summary>
     /// Sends a DAVE binary payload to the transport service
     /// </summary>
@@ -165,6 +173,9 @@ public class DaveStateHandler : IDisposable
         return client.SendAsync((ReadOnlyMemory<byte>)buf, null);
     }
 
+    /// <summary>
+    /// Cleanup
+    /// </summary>
     public void Dispose()
     {
         this.mlsSession.Dispose();
