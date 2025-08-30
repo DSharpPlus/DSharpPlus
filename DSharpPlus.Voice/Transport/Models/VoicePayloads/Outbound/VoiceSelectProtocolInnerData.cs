@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace DSharpPlus.Voice.Models;
+namespace DSharpPlus.Voice.Transport.Models.VoicePayloads.Outbound;
 /// <summary>
 /// Represents the inner data used when selecting the protocol
 /// for a Discord voice connection. This information is provided

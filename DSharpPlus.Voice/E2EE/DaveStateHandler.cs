@@ -1,7 +1,9 @@
 using System;
 using System.Threading.Tasks;
+
 using DSharpPlus.Voice.Protocol.Dave.V1.Gateway.Payloads;
 using DSharpPlus.Voice.Transport;
+using DSharpPlus.Voice.Transport.Models.VoicePayloads;
 
 namespace DSharpPlus.Voice.E2EE;
 
@@ -54,7 +56,7 @@ public class DaveStateHandler : IDisposable
     /// </summary>
     /// <param name="payload"></param>
     /// <returns></returns>
-    public async Task OnPrepareEpochAsync(VoicePrepareEpochPayload payload)
+    public async Task OnPrepareEpochAsync(DiscordGatewayMessage<VoicePrepareEpochData> payload)
     {
         if (payload.Data.ProtocolVersion != this.ProtocolVersion || this.CurrentEpoch == 0)
         {
@@ -84,14 +86,14 @@ public class DaveStateHandler : IDisposable
     /// </summary>
     /// <param name="payload"></param>
     /// <returns></returns>
-    public async Task OnPrepareTransitionAsync(VoicePrepareTransitionPayload payload)
+    public async Task OnPrepareTransitionAsync(DiscordGatewayMessage<VoicePrepareTransitionData> payload)
     {
         uint transitionId = payload.Data.TransitionId;
         this.pendingTransitionId = transitionId;
         this.pendingEpochId = null;
         this.pendingDowngrade = true;
 
-        await this.voiceNegotiationTransportService.SendAsync<VoicePrepareTransitionPayload>(
+        await this.voiceNegotiationTransportService.SendAsync<DiscordGatewayMessage<VoicePrepareTransitionData>>(
             new()
             {
                 OpCode = (int)VoiceGatewayOpcode.TransitionReady,

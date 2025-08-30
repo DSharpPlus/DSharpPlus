@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace DSharpPlus.Voice.Models;
+namespace DSharpPlus.Voice.Transport.Models.VoicePayloads.Outbound;
 /// <summary>
 /// Represents the data included in a voice "speaking" event.
 /// This event indicates that a user has started or stopped

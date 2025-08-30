@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace DSharpPlus.Voice.Models;
+namespace DSharpPlus.Voice.Transport.Models.VoicePayloads.Inbound;
 /// <summary>
 /// Represents the data for another user's speaking state in a voice channel.
 /// This event is sent by the Discord voice server to notify clients when

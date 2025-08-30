@@ -1,18 +1,20 @@
 using System.Text.Json.Serialization;
 
-/// <summary>
-/// Represents a payload for the "prepare epoch" event in the
-/// Discord voice protocol. This payload is sent when the voice
-/// server begins preparing a new cryptographic epoch or version.
-/// </summary>
-public class VoicePrepareEpochPayload
+namespace DSharpPlus.Voice.Transport.Models.VoicePayloads;
+public class DiscordGatewayMessage<PayloadT>
 {
+    /// <summary>
+    /// Gets/Sets the type
+    /// </summary>
+    [JsonPropertyName("t")]
+    public string? Type { get; set; }
+
     /// <summary>
     /// Gets or sets the sequence number (<c>seq</c>) associated with
     /// this payload. Used to maintain message ordering.
     /// </summary>
     [JsonPropertyName("seq")]
-    public int Sequence { get; set; }
+    public int? Sequence { get; set; }
 
     /// <summary>
     /// Gets or sets the operation code (<c>op</c>) that specifies
@@ -26,5 +28,5 @@ public class VoicePrepareEpochPayload
     /// about the epoch preparation, such as protocol version and epoch ID.
     /// </summary>
     [JsonPropertyName("d")]
-    public VoicePrepareEpochData Data { get; set; }
+    public PayloadT Data { get; set; }
 }

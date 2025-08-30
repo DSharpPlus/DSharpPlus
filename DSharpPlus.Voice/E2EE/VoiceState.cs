@@ -1,11 +1,15 @@
-using DSharpPlus.Voice.Transport;
-using DSharpPlus.Voice.E2EE;
-using DSharpPlus.Voice.Cryptors;
+using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
-using DSharpPlus.Voice.Models;
-using System;
+
+using DSharpPlus.Voice.Cryptors;
+using DSharpPlus.Voice.E2EE;
+using DSharpPlus.Voice.Protocol.Dave.V1.Gateway.Payloads;
+using DSharpPlus.Voice.Transport;
+using DSharpPlus.Voice.Transport.Models.VoicePayloads;
+using DSharpPlus.Voice.Transport.Models.VoicePayloads.Inbound;
+using DSharpPlus.Voice.Transport.Models.VoicePayloads.Outbound;
 
 /// <summary>
 /// Stores all state data related to voice connections to discord
@@ -23,10 +27,6 @@ public class VoiceState : IDisposable
     /// </summary>
     private readonly CancellationTokenSource cancellationTokenSource = new();
 
-    /// <summary>
-    /// Backing field for IsSpeaking property
-    /// </summary>
-    private bool isSpeaking = false;
 
     /// <summary>
     /// Backing field for HeartbeatInterval
@@ -91,7 +91,7 @@ public class VoiceState : IDisposable
     /// <summary>
     /// Gets or sets whether the bot is sending voice data
     /// </summary>
-    public bool IsSpeaking => this.isSpeaking;
+    public bool IsSpeaking { get; private set; }
 
     /// <summary>
     /// Maps all known users id's to their corresponding ssrc value
@@ -130,9 +130,9 @@ public class VoiceState : IDisposable
     /// <returns></returns>
     public async Task OnStartSpeakingAsync()
     {
-        await this.VoiceNegotiationTransportService.SendAsync<VoiceSpeakingPayload>(new()
+        await this.VoiceNegotiationTransportService.SendAsync<DiscordGatewayMessage<VoiceSpeakingData>>(new()
         {
-            Data = new VoiceSpeakingData
+            Data = new()
             {
                 Delay = 0,
                 Speaking = 5,
@@ -140,7 +140,7 @@ public class VoiceState : IDisposable
             }
         });
 
-        this.isSpeaking = true;
+        this.IsSpeaking = true;
     }
 
     /// <summary>
@@ -150,9 +150,9 @@ public class VoiceState : IDisposable
     /// <returns></returns>
     public async Task OnStopSpeakingAsync()
     {
-        await this.VoiceNegotiationTransportService.SendAsync<VoiceSpeakingPayload>(new()
+        await this.VoiceNegotiationTransportService.SendAsync<DiscordGatewayMessage<VoiceSpeakingData>>(new()
         {
-            Data = new VoiceSpeakingData
+            Data = new()
             {
                 Delay = 0,
                 Speaking = 0,
@@ -160,7 +160,7 @@ public class VoiceState : IDisposable
             }
         });
 
-        this.isSpeaking = false;
+        this.IsSpeaking = false;
     }
 
     /// <summary>
@@ -169,10 +169,14 @@ public class VoiceState : IDisposable
     /// <returns></returns>
     private async Task SendHeartbeatAsync()
     {
-        await this.VoiceNegotiationTransportService.SendAsync<VoiceHeartbeatPayload>(new()
+        await this.VoiceNegotiationTransportService.SendAsync<DiscordGatewayMessage<VoiceHeartbeatAckData>>(new()
         {
-            OpCode = 1,
-            Sequence = this.SequenceNumber
+            OpCode = (int)VoiceGatewayOpcode.Heartbeat,
+            Data = new()
+            { 
+                SequenceAck = this.SequenceNumber,
+                Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+            }
         });
     }
 

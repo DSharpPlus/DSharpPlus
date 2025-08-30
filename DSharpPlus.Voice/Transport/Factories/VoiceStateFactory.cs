@@ -6,12 +6,16 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+
 using CommunityToolkit.HighPerformance;
+
 using DSharpPlus.Voice.Cryptors;
 using DSharpPlus.Voice.E2EE;
-using DSharpPlus.Voice.Models;
 using DSharpPlus.Voice.Protocol.Dave.V1.Gateway.Payloads;
 using DSharpPlus.Voice.Protocol.Dave.V1.Gateway.Payloads.Clientbound;
+using DSharpPlus.Voice.Transport.Models.VoicePayloads;
+using DSharpPlus.Voice.Transport.Models.VoicePayloads.Inbound;
+using DSharpPlus.Voice.Transport.Models.VoicePayloads.Outbound;
 
 namespace DSharpPlus.Voice.Transport.Factories;
 
@@ -81,7 +85,7 @@ public class VoiceStateFactory : IVoiceStateFactory
 
         // Prepare Epoch (24 - DAVE) - Lets us know that we are moving to a new epoch. Includes the new epochs upcoming protocol.
         // If the epoch is 1 then we know it is actually a new MLS group we are creating with the given protocol
-        transportServiceBuilder.AddJsonHandler<VoicePrepareEpochPayload>((int)VoiceGatewayOpcode.PrepareEpoch, async (frame, client) =>
+        transportServiceBuilder.AddJsonHandler<DiscordGatewayMessage<VoicePrepareEpochData>>((int)VoiceGatewayOpcode.PrepareEpoch, async (frame, client) =>
         {
             if (state.DaveStateHandler != null)
             {
@@ -91,7 +95,7 @@ public class VoiceStateFactory : IVoiceStateFactory
 
         // Prepare Transition (21 - DAVE) - This informs us that we are about to transition to a new protocol?
         // If the transition id is 0 then its a (re)initialization and it can be executed immediately. 
-        transportServiceBuilder.AddJsonHandler<VoicePrepareTransitionPayload>((int)VoiceGatewayOpcode.PrepareTransition, async (frame, client) =>
+        transportServiceBuilder.AddJsonHandler<DiscordGatewayMessage<VoicePrepareTransitionData>>((int)VoiceGatewayOpcode.PrepareTransition, async (frame, client) =>
         {
             if (state.DaveStateHandler != null)
             {
@@ -100,7 +104,7 @@ public class VoiceStateFactory : IVoiceStateFactory
         });
 
         // Execute Transition (22 - DAVE) - Informs us to execute the transition we were warned about in OPCODE 21
-        transportServiceBuilder.AddJsonHandler<VoicePrepareTransitionPayload>((int)VoiceGatewayOpcode.ExecuteTransition, (frame, client) =>
+        transportServiceBuilder.AddJsonHandler<DiscordGatewayMessage<VoicePrepareTransitionData>>((int)VoiceGatewayOpcode.ExecuteTransition, (frame, client) =>
         {
             state.DaveStateHandler?.OnExecuteTransition(frame.Data.TransitionId);
             return Task.CompletedTask;
@@ -131,7 +135,7 @@ public class VoiceStateFactory : IVoiceStateFactory
         });
 
         // Not sure if this is needed
-        transportServiceBuilder.AddJsonHandler<VoiceSessionDescriptionPayload>((int)VoiceGatewayOpcode.MlsWelcome, (x, y) =>
+        transportServiceBuilder.AddJsonHandler<DiscordGatewayMessage<VoiceSessionDescription>>((int)VoiceGatewayOpcode.MlsWelcome, (x, y) =>
         {
             state.VoiceCryptor = this.cryptorFactory.CreateCryptor([x.Data.Mode], [.. x.Data.SecretKey]);
             state.DaveStateHandler?.SetNegotiatedDaveVersion(x.Data.DaveProtocolVersion);
@@ -140,7 +144,7 @@ public class VoiceStateFactory : IVoiceStateFactory
 
         // Clients Connect (11 - DAVE) - Gives the snowflake user id's of users that have connected to the media session. Used to ensure
         // the proposed addition of the mls group members match the expected media session users
-        transportServiceBuilder.AddJsonHandler<VoiceUserIdsPayload>((int)VoiceGatewayOpcode.ClientsConnected, (x, y) =>
+        transportServiceBuilder.AddJsonHandler<DiscordGatewayMessage<VoiceUserIdsData>>((int)VoiceGatewayOpcode.ClientsConnected, (x, y) =>
         {
             IEnumerable<KeyValuePair<ulong, UserInVoice>> kvps = x.Data.UserIds.Select(x =>
             {
@@ -157,14 +161,14 @@ public class VoiceStateFactory : IVoiceStateFactory
         });
 
         // Client Disconnect (13 - DAVE) - Lets us know a user disconnected and gives us their user snowflake id
-        transportServiceBuilder.AddJsonHandler<VoiceUserPayload>((int)VoiceGatewayOpcode.ClientDisconnected, (x, y) =>
+        transportServiceBuilder.AddJsonHandler<DiscordGatewayMessage<VoiceUserData>>((int)VoiceGatewayOpcode.ClientDisconnected, (x, y) =>
         {
             state.OtherUsersInVoice.Remove(ulong.Parse(x.Data.UserId), out _);
             return Task.CompletedTask;
         });
         
         // Select Protocol (4 - DAVE) - Lets us know what version of dave we are using and what cryptors to use
-        transportServiceBuilder.AddJsonHandler<VoiceSessionDescriptionPayload>((int)VoiceGatewayOpcode.SessionDescription, async (x, y) =>
+        transportServiceBuilder.AddJsonHandler<DiscordGatewayMessage<VoiceSessionDescription>>((int)VoiceGatewayOpcode.SessionDescription, async (x, y) =>
         {
             state.VoiceCryptor = this.cryptorFactory.CreateCryptor([x.Data.Mode], [.. x.Data.SecretKey]);
             state.DaveStateHandler?.SetNegotiatedDaveVersion(x.Data.DaveProtocolVersion);
@@ -173,7 +177,7 @@ public class VoiceStateFactory : IVoiceStateFactory
 
         // (2) Lets us know we are ready for voice. Here we send a message to discords udp discover endpoint in order to
         // get our own IP address.
-        transportServiceBuilder.AddJsonHandler<VoiceReadyPayload>((int)VoiceGatewayOpcode.Ready, async (x, client) =>
+        transportServiceBuilder.AddJsonHandler<DiscordGatewayMessage<VoiceReadyData>>((int)VoiceGatewayOpcode.Ready, async (x, client) =>
         {
             string selectedMode = this.cryptorFactory.SupportedEncryptionModes
                 .First(m => x.Data.Modes.Contains(m));
@@ -197,7 +201,7 @@ public class VoiceStateFactory : IVoiceStateFactory
 
             (string ip, int port) = ParseIpDiscoveryResponse(resp);
 
-            VoiceSelectProtocolPayload payload = new()
+            DiscordGatewayMessage<VoiceSelectProtocolData> payload = new()
             {
                 Data = new()
                 {
@@ -221,7 +225,7 @@ public class VoiceStateFactory : IVoiceStateFactory
         {
             state.HeartbeatInterval = x.HeartbeatInterval;
 
-            VoiceIdentifyPayload payload = new()
+            DiscordGatewayMessage<VoiceIdentifyData> payload = new()
             {
                 Data = new()
                 {
@@ -237,7 +241,7 @@ public class VoiceStateFactory : IVoiceStateFactory
         });
 
         // (5) Lets us know a user in out voice chat is speaking
-        transportServiceBuilder.AddJsonHandler<VoiceOtherUserSpeakingPayload>((int)VoiceGatewayOpcode.Speaking, (x, client) =>
+        transportServiceBuilder.AddJsonHandler<DiscordGatewayMessage<VoiceOtherUserSpeakingData>>((int)VoiceGatewayOpcode.Speaking, (x, client) =>
         {
             state.SsrcMap[x.Data.UserId] = x.Data.Ssrc;
             if (!state.OtherUsersInVoice.TryGetValue(x.Data.UserId, out UserInVoice userInVoice))

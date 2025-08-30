@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace DSharpPlus.Voice.Models;
+namespace DSharpPlus.Voice.Transport.Models.VoicePayloads.Outbound;
 
 /// <summary>
 /// Represents the data included in a voice "select protocol" payload.

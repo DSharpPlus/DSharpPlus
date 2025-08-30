@@ -96,5 +96,9 @@ public sealed class TransportService : ITransportService
 
     /// <inheritdoc/>
     public async Task SendAsync<T>(T data, CancellationToken? token = null) where T : class => await this.transportService.SendAsync(data, token);
+
+    /// <summary>
+    /// Cleanup
+    /// </summary>
     public void Dispose() => this.transportService?.Dispose();
 }
