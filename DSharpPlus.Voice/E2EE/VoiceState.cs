@@ -91,23 +91,7 @@ public class VoiceState : IDisposable
     /// <summary>
     /// Gets or sets whether the bot is sending voice data
     /// </summary>
-    public bool IsSpeaking
-    {
-        get => this.isSpeaking;
-        set
-        {
-            if (value)
-            {
-                this.isSpeaking = true;
-                Task.Run(OnStartSpeakingAsync);
-            }
-            else
-            {
-                this.isSpeaking = false;
-                Task.Run(OnStopSpeakingAsync);
-            }
-        }
-    }
+    public bool IsSpeaking => this.isSpeaking;
 
     /// <summary>
     /// Maps all known users id's to their corresponding ssrc value
@@ -144,7 +128,7 @@ public class VoiceState : IDisposable
     /// discord know we are starting to send voice data
     /// </summary>
     /// <returns></returns>
-    private async Task OnStartSpeakingAsync()
+    public async Task OnStartSpeakingAsync()
     {
         await this.VoiceNegotiationTransportService.SendAsync<VoiceSpeakingPayload>(new()
         {
@@ -155,6 +139,8 @@ public class VoiceState : IDisposable
                 Ssrc = this.Ssrc,
             }
         });
+
+        this.isSpeaking = true;
     }
 
     /// <summary>
@@ -162,7 +148,7 @@ public class VoiceState : IDisposable
     /// discord know we are done sending voice data
     /// </summary>
     /// <returns></returns>
-    private async Task OnStopSpeakingAsync()
+    public async Task OnStopSpeakingAsync()
     {
         await this.VoiceNegotiationTransportService.SendAsync<VoiceSpeakingPayload>(new()
         {
@@ -173,6 +159,8 @@ public class VoiceState : IDisposable
                 Ssrc = this.Ssrc,
             }
         });
+
+        this.isSpeaking = false;
     }
 
     /// <summary>
