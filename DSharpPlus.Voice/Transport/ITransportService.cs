@@ -7,7 +7,7 @@ namespace DSharpPlus.Voice.Transport;
 /// <summary>
 /// Represents a mechanism for transporting data to and from the voice gateway server.
 /// </summary>
-public interface ITransportService
+public interface ITransportService : IDisposable
 {
     /// <summary>
     /// Current Sequence number for the active connection

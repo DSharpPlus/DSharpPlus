@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace DSharpPlus.Voice.Transport;
 
 /// <inheritdoc/>
-public class MediaTransportService : IMediaTransportService, IDisposable
+public class MediaTransportService : IMediaTransportService
 {
     private readonly UdpClient udpClient;
     private readonly SemaphoreSlim writeSemaphore = new(1);
@@ -62,5 +62,10 @@ public class MediaTransportService : IMediaTransportService, IDisposable
     }
 
     /// <inheritdoc/>
-    public void Dispose() => this.udpClient?.Dispose();
+    public void Dispose()
+    {
+        this.udpClient?.Dispose();
+        this.writeSemaphore?.Dispose();
+        this.readSemaphore?.Dispose();
+    }
 }

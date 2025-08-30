@@ -1,6 +1,7 @@
 using System;
 using System.Buffers;
 using System.Buffers.Binary;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -8,6 +9,8 @@ using System.Threading.Tasks;
 using CommunityToolkit.HighPerformance;
 using DSharpPlus.Voice.Cryptors;
 using DSharpPlus.Voice.E2EE;
+using DSharpPlus.Voice.Models;
+using DSharpPlus.Voice.Protocol.Dave.V1.Gateway.Payloads.Clientbound;
 
 namespace DSharpPlus.Voice.Transport.Factories;
 
@@ -114,14 +117,14 @@ public class VoiceStateFactory : IVoiceStateFactory
         {
             if (state.DaveStateHandler != null)
             {
-                await state.DaveStateHandler.OnProposalsAsync(frame.ToArray(), [.. state.OtherUsersInVoice]);
+                await state.DaveStateHandler.OnProposalsAsync(frame.ToArray(), [.. state.OtherUsersInVoice.Select(x => x.Value.UserId)]);
             }
         });
 
-        // MLS Announce Commit (29 - DAVE) - Ask jesus what this one does because I don't know
+        // MLS Announce Commit (29 - DAVE) - Proccesses a commit made to the MLS group
         transportServiceBuilder.AddBinaryHandler(29, (frame, client) =>
         {
-            state.DaveStateHandler?.OnAnnounceCommitTransition(frame.Slice(2).ToArray());
+            state.DaveStateHandler?.OnAnnounceCommitTransition(frame[2..].ToArray());
             return Task.CompletedTask;
         });
 
@@ -129,11 +132,11 @@ public class VoiceStateFactory : IVoiceStateFactory
         // members to the group, and also has the transition id for the group transition.
         transportServiceBuilder.AddBinaryHandler(30, (frame, client) =>
         {
-            state.DaveStateHandler?.OnWelcome(frame.Span.Slice(2), state.OtherUsersInVoice.AsSpan());
+            state.DaveStateHandler?.OnWelcome(frame.Span[2..], [.. state.OtherUsersInVoice.Select(x => x.Value.UserId)]);
             return Task.CompletedTask;
         });
 
-        // why do I have 2 here, dunno, but I'm scared to remove it
+        // Not sure if this is needed
         transportServiceBuilder.AddJsonHandler<VoiceSessionDescriptionPayload>(30, (x, y) =>
         {
             state.VoiceCryptor = this.cryptorFactory.CreateCryptor([x.Data.Mode], [.. x.Data.SecretKey]);
@@ -145,14 +148,24 @@ public class VoiceStateFactory : IVoiceStateFactory
         // the proposed addition of the mls group members match the expected media session users
         transportServiceBuilder.AddJsonHandler<VoiceUserIdsPayload>(11, (x, y) =>
         {
-            state.OtherUsersInVoice = [.. x.Data.UserIds.Select(x => ulong.Parse(x))];
+            IEnumerable<KeyValuePair<ulong, UserInVoice>> kvps = x.Data.UserIds.Select(x =>
+            {
+                ulong userId = ulong.Parse(x);
+                return new KeyValuePair<ulong, UserInVoice>(userId, new() 
+                { 
+                    IsSpeaking = false, 
+                    UserId = userId 
+                });
+            });
+
+            state.OtherUsersInVoice = new System.Collections.Concurrent.ConcurrentDictionary<ulong, UserInVoice>(kvps);
             return Task.CompletedTask;
         });
 
         // Client Disconnect (13 - DAVE) - Lets us know a user disconnected and gives us their user snowflake id
         transportServiceBuilder.AddJsonHandler<VoiceUserPayload>(13, (x, y) =>
         {
-            state.OtherUsersInVoice.Remove(ulong.Parse(x.Data.UserId));
+            state.OtherUsersInVoice.Remove(ulong.Parse(x.Data.UserId), out _);
             return Task.CompletedTask;
         });
 
@@ -172,18 +185,20 @@ public class VoiceStateFactory : IVoiceStateFactory
                 .First(m => x.Data.Modes.Contains(m));
 
             MediaTransportFactory factory = new MediaTransportFactory();
-            IMediaTransportService udp = factory.Create(null, new(IPAddress.Parse(x.Data.Ip), x.Data.Port));
+
+            // not sure if we need to persist this since its for IP lookup, voice data I think will go through a different udp connection
+            state.MediaTransportService = factory.Create(null, new(IPAddress.Parse(x.Data.Ip), x.Data.Port));
             state.Ssrc = x.Data.Ssrc;
-            e2ee = new(protocolVersion: 1, channelId: ulong.Parse(state.ConnectedChannel), userId: ulong.Parse(state.UserId), ssrc: state.Ssrc); // User id needs to be confirmed not null here
+            e2ee = new(protocolVersion: 1, channelId: ulong.Parse(state.ConnectedChannel), userId: ulong.Parse(state.UserId), ssrc: state.Ssrc); 
             state.DaveStateHandler = new(e2ee, client, setEncryptionStatusCb);
 
             // Send probe
             byte[] probe = BuildIpDiscoveryProbe(x.Data.Ssrc);
-            await udp.SendAsync(probe);
+            await state.MediaTransportService.SendAsync(probe);
 
             // Receive response
-            ArrayBufferWriter<byte> writer = new ArrayBufferWriter<byte>(70);
-            await udp.ReceiveAsync(writer);
+            ArrayBufferWriter<byte> writer = new(70);
+            await state.MediaTransportService.ReceiveAsync(writer);
             ReadOnlySpan<byte> resp = writer.WrittenSpan; // should be 70 bytes
 
             (string ip, int port) = ParseIpDiscoveryResponse(resp);
@@ -208,8 +223,10 @@ public class VoiceStateFactory : IVoiceStateFactory
 
         // (8) Lets us know that we are ready to send data.
         // After this we identify with the discord gateway
-        transportServiceBuilder.AddJsonHandler<BaseDiscordGatewayMessage>(8, async (x, client) =>
+        transportServiceBuilder.AddJsonHandler<VoiceHelloPayload>(8, async (x, client) =>
         {
+            state.HeartbeatInterval = x.HeartbeatInterval;
+
             VoiceIdentifyPayload payload = new()
             {
                 Data = new()
@@ -227,21 +244,23 @@ public class VoiceStateFactory : IVoiceStateFactory
 
         // (5) Lets us know that we are ready to send data.
         // After this we identify with the discord gateway
-        transportServiceBuilder.AddJsonHandler<BaseDiscordGatewayMessage>(8, async (x, client) =>
+        transportServiceBuilder.AddJsonHandler<VoiceOtherUserSpeakingPayload>(5, (x, client) =>
         {
-            VoiceIdentifyPayload payload = new()
+            state.SsrcMap[x.Data.UserId] = x.Data.Ssrc;
+            if (!state.OtherUsersInVoice.TryGetValue(x.Data.UserId, out UserInVoice userInVoice))
             {
-                Data = new()
+                state.OtherUsersInVoice[x.Data.UserId] = userInVoice = new UserInVoice()
                 {
-                    ServerId = state.ServerId,
-                    UserId = state.UserId,
-                    Token = state.VoiceToken,
-                    SessionId = state.SessionId,
-                    MaxSupportedDaveVersion = 1
-                },
-                OpCode = 0
-            };
-            await client.SendAsync(payload);
+                    IsSpeaking = true,
+                    Ssrc = x.Data.Ssrc,
+                    UserId = x.Data.UserId,
+                };
+
+                return Task.CompletedTask;
+            }
+
+            userInVoice.Ssrc = x.Data.Ssrc;
+            return Task.CompletedTask;
         });
     }
 

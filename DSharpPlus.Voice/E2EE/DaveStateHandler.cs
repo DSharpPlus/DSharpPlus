@@ -8,7 +8,7 @@ namespace DSharpPlus.Voice.E2EE;
 /// <summary>
 /// Keeps track of the DAVE state for a single media connection
 /// </summary>
-public class DaveStateHandler
+public class DaveStateHandler : IDisposable
 {
     public ushort ProtocolVersion { get; private set; }
     public uint CurrentEpoch { get; private set; }
@@ -163,5 +163,11 @@ public class DaveStateHandler
         buf[0] = opcode;
         payload.CopyTo(buf.AsSpan(1));
         return client.SendAsync((ReadOnlyMemory<byte>)buf, null);
+    }
+
+    public void Dispose()
+    {
+        this.mls.Dispose();
+        this.voiceNegotiationTransportService.Dispose();
     }
 }

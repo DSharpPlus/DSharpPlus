@@ -7,7 +7,7 @@ namespace DSharpPlus.Voice.Transport;
 /// <summary>
 /// Provides a mechanism to send and receive data across UDP.
 /// </summary>
-public interface IMediaTransportService
+public interface IMediaTransportService : IDisposable
 {
     /// <summary>
     /// Sends the buffer to the configured remote endpoint as a datagram.

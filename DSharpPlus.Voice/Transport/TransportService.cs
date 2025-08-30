@@ -7,7 +7,6 @@ using System.Net.WebSockets;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Voice.Transport;
@@ -97,4 +96,5 @@ public sealed class TransportService : ITransportService
 
     /// <inheritdoc/>
     public async Task SendAsync<T>(T data, CancellationToken? token = null) where T : class => await this.transportService.SendAsync(data, token);
+    public void Dispose() => this.transportService?.Dispose();
 }
