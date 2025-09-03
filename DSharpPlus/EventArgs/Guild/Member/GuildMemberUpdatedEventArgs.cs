@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.EventArgs;
@@ -28,12 +29,12 @@ public class GuildMemberUpdatedEventArgs : DiscordEventArgs
     /// <summary>
     /// Gets a collection containing post-update roles.
     /// </summary>
-    public IReadOnlyList<DiscordRole> RolesAfter => new ReadOnlyCollection<DiscordRole>(new List<DiscordRole>(this.MemberAfter.Roles));
+    public IReadOnlyList<DiscordRole> RolesAfter => this.MemberAfter.Roles.ToList();
 
     /// <summary>
     /// Gets a collection containing pre-update roles.
     /// </summary>
-    public IReadOnlyList<DiscordRole> RolesBefore => new ReadOnlyCollection<DiscordRole>(new List<DiscordRole>(this.MemberBefore.Roles));
+    public IReadOnlyList<DiscordRole> RolesBefore => this.MemberBefore.Roles.ToList();
 
     /// <summary>
     /// Gets the member's new nickname.

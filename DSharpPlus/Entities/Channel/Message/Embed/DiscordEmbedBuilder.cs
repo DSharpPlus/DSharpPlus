@@ -101,7 +101,7 @@ public sealed class DiscordEmbedBuilder
     /// <summary>
     /// Constructs a new empty embed builder.
     /// </summary>
-    public DiscordEmbedBuilder() => this.Fields = new ReadOnlyCollection<DiscordEmbedField>(this.fields);
+    public DiscordEmbedBuilder() => this.Fields = this.fields;
 
     /// <summary>
     /// Constructs a new embed builder using another embed as prototype.
@@ -478,7 +478,7 @@ public sealed class DiscordEmbedBuilder
             };
         }
 
-        embed.Fields = new ReadOnlyCollection<DiscordEmbedField>(new List<DiscordEmbedField>(this.fields)); // copy the list, don't wrap it, prevents mutation
+        embed.Fields = this.fields.ToList(); // copy the list, don't wrap it, prevents mutation
 
         return embed;
     }

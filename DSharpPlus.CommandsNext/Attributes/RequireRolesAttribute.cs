@@ -56,8 +56,8 @@ public sealed class RequireRolesAttribute : CheckBaseAttribute
     public RequireRolesAttribute(RoleCheckMode checkMode, string[] roleNames, ulong[] roleIds)
     {
         this.CheckMode = checkMode;
-        this.RoleIds = new ReadOnlyCollection<ulong>(roleIds);
-        this.RoleNames = new ReadOnlyCollection<string>(roleNames);
+        this.RoleIds = roleIds;
+        this.RoleNames = roleNames;
     }
 
     public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)

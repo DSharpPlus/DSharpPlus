@@ -25,9 +25,9 @@ internal class Poller
         this.requests = [];
     }
 
-    public async Task<ReadOnlyCollection<PollEmoji>> DoPollAsync(PollRequest request)
+    public async Task<IReadOnlyList<PollEmoji>> DoPollAsync(PollRequest request)
     {
-        ReadOnlyCollection<PollEmoji> result;
+        IReadOnlyList<PollEmoji> result;
         this.requests.Add(request);
         try
         {
@@ -39,7 +39,7 @@ internal class Poller
         }
         finally
         {
-            result = new ReadOnlyCollection<PollEmoji>(new HashSet<PollEmoji>(request.collected).ToList());
+            result = new HashSet<PollEmoji>(request.collected).ToList();
             request.Dispose();
             this.requests.TryRemove(request);
         }

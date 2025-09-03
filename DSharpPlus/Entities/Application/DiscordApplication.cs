@@ -52,7 +52,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// <summary>
     /// Gets the application's owners.
     /// </summary>
-    public IEnumerable<DiscordUser>? Owners { get; internal set; }
+    public IReadOnlyList<DiscordUser>? Owners { get; internal set; }
 
     /// <summary>
     /// Gets whether this application's bot user requires code grant.
@@ -173,7 +173,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
         this.TermsOfServiceUrl = transportApplication.TermsOfServiceUrl;
         this.PrivacyPolicyUrl = transportApplication.PrivacyPolicyUrl;
         this.RpcOrigins = transportApplication.RpcOrigins != null
-            ? new ReadOnlyCollection<string>(transportApplication.RpcOrigins)
+            ? transportApplication.RpcOrigins.ToList()
             : null;
         this.Flags = transportApplication.Flags;
         this.CoverImageHash = transportApplication.CoverImageHash;
@@ -212,7 +212,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
         {
             // singular owner
             DiscordUser owner = new(transportApplication.Owner ?? throw new InvalidOperationException() ) {Discord = this.Discord};
-            this.Owners = new ReadOnlyCollection<DiscordUser>([owner]);
+            this.Owners = [owner];
             this.Team = null;
         }
         else
@@ -230,9 +230,9 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
                 .Select(x => x.User)
                 .ToArray();
 
-            this.Owners = new ReadOnlyCollection<DiscordUser>(owners);
+            this.Owners = owners;
             this.Team.Owner = owners.First(x => x.Id == transportApplication.Team.OwnerId);
-            this.Team.Members = new ReadOnlyCollection<DiscordTeamMember>(members);
+            this.Team.Members = members;
         }
     }
 

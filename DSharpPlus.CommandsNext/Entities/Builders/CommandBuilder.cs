@@ -75,19 +75,19 @@ public class CommandBuilder
     public CommandBuilder(ICommandModule? module)
     {
         this.aliasList = [];
-        this.Aliases = new ReadOnlyCollection<string>(this.aliasList);
+        this.Aliases = this.aliasList;
 
         this.executionCheckList = [];
-        this.ExecutionChecks = new ReadOnlyCollection<CheckBaseAttribute>(this.executionCheckList);
+        this.ExecutionChecks = this.executionCheckList;
 
         this.overloadArgumentSets = [];
         this.overloadList = [];
-        this.Overloads = new ReadOnlyCollection<CommandOverloadBuilder>(this.overloadList);
+        this.Overloads = this.overloadList;
 
         this.Module = module;
 
         this.customAttributeList = [];
-        this.CustomAttributes = new ReadOnlyCollection<Attribute>(this.customAttributeList);
+        this.CustomAttributes = this.customAttributeList;
     }
 
     /// <summary>
@@ -287,7 +287,7 @@ public class CommandBuilder
             ExecutionChecks = this.ExecutionChecks,
             IsHidden = this.IsHidden,
             Parent = parent,
-            Overloads = new ReadOnlyCollection<CommandOverload>(this.Overloads.Select(xo => xo.Build()).ToList()),
+            Overloads = this.Overloads.Select(xo => xo.Build()).ToList(),
             Module = this.Module,
             CustomAttributes = this.CustomAttributes
         };

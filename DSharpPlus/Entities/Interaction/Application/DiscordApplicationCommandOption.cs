@@ -134,9 +134,9 @@ public sealed class DiscordApplicationCommandOption
             throw new InvalidOperationException("Auto-complete slash command options cannot provide choices.");
         }
 
-        ReadOnlyCollection<DiscordApplicationCommandOptionChoice>? choiceList = choices != null ? new ReadOnlyCollection<DiscordApplicationCommandOptionChoice>(choices.ToList()) : null;
-        ReadOnlyCollection<DiscordApplicationCommandOption>? optionList = options != null ? new ReadOnlyCollection<DiscordApplicationCommandOption>(options.ToList()) : null;
-        ReadOnlyCollection<DiscordChannelType>? channelTypeList = channelTypes != null ? new ReadOnlyCollection<DiscordChannelType>(channelTypes.ToList()) : null;
+        IReadOnlyList<DiscordApplicationCommandOptionChoice>? choiceList = choices != null ? choices.ToList() : null;
+        IReadOnlyList<DiscordApplicationCommandOption>? optionList = options != null ? options.ToList() : null;
+        IReadOnlyList<DiscordChannelType>? channelTypeList = channelTypes != null ? channelTypes.ToList() : null;
 
         this.Name = name;
         this.Description = description;
