@@ -110,8 +110,8 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     {
         get
         {
-            DiscordRole? role = this.Roles.OrderByDescending(xr => xr.Position).FirstOrDefault(xr => xr.Color.Value != 0);
-            return role != null ? role.Color : new DiscordColor();
+            DiscordRole? role = this.Roles.OrderByDescending(xr => xr.Position).FirstOrDefault(xr => xr.Colors.PrimaryColor.Value != 0);
+            return role != null ? role.Colors.PrimaryColor : new DiscordColor();
         }
     }
 
