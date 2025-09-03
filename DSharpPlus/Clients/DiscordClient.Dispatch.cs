@@ -1680,7 +1680,7 @@ public sealed partial class DiscordClient
         DiscordRole oldRole = new()
         {
             guild_id = guild.Id,
-            color = newRole.color,
+            Colors = newRole.Colors,
             Discord = this,
             IsHoisted = newRole.IsHoisted,
             Id = newRole.Id,
@@ -1694,7 +1694,7 @@ public sealed partial class DiscordClient
         };
 
         newRole.guild_id = guild.Id;
-        newRole.color = role.color;
+        newRole.Colors = role.Colors;
         newRole.IsHoisted = role.IsHoisted;
         newRole.IsManaged = role.IsManaged;
         newRole.IsMentionable = role.IsMentionable;
