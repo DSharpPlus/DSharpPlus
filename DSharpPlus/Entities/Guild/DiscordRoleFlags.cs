@@ -9,6 +9,11 @@ namespace DSharpPlus.Entities;
 public enum DiscordRoleFlags
 {
     /// <summary>
+    /// No flags are set.
+    /// </summary>
+    None = 0,
+    
+    /// <summary>
     ///	Role can be selected by members in an onboarding prompt.
     /// </summary>
     InPrompt = 1 << 0,
