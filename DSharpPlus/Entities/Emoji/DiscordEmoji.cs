@@ -243,12 +243,24 @@ public partial class DiscordEmoji : SnowflakeObject, IEquatable<DiscordEmoji>
     /// <param name="client"><see cref="BaseDiscordClient"/> to attach to the object.</param>
     /// <param name="id">Id of the emote.</param>
     /// <param name="emoji">Resulting <see cref="DiscordEmoji"/> object.</param>
+    /// <param name="guildId">Optional guild ID to limit the search to a specific guild.</param>
     /// <returns>Whether the operation was successful.</returns>
-    public static bool TryFromGuildEmote(BaseDiscordClient client, ulong id, out DiscordEmoji emoji)
+    public static bool TryFromGuildEmote(BaseDiscordClient client, ulong id, out DiscordEmoji emoji, ulong? guildId = null)
     {
         if (client == null)
         {
             throw new ArgumentNullException(nameof(client), "Client cannot be null.");
+        }
+        
+        if (guildId.HasValue)
+        {
+            if (client.Guilds.TryGetValue(guildId.Value, out DiscordGuild guild) && guild.Emojis.TryGetValue(id, out emoji))
+            {
+                return true;
+            }
+
+            emoji = null;
+            return false;
         }
 
         foreach (DiscordGuild guild in client.Guilds.Values)
@@ -271,18 +283,21 @@ public partial class DiscordEmoji : SnowflakeObject, IEquatable<DiscordEmoji>
     /// <param name="client"><see cref="BaseDiscordClient"/> to attach to the object.</param>
     /// <param name="name">Name of the emote to find, including colons (eg. :thinking:).</param>
     /// <param name="includeGuilds">Should guild emojis be included in the search.</param>
+    /// <param name="guildId">Optional guild ID to limit the search to a specific guild.</param>
     /// <returns>Create <see cref="DiscordEmoji"/> object.</returns>
-    public static DiscordEmoji FromName(BaseDiscordClient client, string name, bool includeGuilds = true)
+    public static DiscordEmoji FromName(BaseDiscordClient client, string name, bool includeGuilds = true, ulong? guildId = null)
     {
         if (client == null)
         {
             throw new ArgumentNullException(nameof(client), "Client cannot be null.");
         }
-        else if (string.IsNullOrWhiteSpace(name))
+
+        if (string.IsNullOrWhiteSpace(name))
         {
             throw new ArgumentNullException(nameof(name), "Name cannot be empty or null.");
         }
-        else if (name.Length < 2 || name[0] != ':' || name[^1] != ':')
+
+        if (name.Length < 2 || name[0] != ':' || name[^1] != ':')
         {
             throw new ArgumentException("Invalid emoji name specified. Ensure the emoji name starts and ends with ':'", nameof(name));
         }
@@ -291,7 +306,8 @@ public partial class DiscordEmoji : SnowflakeObject, IEquatable<DiscordEmoji>
         {
             return new DiscordEmoji { Discord = client, Name = unicodeEntity };
         }
-        else if (includeGuilds)
+
+        if (includeGuilds)
         {
             name = name[1..^1]; // remove colons
             foreach (DiscordGuild guild in client.Guilds.Values)
