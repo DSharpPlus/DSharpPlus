@@ -28,7 +28,7 @@ public sealed class CommandGroupBuilder : CommandBuilder
     public CommandGroupBuilder(ICommandModule? module) : base(module)
     {
         this.childrenList = [];
-        this.Children = new ReadOnlyCollection<CommandBuilder>(this.childrenList);
+        this.Children = this.childrenList;
     }
 
     /// <summary>
@@ -52,7 +52,7 @@ public sealed class CommandGroupBuilder : CommandBuilder
             ExecutionChecks = this.ExecutionChecks,
             IsHidden = this.IsHidden,
             Parent = parent,
-            Overloads = new ReadOnlyCollection<CommandOverload>(this.Overloads.Select(xo => xo.Build()).ToList()),
+            Overloads = this.Overloads.Select(xo => xo.Build()).ToList(),
             Module = this.Module,
             CustomAttributes = this.CustomAttributes,
             Category = this.Category
@@ -64,7 +64,7 @@ public sealed class CommandGroupBuilder : CommandBuilder
             cs.Add(xc.Build(cmd));
         }
 
-        cmd.Children = new ReadOnlyCollection<Command>(cs);
+        cmd.Children = cs;
         return cmd;
     }
 }
