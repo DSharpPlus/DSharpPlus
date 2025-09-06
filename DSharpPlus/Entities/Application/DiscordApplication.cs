@@ -605,7 +605,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
             limit -= entitlementsThisRequest;
             
             IReadOnlyList<DiscordEntitlement> entitlements 
-                = await this.Discord.ApiClient.ListEntitlementsAsync(this.Id, userId, skuIds, before, after, guildId, excludeEnded, limit);
+                = await this.Discord.ApiClient.ListEntitlementsAsync(this.Id, userId, skuIds, before, after, guildId, excludeEnded, entitlementsThisRequest);
 
             if (entitlements.Count == 0)
             {
