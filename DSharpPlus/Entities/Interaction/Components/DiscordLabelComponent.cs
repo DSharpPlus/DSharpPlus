@@ -37,7 +37,7 @@ public class DiscordLabelComponent : DiscordComponent
 
     public DiscordLabelComponent
     (
-        DiscordSelectComponent component,
+        BaseDiscordSelectComponent component,
         string label = "",
         string? description = null
     )

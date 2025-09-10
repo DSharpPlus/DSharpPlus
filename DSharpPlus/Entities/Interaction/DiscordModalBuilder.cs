@@ -9,12 +9,16 @@ namespace DSharpPlus.Entities;
 /// </summary>
 public class DiscordModalBuilder
 {
-    private List<DiscordLabelComponent> _components = [];
+    private List<DiscordComponent> _components = [];
     
     /// <summary>
     /// Gets the components to be displayed in this modal.
     /// </summary>
-    public IReadOnlyList<DiscordLabelComponent> Components => _components;
+    /// <remarks>
+    /// Generally, this will be either a <see cref="DiscordLabelComponent"/> or
+    /// <see cref="DiscordTextDisplayComponent"/>, but <see cref="DiscordActionRowComponent"/> is also valid. This is subject to change.
+    /// </remarks>
+    public IReadOnlyList<DiscordComponent> Components => _components;
     
     /// <summary>
     /// Gets or sets the title of the modal.
@@ -41,6 +45,17 @@ public class DiscordModalBuilder
     )
     {
         this.CustomId = customID;
+        return this;
+    }
+
+    public DiscordModalBuilder AddText(DiscordTextDisplayComponent text)
+    {
+        if (this.Components.Count >= 5)
+        {
+            throw new InvalidOperationException("Modals can only have 5 components at this time.");
+        }
+        
+        this._components.Add(text);
         return this;
     }
 
