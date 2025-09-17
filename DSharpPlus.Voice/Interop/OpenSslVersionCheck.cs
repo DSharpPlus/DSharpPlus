@@ -7,9 +7,9 @@ internal static partial class OpenSslVersionCheck
 {
     public static bool CheckOpenSslVersionCompatible()
     {
-        if (OperatingSystem.IsWindows())
+        if (OperatingSystem.IsWindows() || OperatingSystem.IsMacOS())
         {
-            // we provide openssl on windows ourselves
+            // we provide openssl on windows and macos ourselves
             return true;
         }
 
