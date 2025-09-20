@@ -6148,23 +6148,26 @@ public sealed class DiscordRestApiClient
         string interactionToken,
         DiscordInteractionResponseType type,
         DiscordInteractionResponseBuilder? builder
-    ) => CreateInteractionResponseAsync
-    (
-        interactionId,
-        interactionToken,
-        type,
-        builder?.Content,
-        builder?.Embeds,
-        builder?.IsTTS ?? false,
-        builder?.CustomId,
-        builder.Title,
-        builder?.Mentions,
-        builder?.Components,
-        builder?.Flags,
-        builder?.Choices,
-        builder?.Poll,
-        builder?.Files
-    );
+    )
+    {
+        return CreateInteractionResponseAsync
+        (
+         interactionId,
+         interactionToken,
+         type,
+         builder?.Content,
+         builder?.Embeds,
+         builder?.IsTTS ?? false,
+         null,
+         null,
+         builder?.Mentions,
+         builder?.Components,
+         builder?.Flags,
+         builder?.Choices,
+         builder?.Poll,
+         builder?.Files
+        );
+    }
 
     public async ValueTask<DiscordMessage> GetOriginalInteractionResponseAsync
     (
