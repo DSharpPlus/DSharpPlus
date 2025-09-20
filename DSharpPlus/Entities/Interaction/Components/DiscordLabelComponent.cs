@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace DSharpPlus.Entities;
 
 /// <summary>
@@ -5,23 +7,27 @@ namespace DSharpPlus.Entities;
 /// </summary>
 public class DiscordLabelComponent : DiscordComponent
 {
+    [JsonProperty("type")]
     public DiscordComponentType ComponentType => DiscordComponentType.Label;
-    
+
     /// <summary>
     /// Gets or sets the label. 
     /// </summary>
     /// <remarks>This value is not returned by Discord, and will be null in a modal submit event.</remarks>
+    [JsonProperty("label")]
     public string? Label { get; set; }
-    
+
     /// <summary>
     /// Gets or sets the description of the label.
     /// </summary>
+    [JsonProperty("description")]
     public string? Description { get; set; }
-    
+
     /// <summary>
-    /// Gets the component of the label. At this time, this may only be <see cref="DiscordSelectComponent"/> or <see cref="DiscordTextInputComponent"/>
+    /// Gets the component contained within the label. At this time, this may only be <see cref="BaseDiscordSelectComponent"/> or <see cref="DiscordTextInputComponent"/>.
     /// </summary>
-    public DiscordComponent Component { get; }
+    [JsonProperty("component")]
+    public DiscordComponent Component { get; internal set; }
 
     public DiscordLabelComponent
     (

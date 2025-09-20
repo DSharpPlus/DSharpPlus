@@ -7,7 +7,7 @@ namespace DSharpPlus.Entities;
 /// </summary>
 public class DiscordModalBuilder
 {
-    private List<DiscordComponent> components = [];
+    private readonly List<DiscordComponent> components = [];
     
     /// <summary>
     /// Gets the components to be displayed in this modal.
@@ -16,7 +16,7 @@ public class DiscordModalBuilder
     /// Generally, this will be either a <see cref="DiscordLabelComponent"/> or
     /// <see cref="DiscordTextDisplayComponent"/>. This restriction is subject to change as Discord continues to release new Modal APIs.
     /// </remarks>
-    public IReadOnlyList<DiscordComponent> Components => components;
+    public IReadOnlyList<DiscordComponent> Components => this.components;
     
     /// <summary>
     /// Gets or sets the title of the modal.
@@ -43,7 +43,7 @@ public class DiscordModalBuilder
             throw new ArgumentException("Title must be between 1 and 256 characters.");
         }
 
-        Title = title;
+        this.Title = title;
         return this;
     }
 
@@ -85,9 +85,9 @@ public class DiscordModalBuilder
     /// <summary>
     /// Adds a new text input to the modal.
     /// </summary>
-    /// <param name="input">The text input.</param>
-    /// <param name="label">The label.</param>
-    /// <param name="description">The optional description of the label.</param>
+    /// <param name="input">The text input to add to this modal</param>
+    /// <param name="label">A label text shown above the text input.</param>
+    /// <param name="description">An optional description for the text input.</param>
     /// <returns>The updated builder to chain calls with.</returns>
     public DiscordModalBuilder AddTextInput
     (
@@ -100,11 +100,37 @@ public class DiscordModalBuilder
         {
             throw new InvalidOperationException("Modals can only have 5 components at this time.");
         }
-        
-        var component = new DiscordLabelComponent(input, label, description);
+
+        DiscordLabelComponent component = new(input, label, description);
         
         this.components.Add(component);
         
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a select input to this modal.
+    /// </summary>
+    /// <param name="select">The select menu to add to this modal</param>
+    /// <param name="label">A label text shown above the select menu.</param>
+    /// <param name="description">An optional description for the menu.</param>
+    /// <returns>The builder instance for chaining.</returns>
+    public DiscordModalBuilder AddSelectMenu
+    (
+        BaseDiscordSelectComponent select,
+        string label,
+        string? description = null
+    )
+    {
+        if (this.components.Count >= 5)
+        {
+            throw new InvalidOperationException("Modals can only have 5 components at this time.");
+        }
+
+        DiscordLabelComponent component = new(select, label, description);
+
+        this.components.Add(component);
+
         return this;
     }
 
@@ -114,5 +140,4 @@ public class DiscordModalBuilder
         this.Title = string.Empty;
         this.CustomId = string.Empty;
     }
-
 }

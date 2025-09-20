@@ -38,6 +38,12 @@ public abstract class BaseDiscordSelectComponent : DiscordComponent
     [JsonProperty("max_values", NullValueHandling = NullValueHandling.Ignore)]
     public int? MaximumSelectedValues { get; internal set; }
 
+    /// <summary>
+    /// Internally used for parsing responses to modals, since those send submitted values in the component response object.
+    /// </summary>
+    [JsonProperty("values", NullValueHandling = NullValueHandling.Ignore)]
+    internal string[]? SubmittedValues { get; set; }
+
     // used by Newtonsoft.Json
     public BaseDiscordSelectComponent()
     {
