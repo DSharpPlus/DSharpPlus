@@ -69,10 +69,10 @@ internal class ReactionCollector : IDisposable
         this.reactionClearEvent.Register(this.reactionClearHandler);
     }
 
-    public async Task<ReadOnlyCollection<Reaction>> CollectAsync(ReactionCollectRequest request)
+    public async Task<IReadOnlyList<Reaction>> CollectAsync(ReactionCollectRequest request)
     {
         this.requests.Add(request);
-        ReadOnlyCollection<Reaction>? result;
+        IReadOnlyList<Reaction>? result;
 
         try
         {
@@ -84,7 +84,7 @@ internal class ReactionCollector : IDisposable
         }
         finally
         {
-            result = new ReadOnlyCollection<Reaction>(new HashSet<Reaction>(request.collected).ToList());
+            result = new HashSet<Reaction>(request.collected).ToList();
             request.Dispose();
             this.requests.TryRemove(request);
         }

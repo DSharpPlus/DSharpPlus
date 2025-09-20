@@ -69,9 +69,9 @@ internal class EventWaiter<T> : IDisposable where T : AsyncEventArgs
         return result;
     }
 
-    public async Task<ReadOnlyCollection<T>> CollectMatchesAsync(CollectRequest<T> request)
+    public async Task<IReadOnlyList<T>> CollectMatchesAsync(CollectRequest<T> request)
     {
-        ReadOnlyCollection<T> result;
+        IReadOnlyList<T> result;
         this.collectrequests.Add(request);
         try
         {
@@ -83,7 +83,7 @@ internal class EventWaiter<T> : IDisposable where T : AsyncEventArgs
         }
         finally
         {
-            result = new ReadOnlyCollection<T>(new HashSet<T>(request.collected).ToList());
+            result = new HashSet<T>(request.collected).ToList();
             request.Dispose();
             this.collectrequests.TryRemove(request);
         }

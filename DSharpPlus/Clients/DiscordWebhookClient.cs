@@ -79,7 +79,7 @@ public partial class DiscordWebhookClient
 
         this.apiclient = new DiscordRestApiClient(parsedTimeout, this.Logger);
         this.hooks = [];
-        this.Webhooks = new ReadOnlyCollection<DiscordWebhook>(this.hooks);
+        this.Webhooks = this.hooks;
     }
 
     /// <summary>

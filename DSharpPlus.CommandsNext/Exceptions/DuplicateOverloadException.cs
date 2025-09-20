@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace DSharpPlus.CommandsNext.Exceptions;
 
@@ -31,7 +32,7 @@ public class DuplicateOverloadException : Exception
         : base("An overload with specified argument types exists.")
     {
         this.CommandName = name;
-        this.ArgumentTypes = new ReadOnlyCollection<Type>(argumentTypes);
+        this.ArgumentTypes = argumentTypes.ToList();
         this.ArgumentSetKey = argumentSetKey;
     }
 
