@@ -58,6 +58,7 @@ public record SlashCommandContext : CommandContext
             await this.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder(interactionBuilder));
         }
     }
+    
 
     /// <summary>
     /// Respond to the command with a Modal.
@@ -65,19 +66,19 @@ public record SlashCommandContext : CommandContext
     /// <param name="builder">Builder which is used to build the modal.</param>
     /// <exception cref="InvalidOperationException">Thrown when the interaction response state is not <see cref="DiscordInteractionResponseState.Unacknowledged"/></exception>
     /// <exception cref="ArgumentException">Thrown when the response builder is not valid</exception>
-    public async ValueTask RespondWithModalAsync(DiscordInteractionResponseBuilder builder)
+    public async ValueTask RespondWithModalAsync
+    (
+        DiscordModalBuilder builder
+    )
     {
         if (this.Interaction.ResponseState is not DiscordInteractionResponseState.Unacknowledged)
         {
             throw new InvalidOperationException("Modal must be the first response to the interaction.");
         }
-        else if (string.IsNullOrWhiteSpace(builder.CustomId))
+        
+        if (string.IsNullOrWhiteSpace(builder.CustomId))
         {
             throw new ArgumentException("Modal response has to have a custom id");
-        }
-        else if (builder.ComponentActionRows?.Any(x => x.Components.Any(y => y is not DiscordTextInputComponent)) ?? false)
-        {
-            throw new ArgumentException("Modals currently only support TextInputComponents");
         }
 
         await this.Interaction.CreateResponseAsync(DiscordInteractionResponseType.Modal, builder);

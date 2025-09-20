@@ -21,6 +21,12 @@ public abstract class BaseDiscordSelectComponent : DiscordComponent
     public bool Disabled { get; internal set; }
 
     /// <summary>
+    /// Whether this component is required. Only affects usage in modals. Defaults to <c>true</c>.
+    /// </summary>
+    [JsonProperty("required", NullValueHandling = NullValueHandling.Ignore)]
+    public bool Required { get; internal set; } = true; // Align with Discord's default
+
+    /// <summary>
     /// The minimum amount of options that can be selected. Must be less than or equal to <see cref="MaximumSelectedValues"/>. Defaults to one.
     /// </summary>
     [JsonProperty("min_values", NullValueHandling = NullValueHandling.Ignore)]

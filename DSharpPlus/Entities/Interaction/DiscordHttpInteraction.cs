@@ -51,8 +51,6 @@ public class DiscordHttpInteraction : DiscordInteraction
                 ? new DiscordInteractionApplicationCommandCallbackData
                 {
                     Content = builder.Content,
-                    Title = builder.Title,
-                    CustomId = builder.CustomId,
                     Embeds = builder.Embeds,
                     IsTTS = builder.IsTTS,
                     Mentions = new DiscordMentions(builder.Mentions ?? Mentions.All, builder.Mentions?.Any() ?? false),
@@ -62,6 +60,40 @@ public class DiscordHttpInteraction : DiscordInteraction
                     Poll = builder.Poll?.BuildInternal(),
                 }
                 : null
+        };
+
+        this.response = Encoding.UTF8.GetBytes(DiscordJson.SerializeObject(payload));
+        this.taskCompletionSource.SetResult();
+        
+        return Task.CompletedTask;
+    }
+
+    public override Task CreateResponseAsync
+    (
+        DiscordInteractionResponseType type,
+        DiscordModalBuilder builder
+    )
+    {
+        if (this.taskCompletionSource.Task.IsCanceled)
+        {
+            throw new InvalidOperationException(
+                "Discord closed the connection. This is likely due to exeeding the limit of 3 seconds to the response.");
+        }
+        
+        if (this.ResponseState is not DiscordInteractionResponseState.Unacknowledged)
+        {
+            throw new InvalidOperationException("A response has already been made to this interaction.");
+        }
+
+        DiscordInteractionResponsePayload payload = new()
+        {
+            Type = type,
+            Data = new DiscordInteractionApplicationCommandCallbackData
+                {
+                    Title = builder.Title,
+                    CustomId = builder.CustomId,
+                    Components = builder.Components,
+                }
         };
 
         this.response = Encoding.UTF8.GetBytes(DiscordJson.SerializeObject(payload));

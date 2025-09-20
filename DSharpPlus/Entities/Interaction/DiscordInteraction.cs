@@ -199,6 +199,20 @@ public class DiscordInteraction : SnowflakeObject
         await this.Discord.ApiClient.CreateInteractionResponseAsync(this.Id, this.Token, type, builder);
     }
 
+    public virtual async Task CreateResponseAsync
+    (
+        DiscordInteractionResponseType type,
+        DiscordModalBuilder builder
+    )
+    {
+        if (this.ResponseState is not DiscordInteractionResponseState.Unacknowledged)
+        {
+            throw new InvalidOperationException("A response has already been made to this interaction.");
+        }
+        
+        await this.Discord.ApiClient.CreateInteractionResponseAsync(this.Id, this.Token, type, customID: builder.CustomId, components: builder.Components, title: builder.Title);
+    }
+
     /// <summary>
     ///     Creates a deferred response to this interaction.
     /// </summary>
