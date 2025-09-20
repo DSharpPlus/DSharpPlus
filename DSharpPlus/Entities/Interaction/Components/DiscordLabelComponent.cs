@@ -53,5 +53,17 @@ public class DiscordLabelComponent : DiscordComponent
         this.Description = description;
     }
 
+    public DiscordLabelComponent
+    (
+        DiscordFileUploadComponent component,
+        string label = "",
+        string? description = null
+    )
+    {
+        this.Component = component;
+        this.Label = label;
+        this.Description = description;
+    }
+
     internal DiscordLabelComponent() { }
 }

@@ -43,6 +43,7 @@ internal sealed class DiscordComponentJsonConverter : JsonConverter
             DiscordComponentType.File => new DiscordFileComponent(),
             DiscordComponentType.Container => new DiscordContainerComponent(),
             DiscordComponentType.Label => new DiscordLabelComponent(),
+            DiscordComponentType.FileUpload => new DiscordFileUploadComponent(),
             _ => new DiscordComponent() { Type = type.Value }
         };
 

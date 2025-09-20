@@ -57,6 +57,11 @@ public class ModalSubmittedEventArgs : InteractionCreatedEventArgs
                     DiscordMentionableSelectComponent mentionable
                         => new MentionableSelectMenuModalSubmission(mentionable.CustomId, (mentionable.SubmittedValues ?? []).Select(ulong.Parse).ToArray()),
 
+                    DiscordFileUploadComponent fileUpload
+                        => new FileUploadModalSubmission(fileUpload.CustomId, (fileUpload.Values ?? [])
+                            .Select(x => interaction.Data.Resolved.Attachments[x])
+                            .ToArray()),
+
                     _ => new UnknownComponentModalSubmission(label.Component.Type, label.Component.CustomId, label.Component)
                 }
             );
