@@ -22,9 +22,9 @@ public enum DiscordComponentType
     StringSelect = 3,
 
     /// <summary>
-    /// An input field.
+    /// A text input field in a modal.
     /// </summary>
-    FormInput = 4,
+    TextInput = 4,
 
     /// <summary>
     /// A select menu that allows users to be selected.
@@ -85,5 +85,4 @@ public enum DiscordComponentType
     /// A label component containing a title, component, and optionally description. Only used in Modals.
     /// </summary>
     Label = 18,
-    
 }
