@@ -14,12 +14,6 @@ public sealed class DiscordTextInputComponent : DiscordComponent
     public string? Placeholder { get; set; }
 
     /// <summary>
-    /// Label text to put above this input.
-    /// </summary>
-    [JsonProperty("label")]
-    public string Label { get; set; } = default!;
-
-    /// <summary>
     /// Pre-filled value for this input.
     /// </summary>
     [JsonProperty("value")]
@@ -54,7 +48,6 @@ public sealed class DiscordTextInputComponent : DiscordComponent
     /// <summary>
     /// Constructs a new text input field.
     /// </summary>
-    /// <param name="label">The label for the field, placed above the input itself.</param>
     /// <param name="customId">The ID of this field.</param>
     /// <param name="placeholder">Placeholder text for the field.</param>
     /// <param name="value">A pre-filled value for this field.</param>
@@ -64,20 +57,17 @@ public sealed class DiscordTextInputComponent : DiscordComponent
     /// <param name="max_length">The maximum input length. Must be greater than the minimum, if set.</param>
     public DiscordTextInputComponent
     (
-        string label,
         string customId,
         string? placeholder = null,
         string? value = null,
         bool required = true,
-        DiscordTextInputStyle style =
-        DiscordTextInputStyle.Short,
+        DiscordTextInputStyle style = DiscordTextInputStyle.Short,
         int min_length = 0,
         int? max_length = null
     )
     {
         this.CustomId = customId;
         this.Type = DiscordComponentType.TextInput;
-        this.Label = label;
         this.Required = required;
         this.Placeholder = placeholder;
         this.MinimumLength = min_length;
