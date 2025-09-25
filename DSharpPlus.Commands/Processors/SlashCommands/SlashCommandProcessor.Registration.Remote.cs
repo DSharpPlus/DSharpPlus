@@ -24,8 +24,7 @@ public sealed partial class SlashCommandProcessor
             DiscordApplicationCommand remote;
 
             // if name and type didnt change check for updates to command, else delete and recreate the command with new name/type
-            if ((remote = remoteTracking.SingleOrDefault(x => x.Name == command.Name)) is not null
-                && command.Type == remote.Type)
+            if ((remote = remoteTracking.SingleOrDefault(x => x.Name == command.Name && x.Type == command.Type)) is not null)
             {
                 if (command.WeakEquals(remote))
                 {
