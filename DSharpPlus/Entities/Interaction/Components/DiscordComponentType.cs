@@ -85,4 +85,9 @@ public enum DiscordComponentType
     /// A label component containing a title, component, and optionally description. Only used in Modals.
     /// </summary>
     Label = 18,
+
+    /// <summary>
+    /// A component for uploading files to a bot. Only used in modals.
+    /// </summary>
+    FileUpload = 19
 }

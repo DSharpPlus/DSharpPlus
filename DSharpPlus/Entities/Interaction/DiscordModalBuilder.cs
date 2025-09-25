@@ -134,6 +134,32 @@ public class DiscordModalBuilder
         return this;
     }
 
+    /// <summary>
+    /// Adds a file upload field to this modal.
+    /// </summary>
+    /// <param name="upload">The upload field to add to this modal</param>
+    /// <param name="label">A label text shown above the upload field.</param>
+    /// <param name="description">An optional description for the upload field.</param>
+    /// <returns>The builder instance for chaining.</returns>
+    public DiscordModalBuilder AddFileUpload
+    (
+        DiscordFileUploadComponent upload,
+        string label,
+        string? description = null
+    )
+    {
+        if (this.components.Count >= 5)
+        {
+            throw new InvalidOperationException("Modals can only have 5 components at this time.");
+        }
+
+        DiscordLabelComponent component = new(upload, label, description);
+
+        this.components.Add(component);
+
+        return this;
+    }
+
     public void Clear()
     {
         this.components.Clear();
