@@ -4501,19 +4501,18 @@ public sealed class DiscordRestApiClient
     public async ValueTask<DiscordInvite> GetInviteAsync
     (
         string inviteCode,
-        bool? withCounts = null,
-        bool? withExpiration = null
+        bool? withCounts = null
     )
     {
-        Dictionary<string, string> urlparams = [];
-        if (withCounts.HasValue)
+        QueryUriBuilder uriBuilder = new($"{Endpoints.INVITES}/{inviteCode}");
+
+        if (withCounts is true)
         {
-            urlparams["with_counts"] = withCounts?.ToString()!;
-            urlparams["with_expiration"] = withExpiration?.ToString()!;
+            uriBuilder.AddParameter("with_counts", "true");
         }
 
-        string route = $"{Endpoints.INVITES}/:invite_code";
-        string url = $"{Endpoints.INVITES}/{inviteCode}";
+        const string route = $"{Endpoints.INVITES}/:invite_code";
+        string url = uriBuilder.Build();
 
         RestRequest request = new()
         {
