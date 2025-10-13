@@ -4501,8 +4501,7 @@ public sealed class DiscordRestApiClient
     public async ValueTask<DiscordInvite> GetInviteAsync
     (
         string inviteCode,
-        bool? withCounts = null,
-        bool? withExpiration = null
+        bool? withCounts = null
     )
     {
         QueryUriBuilder uriBuilder = new($"{Endpoints.INVITES}/{inviteCode}");
@@ -4510,11 +4509,6 @@ public sealed class DiscordRestApiClient
         if (withCounts is true)
         {
             uriBuilder.AddParameter("with_counts", "true");
-        }
-        
-        if (withExpiration is true)
-        {
-            uriBuilder.AddParameter("with_expiration", "true");
         }
 
         const string route = $"{Endpoints.INVITES}/:invite_code";

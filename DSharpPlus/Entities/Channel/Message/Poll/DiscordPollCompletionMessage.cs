@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Newtonsoft.Json;
 
@@ -12,7 +13,7 @@ public class DiscordPollCompletionMessage : DiscordMessage
 
         if (other.Embeds is not [DiscordEmbed embed])
         {
-            throw new ArgumentException("The provided poll completion message had no embeds.");
+            throw new ArgumentException("The provided poll completion message had no embeds. Maybe the bot is missing MessageContents intent?");
         }
 
         if (embed.Type != "poll_result" || embed.Fields.Count == 0)
@@ -64,6 +65,15 @@ public class DiscordPollCompletionMessage : DiscordMessage
 
         if (winningAnswerEmojiId != 0)
         {
+            try
+            {
+
+            }
+            catch (KeyNotFoundException e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
             this.WinningAnswerEmoji = DiscordEmoji.FromGuildEmote(this.Discord, winningAnswerEmojiId);
         }
         else if (winningAnswerEmojiName is not null)
