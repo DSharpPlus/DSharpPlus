@@ -9,7 +9,7 @@ namespace DSharpPlus.Voice.Interop.Opus;
 /// Represents a convenience wrapper around a <see cref="NativeOpusRepacketizer"/>. This wrapper is not thread-safe
 /// and may only be used synchronized.
 /// </summary>
-public sealed unsafe class OpusRepacketizer : SafeHandleZeroOrMinusOneIsInvalid
+public sealed unsafe class OpusRepacketizerHandle : SafeHandleZeroOrMinusOneIsInvalid
 {
     private int msInRp;
 
@@ -19,7 +19,7 @@ public sealed unsafe class OpusRepacketizer : SafeHandleZeroOrMinusOneIsInvalid
         set => this.handle = (nint)value;
     }
 
-    public OpusRepacketizer()
+    public OpusRepacketizerHandle()
         : base(true)
     {
         this.msInRp = 0;

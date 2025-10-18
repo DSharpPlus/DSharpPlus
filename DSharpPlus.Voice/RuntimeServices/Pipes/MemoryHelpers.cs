@@ -1,44 +1,12 @@
-﻿using System;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.Arm;
 using System.Runtime.Intrinsics.X86;
-
-using DSharpPlus.Voice.RuntimeServices.Memory;
 
 namespace DSharpPlus.Voice.RuntimeServices.Pipes;
 
 internal static partial class MemoryHelpers
 {
-    // copy data to an audio pipe segment
-
-    public static void CopyTo(this ReadOnlySpan<Int16x2> data, PcmAudioSegment destination)
-    {
-        while (data.Length > 0)
-        {
-            int written = destination.Copy(data);
-            data = data[written..];
-
-            if (destination.IsFull)
-            {
-                PcmAudioSegment next = new(destination.NextRunningIndex);
-                destination = destination.SetNextSegment(next);
-            }
-        }
-    }
-
-    public static void CopyTo(this ReadOnlySpan<byte> data, PcmAudioSegment destination)
-    {
-        if (data.Length % 4 != 0)
-        {
-            throw new ArgumentException("The provided data was not valid two-channel s16le PCM data.");
-        }
-
-        ReadOnlySpan<Int16x2> buf = MemoryMarshal.Cast<byte, Int16x2>(data);
-        buf.CopyTo(destination);
-    }
-
     // we add 1 so as to never round down and not have enough space. sometimes we might not need that last element, but it's fine.
     public static int CalculateNeededSamplesFor48KHz(int inputSampleRate, int inputSampleCount) 
         => (int)((inputSampleRate / 48000.0 * inputSampleCount) + 1);

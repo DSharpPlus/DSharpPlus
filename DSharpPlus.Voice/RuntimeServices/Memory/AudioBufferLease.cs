@@ -20,6 +20,11 @@ public record struct AudioBufferLease : IDisposable
     public int Length { get; set; }
 
     /// <summary>
+    /// The amount of 20ms opus frames contained within this buffer.
+    /// </summary>
+    public int FrameCount { get; set; }
+
+    /// <summary>
     /// Creates a new lease, noting the pool it must return to.
     /// </summary>
     internal AudioBufferLease(AudioBufferPool pool, byte[] buffer)

@@ -6,7 +6,8 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-using DSharpPlus.Voice.Interop.Speex;
+using DSharpPlus.Voice.Codec;
+using DSharpPlus.Voice.RuntimeServices.Memory;
 
 namespace DSharpPlus.Voice.RuntimeServices.Pipes;
 
@@ -15,64 +16,57 @@ namespace DSharpPlus.Voice.RuntimeServices.Pipes;
 /// </summary>
 internal sealed class S16LE44KHzStereoWriter : AbstractPcmAudioWriter
 {
-    private readonly SpeexResamplerHandle resampler;
-    private readonly ManualResetAccumulatingBuffer buffer;
+    private readonly ResampleHelper44KHz resampler;
+    private OverflowBuffer3Bytes overflow;
 
-    internal S16LE44KHzStereoWriter(PcmAudioPipe pipe)
-        : base(pipe)
-    {
-        this.resampler = new(2, 44100);
-
-        // this is precisely the amount of bytes needed for 0.02s (or the shortest opus frame) worth of s16le 44.1khz stereo.
-        this.buffer = new ManualResetAccumulatingBuffer(3528);
-    }
+    internal S16LE44KHzStereoWriter(IAudioEncoder encoder, VoiceConnection connection)
+        : base(encoder, connection) 
+        => this.resampler = new(2);
 
     /// <inheritdoc/>
     protected internal override int SampleSize => 4;
 
-    /// <inheritdoc/>
-    public override void Advance(int bytes)
+    protected override void ProcessSubmittedBytes(ReadOnlySpan<byte> bytes)
     {
-        byte[] buffer48KHz = ArrayPool<byte>.Shared.Rent(4 * MemoryHelpers.CalculateNeededSamplesFor48KHz(44100, bytes / 4));
-        SpanBufferWriter writer = new(buffer48KHz);
-        ReadOnlySpan<byte> buffer44KHz = this.rentedBuffer;
+        int length = bytes.Length + this.overflow.Available;
+        byte[] buffer = ArrayPool<byte>.Shared.Rent(length);
 
-        while (this.buffer.Write(buffer44KHz, out int consumed))
+        this.overflow.CopyTo(buffer, out int written);
+        bytes.CopyTo(buffer.AsSpan()[written..]);
+
+        short[] resampledBuffer = ArrayPool<short>.Shared.Rent(1920);
+
+        ReadOnlySpan<short> submitted = MemoryMarshal.Cast<byte, short>(buffer.AsSpan()[..(length & 0b11)]);
+        Span<short> resampled = resampledBuffer.AsSpan()[..1920];
+
+        while (this.resampler.ResampleFrame(submitted, resampled, out int consumed, out written))
         {
-            buffer44KHz = buffer44KHz[consumed..];
-            Span<byte> target = writer.GetSpan();
+            Debug.Assert(written == 1920);
 
-            ReadOnlySpan<short> inputView = MemoryMarshal.Cast<byte, short>(this.buffer.WrittenSpan);
-            Span<short> outputView = MemoryMarshal.Cast<byte, short>(target);
+            ReadOnlySpan<Int16x2> pcm = MemoryMarshal.Cast<short, Int16x2>(resampled);
+            base.Encode(pcm);
 
-            this.resampler.Resample(inputView, outputView, out uint resamplerConsumed, out uint resamplerWritten);
-
-            Debug.Assert(resamplerConsumed == 882);
-            writer.Advance((int)resamplerWritten * 4);
+            submitted = submitted[consumed..];
         }
 
-        MemoryHelpers.CopyTo(buffer48KHz.AsSpan()[..writer.Written], this.writeHead);
-        this.writeHead = this.writeHead.EndOfChain;
-
-        ArrayPool<byte>.Shared.Return(buffer48KHz);
+        this.overflow.SetOverflow(buffer.AsSpan()[(length & ~0b11)..length]);
+        ArrayPool<byte>.Shared.Return(buffer);
+        ArrayPool<short>.Shared.Return(resampledBuffer);
     }
 
     /// <inheritdoc/>
     public override ValueTask<FlushResult> FlushAsync(CancellationToken cancellationToken = default)
     {
-        byte[] converted = ArrayPool<byte>.Shared.Rent(4 * MemoryHelpers.CalculateNeededSamplesFor48KHz(44100, this.buffer.WrittenSpan.Length / 4));
+        short[] resampledBuffer = ArrayPool<short>.Shared.Rent(1920);
 
-        ReadOnlySpan<short> inputView = MemoryMarshal.Cast<byte, short>(this.buffer.WrittenSpan);
-        Span<short> outputView = MemoryMarshal.Cast<byte, short>(converted);
+        this.resampler.Flush(resampledBuffer, out int written);
 
-        this.resampler.Resample(inputView, outputView, out uint consumed, out uint written);
+        ReadOnlySpan<Int16x2> pcm = MemoryMarshal.Cast<short, Int16x2>(resampledBuffer.AsSpan()[..written]);
+        base.Encode(pcm);
 
-        Debug.Assert(consumed * 4 == this.buffer.WrittenSpan.Length);
+        this.overflow.Clear();
 
-        MemoryHelpers.CopyTo(converted.AsSpan()[..(int)written], this.writeHead);
-        this.writeHead = this.writeHead.EndOfChain;
-
-        this.buffer.Reset();
+        ArrayPool<short>.Shared.Return(resampledBuffer);
 
         return ValueTask.FromResult(new FlushResult());
     }

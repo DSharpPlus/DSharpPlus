@@ -1,7 +1,9 @@
 using System;
 using System.IO;
 
-namespace DSharpPlus.Voice.RuntimeServices.Pipes;
+using DSharpPlus.Voice.RuntimeServices.Pipes;
+
+namespace DSharpPlus.Voice;
 
 /// <summary>
 /// Provides a write-only stream for users as a compatibility wrapper. This is primarily intended for use in conjunction with
@@ -38,7 +40,7 @@ internal sealed class AudioWriteStream : Stream
     /// <inheritdoc/>
     public override long Position
     {
-        get => this.writer.Position;
+        get => throw new NotSupportedException();
         set => throw new NotSupportedException();
     }
 

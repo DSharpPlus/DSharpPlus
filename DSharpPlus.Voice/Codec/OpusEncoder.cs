@@ -15,10 +15,13 @@ public sealed class OpusEncoder : IAudioEncoder
 {
     private readonly AudioBufferPool pool;
     private readonly OpusEncoderHandle encoder;
-    private readonly OpusRepacketizer repacketizer;
+    private readonly OpusRepacketizerHandle repacketizer;
 
     private AudioType type;
     private readonly uint ssrc;
+
+    /// <inheritdoc/>
+    public int SamplesPerPacket => this.type == AudioType.Voice ? 960 : 5760;
 
     public OpusEncoder(AudioBufferPool pool, int bitrate, uint ssrc, AudioType type)
     {
@@ -59,6 +62,7 @@ public sealed class OpusEncoder : IAudioEncoder
         lease.Buffer[14] = 0xFE;
 
         lease.Length = 15;
+        lease.FrameCount = 1;
         return lease;
     }
 
@@ -78,6 +82,7 @@ public sealed class OpusEncoder : IAudioEncoder
 
         // 12 for the rtp header
         lease.Length = written + 12;
+        lease.FrameCount = 1;
 
         return lease;
     }
@@ -108,6 +113,7 @@ public sealed class OpusEncoder : IAudioEncoder
         written = this.repacketizer.Extract(lease.Buffer.AsSpan()[12..]);
 
         lease.Length = written + 12;
+        lease.FrameCount = 6;
 
         return lease;
     }

@@ -9,5 +9,5 @@ public interface IVoiceStateFactory
     /// Creates a VoiceStateFactory
     /// </summary>
     /// <returns>The created voicestate</returns>
-    public VoiceConnectionState Create(string userId, string serverId, string channelId, string token, string sessionId, string endpoint);
+    public VoiceConnection Create(string userId, string serverId, string channelId, string token, string sessionId, string endpoint);
 }
