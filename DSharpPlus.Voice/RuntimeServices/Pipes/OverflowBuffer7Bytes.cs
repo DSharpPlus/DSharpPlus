@@ -12,7 +12,7 @@ internal struct OverflowBuffer7Bytes
 
     public void SetOverflow(ReadOnlySpan<byte> overflow)
     {
-        overflow.CopyTo(MemoryMarshal.CreateSpan(ref this.buffer.value, 7));
+        overflow.CopyTo(this.buffer);
         this.Available = overflow.Length;
     }
 
