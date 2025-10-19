@@ -174,7 +174,7 @@ public sealed class MessageCommandProcessor : ICommandProcessor
         IReadOnlyDictionary<string, string> nameLocalizations = FrozenDictionary<string, string>.Empty;
         if (command.Attributes.OfType<InteractionLocalizerAttribute>().FirstOrDefault() is InteractionLocalizerAttribute localizerAttribute)
         {
-            nameLocalizations = await this.slashCommandProcessor.ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name");
+            nameLocalizations = await SlashCommandProcessor.ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name", this.extension!.ServiceProvider);
         }
 
         DiscordPermissions? userPermissions = command.Attributes.OfType<RequirePermissionsAttribute>().FirstOrDefault()?.UserPermissions;
