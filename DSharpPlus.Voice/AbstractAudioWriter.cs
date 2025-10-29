@@ -1,6 +1,5 @@
 using System;
 using System.ComponentModel;
-using System.IO;
 using System.IO.Pipelines;
 using System.Runtime.ExceptionServices;
 using System.Threading.Channels;
@@ -21,11 +20,6 @@ public abstract class AbstractAudioWriter : PipeWriter
     /// The destination for encoded and prepared packets.
     /// </summary>
     protected ChannelWriter<AudioBufferLease> PacketWriter { get; }
-
-    /// <summary>
-    /// The amount of bytes consumed by a sample in the current audio format.
-    /// </summary>
-    protected internal abstract int SampleSize { get; }
 
     /// <summary>
     /// Indicates the parent connection to this writer.
@@ -67,8 +61,4 @@ public abstract class AbstractAudioWriter : PipeWriter
         Complete();
         return ValueTask.CompletedTask;
     }
-
-    /// <inheritdoc/>
-    public sealed override Stream AsStream(bool leaveOpen = false) 
-        => new AudioWriteStream(this, this.SampleSize);
 }

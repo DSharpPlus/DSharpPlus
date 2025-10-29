@@ -1,5 +1,6 @@
 using System;
 using System.Buffers;
+using System.IO;
 using System.IO.Pipelines;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -28,6 +29,11 @@ public abstract class AbstractPcmAudioWriter : AbstractAudioWriter
         this.overflowBuffer = new short[11520];
         this.encoder = encoder;
     }
+
+    /// <summary>
+    /// The amount of bytes consumed by a sample in the current audio format.
+    /// </summary>
+    protected internal abstract int SampleSize { get; }
 
     /// <summary>
     /// This is called by the framework when data is submitted. The implementation cannot take ownership of the span
@@ -69,7 +75,7 @@ public abstract class AbstractPcmAudioWriter : AbstractAudioWriter
 
     private void Flush()
     {
-        AudioBufferLease packet = this.encoder.Encode(this.overflowBuffer.AsSpan()[..(this.overflowSamples * 2)], 0, 0, out _);
+        AudioBufferLease packet = this.encoder.Encode(this.overflowBuffer.AsSpan()[..(this.overflowSamples * 2)], out _);
         this.PacketWriter.TryWrite(packet);
         this.overflowSamples = 0;
     }
@@ -88,9 +94,13 @@ public abstract class AbstractPcmAudioWriter : AbstractAudioWriter
 
         for (int i = 0; i < 5; i++)
         {
-            this.PacketWriter.TryWrite(this.encoder.WriteSilenceFrame(0, 0));
+            this.PacketWriter.TryWrite(this.encoder.WriteSilenceFrame());
         }
     }
+
+    /// <inheritdoc/>
+    public sealed override Stream AsStream(bool leaveOpen = false)
+        => new AudioWriteStream(this, this.SampleSize);
 
     /// <summary>
     /// Packetizes and encodes the provided s16le 48khz PCM data.
@@ -115,7 +125,7 @@ public abstract class AbstractPcmAudioWriter : AbstractAudioWriter
         MemoryMarshal.Cast<Int16x2, short>(pcm[..samplesNeededToFillOverflow]).CopyTo(overflowWrapper.AsSpan()[(this.overflowSamples * 4)..]);
 
         // we pass fake sequences and timestamps, they'll be filled out later.
-        AudioBufferLease firstPacket = this.encoder.Encode(overflowWrapper.AsSpan()[..(this.encoder.SamplesPerPacket * 4)], 0, 0, out _);
+        AudioBufferLease firstPacket = this.encoder.Encode(overflowWrapper.AsSpan()[..(this.encoder.SamplesPerPacket * 4)], out _);
         this.PacketWriter.TryWrite(firstPacket);
 
         ArrayPool<short>.Shared.Return(overflowWrapper);
@@ -125,7 +135,7 @@ public abstract class AbstractPcmAudioWriter : AbstractAudioWriter
         // encode the bulk of our data
         while (pcm.Length >= this.encoder.SamplesPerPacket)
         {
-            AudioBufferLease packet = this.encoder.Encode(MemoryMarshal.Cast<Int16x2, short>(pcm[..this.encoder.SamplesPerPacket]), 0, 0, out _);
+            AudioBufferLease packet = this.encoder.Encode(MemoryMarshal.Cast<Int16x2, short>(pcm[..this.encoder.SamplesPerPacket]), out _);
             this.PacketWriter.TryWrite(packet);
             pcm = pcm[this.encoder.SamplesPerPacket..];
         }

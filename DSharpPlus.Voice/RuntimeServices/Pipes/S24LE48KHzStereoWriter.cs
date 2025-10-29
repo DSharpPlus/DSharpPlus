@@ -57,6 +57,7 @@ internal sealed class S24LE48KHzStereoWriter : AbstractPcmAudioWriter
 
         this.overflow.SetOverflow(buffer.AsSpan()[(length & ~0b111)..length]);
         ArrayPool<byte>.Shared.Return(buffer);
+        ArrayPool<Int16x2>.Shared.Return(pcmBuffer);
     }
 
     /// <summary>
