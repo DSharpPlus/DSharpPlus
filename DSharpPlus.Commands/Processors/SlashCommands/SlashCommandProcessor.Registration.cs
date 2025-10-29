@@ -232,8 +232,8 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
                 throw new InvalidOperationException("Localization is not supported because invariant mode is enabled. See https://aka.ms/GlobalizationInvariantMode for more information.");
             }
 
-            nameLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name");
-            descriptionLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.description");
+            nameLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name", this.extension!.ServiceProvider);
+            descriptionLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.description", this.extension!.ServiceProvider);
         }
 
         ValidateSlashCommand(command, nameLocalizations, descriptionLocalizations);
@@ -321,7 +321,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         Dictionary<string, string> descriptionLocalizations = [];
         if (command.Attributes.OfType<InteractionLocalizerAttribute>().FirstOrDefault() is InteractionLocalizerAttribute localizerAttribute)
         {
-            foreach ((string ietfTag, string name) in await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name"))
+            foreach ((string ietfTag, string name) in await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name", this.extension!.ServiceProvider))
             {
                 if (!IsLocalizationSupported())
                 {
@@ -335,7 +335,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
                 );
             }
 
-            descriptionLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.description");
+            descriptionLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.description", this.extension!.ServiceProvider);
         }
 
         string? description = command.Description;
@@ -380,7 +380,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
                 localeIdBuilder.Append($".{i}");
             }
 
-            foreach ((string ietfTag, string name) in await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, localeIdBuilder.ToString() + ".name"))
+            foreach ((string ietfTag, string name) in await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, localeIdBuilder + ".name", this.extension!.ServiceProvider))
             {
                 nameLocalizations[ietfTag] = this.Configuration.NamingPolicy.TransformText
                 (
@@ -389,7 +389,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
                 );
             }
 
-            descriptionLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, localeIdBuilder.ToString() + ".description");
+            descriptionLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, localeIdBuilder + ".description", this.extension!.ServiceProvider);
         }
 
         IEnumerable<DiscordApplicationCommandOptionChoice> choices = [];
@@ -609,9 +609,9 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         }
     }
 
-    internal async ValueTask<Dictionary<string, string>> ExecuteLocalizerAsync(Type localizer, string name)
+    internal static async ValueTask<Dictionary<string, string>> ExecuteLocalizerAsync(Type localizer, string name, IServiceProvider serviceProvider)
     {
-        using AsyncServiceScope scope = this.extension!.ServiceProvider.CreateAsyncScope();
+        using AsyncServiceScope scope = serviceProvider.CreateAsyncScope();
         IInteractionLocalizer instance;
         try
         {
@@ -619,7 +619,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         }
         catch (Exception)
         {
-            ILogger<InteractionLocalizerAttribute> logger = this.extension!.ServiceProvider.GetService<ILogger<InteractionLocalizerAttribute>>() ?? NullLogger<InteractionLocalizerAttribute>.Instance;
+            ILogger<InteractionLocalizerAttribute> logger = serviceProvider.GetService<ILogger<InteractionLocalizerAttribute>>() ?? NullLogger<InteractionLocalizerAttribute>.Instance;
             logger.LogWarning("Failed to create an instance of {TypeName} for localization of {SymbolName}.", localizer, name);
             return [];
         }

@@ -1006,10 +1006,10 @@ internal static class AuditLogParser
                     entry.OverwriteChange = new PropertyChange<IReadOnlyList<DiscordOverwrite>>
                     {
                         Before = olds != null
-                            ? new ReadOnlyCollection<DiscordOverwrite>(new List<DiscordOverwrite>(olds))
+                            ? olds.ToList()
                             : null,
                         After = news != null
-                            ? new ReadOnlyCollection<DiscordOverwrite>(new List<DiscordOverwrite>(news))
+                            ? news.ToList()
                             : null
                     };
                     break;
@@ -1170,14 +1170,14 @@ internal static class AuditLogParser
 
                 case "$add":
                     entry.AddedRoles =
-                        new ReadOnlyCollection<DiscordRole>(change.NewValues.Select(xo => (ulong)xo["id"]!)
-                            .Select(gx => guild.roles.GetValueOrDefault(gx)!).ToList());
+                        change.NewValues.Select(xo => (ulong)xo["id"]!)
+                            .Select(gx => guild.roles.GetValueOrDefault(gx)!).ToList();
                     break;
 
                 case "$remove":
                     entry.RemovedRoles =
-                        new ReadOnlyCollection<DiscordRole>(change.NewValues.Select(xo => (ulong)xo["id"]!)
-                            .Select(x => guild.roles.GetValueOrDefault(x)!).ToList());
+                        change.NewValues.Select(xo => (ulong)xo["id"]!)
+                            .Select(x => guild.roles.GetValueOrDefault(x)!).ToList();
                     break;
 
                 default:

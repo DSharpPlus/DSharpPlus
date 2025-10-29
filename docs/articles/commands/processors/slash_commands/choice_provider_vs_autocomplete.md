@@ -85,13 +85,14 @@ Auto-complete is very similar in design to choice providers. Our class will impl
 ```cs
 public class TagNameAutoCompleteProvider : IAutoCompleteProvider
 {
-    private readonly ITagService tagService;
+    // Note: This is just en example data source. It does not exist in DSharpPlus.
+    private readonly ITagExampleService exampleTagService;
 
-    public TagNameAutoCompleteProvider(ITagService tagService) => tagService = tagService;
+    public TagNameAutoCompleteProvider(ITagExampleService tagService) => exampleTagService = tagService;
 
     public ValueTask<IEnumerable<DiscordAutoCompleteChoice>> AutoCompleteAsync(AutoCompleteContext context)
     {
-        var tags = tagService
+        var tags = exampleTagService
             .GetTags()
             .Where(x => x.Name.StartsWith(context.UserInput, StringComparison.OrdinalIgnoreCase))
             .ToDictionary(x => x.Name, x => x.Id);

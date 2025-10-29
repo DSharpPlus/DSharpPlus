@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 using DSharpPlus.Entities;
 
@@ -15,7 +16,7 @@ public class ModalSubmittedEventArgs : InteractionCreatedEventArgs
     /// A dictionary of submitted fields, keyed on the custom id of the input component.
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyDictionary<string, string> Values { get; }
+    public IReadOnlyDictionary<string, IModalSubmission> Values { get; }
 
     /// <summary>
     /// The custom ID this modal was sent with.
@@ -27,14 +28,43 @@ public class ModalSubmittedEventArgs : InteractionCreatedEventArgs
     {
         this.Interaction = interaction;
 
-        Dictionary<string, string> dict = [];
+        Dictionary<string, IModalSubmission> dict = [];
 
-        foreach (DiscordActionRowComponent component in interaction.Data.components)
+        foreach (DiscordComponent component in interaction.Data.components)
         {
-            if (component.Components[0] is DiscordTextInputComponent input)
+            if (component is not DiscordLabelComponent label)
             {
-                dict.Add(input.CustomId, input.Value);
+                continue;
             }
+
+            dict.Add
+            (
+                label.Component.CustomId, label.Component switch
+                {
+                    DiscordTextInputComponent input => new TextInputModalSubmission(input.CustomId, input.Value),
+
+                    DiscordSelectComponent select => new SelectMenuModalSubmission(select.CustomId, select.SubmittedValues ?? []),
+
+                    DiscordChannelSelectComponent channel
+                        => new ChannelSelectMenuModalSubmission(channel.CustomId, (channel.SubmittedValues ?? []).Select(ulong.Parse).ToArray()),
+
+                    DiscordUserSelectComponent user
+                        => new UserSelectMenuModalSubmission(user.CustomId, (user.SubmittedValues ?? []).Select(ulong.Parse).ToArray()),
+
+                    DiscordRoleSelectComponent role
+                        => new RoleSelectMenuModalSubmission(role.CustomId, (role.SubmittedValues ?? []).Select(ulong.Parse).ToArray()),
+
+                    DiscordMentionableSelectComponent mentionable
+                        => new MentionableSelectMenuModalSubmission(mentionable.CustomId, (mentionable.SubmittedValues ?? []).Select(ulong.Parse).ToArray()),
+
+                    DiscordFileUploadComponent fileUpload
+                        => new FileUploadModalSubmission(fileUpload.CustomId, (fileUpload.Values ?? [])
+                            .Select(x => interaction.Data.Resolved.Attachments[x])
+                            .ToArray()),
+
+                    _ => new UnknownComponentModalSubmission(label.Component.Type, label.Component.CustomId, label.Component)
+                }
+            );
         }
 
         this.Values = dict;

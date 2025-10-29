@@ -279,24 +279,6 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
         
         return (T)this;
     }
-    
-    /// <summary>
-    /// Adds a text input to this builder.
-    /// </summary>
-    /// <param name="component">The component to add.</param>
-    /// <returns>The builder to chain calls with.</returns>
-    /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
-    public T AddTextInputComponent
-    (
-        DiscordTextInputComponent component
-    )
-    {
-        var actionRow = new DiscordActionRowComponent([component]);
-        EnsureSufficientSpaceForComponent(actionRow);
-        this.components.Add(actionRow);
-        
-        return (T)this;
-    }
 
     /// <summary>
     /// Adds a text display to this builder.
@@ -754,7 +736,6 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     IDiscordMessageBuilder IDiscordMessageBuilder.AddSectionComponent(DiscordSectionComponent section) => AddSectionComponent(section);
     IDiscordMessageBuilder IDiscordMessageBuilder.AddTextDisplayComponent(DiscordTextDisplayComponent component) => AddTextDisplayComponent(component);
     IDiscordMessageBuilder IDiscordMessageBuilder.AddTextDisplayComponent(string content) => AddTextDisplayComponent(content);
-    IDiscordMessageBuilder IDiscordMessageBuilder.AddTextInputComponent(DiscordTextInputComponent component) => AddTextInputComponent(component);
     IDiscordMessageBuilder IDiscordMessageBuilder.AddSeparatorComponent(DiscordSeparatorComponent component) => AddSeparatorComponent(component);
     IDiscordMessageBuilder IDiscordMessageBuilder.AddFileComponent(DiscordFileComponent component) => AddFileComponent(component);
     IDiscordMessageBuilder IDiscordMessageBuilder.AddContainerComponent(DiscordContainerComponent component) => AddContainerComponent(component);
@@ -929,14 +910,6 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// <returns>The builder to chain calls with.</returns>
     /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
     public IDiscordMessageBuilder AddTextDisplayComponent(string content);
-    
-    /// <summary>
-    /// Adds a text input to this builder.
-    /// </summary>
-    /// <param name="component">The component to add.</param>
-    /// <returns>The builder to chain calls with.</returns>
-    /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
-    public IDiscordMessageBuilder AddTextInputComponent(DiscordTextInputComponent component);
 
     /// <summary>
     /// Adds a separator component to this builder.

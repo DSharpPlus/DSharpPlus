@@ -1825,9 +1825,9 @@ public sealed partial class DiscordClient
         {
             Message = message,
 
-            MentionedUsers = new ReadOnlyCollection<DiscordUser>(message.mentionedUsers),
-            MentionedRoles = message.mentionedRoles != null ? new ReadOnlyCollection<DiscordRole>(message.mentionedRoles) : null,
-            MentionedChannels = message.mentionedChannels != null ? new ReadOnlyCollection<DiscordChannel>(message.mentionedChannels) : null
+            MentionedUsers = message.mentionedUsers,
+            MentionedRoles = message.mentionedRoles != null ? message.mentionedRoles : null,
+            MentionedChannels = message.mentionedChannels != null ? message.mentionedChannels : null
         };
 
         await this.dispatcher.DispatchAsync(this, ea);
@@ -1994,7 +1994,7 @@ public sealed partial class DiscordClient
         MessagesBulkDeletedEventArgs ea = new()
         {
             Channel = channel,
-            Messages = new ReadOnlyCollection<DiscordMessage>(msgs),
+            Messages = msgs,
             Guild = guild
         };
 

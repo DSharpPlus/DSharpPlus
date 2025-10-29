@@ -462,6 +462,7 @@ public sealed class CommandsExtension
             this.processors.TryAdd(typeof(UserCommandProcessor), new UserCommandProcessor());
         }
 
+        // Configure processors in a specific order to ensure dependencies are met
         if (this.processors.TryGetValue(typeof(UserCommandProcessor), out ICommandProcessor? userProcessor))
         {
             await userProcessor.ConfigureAsync(this);

@@ -94,7 +94,7 @@ internal class ComponentEventWaiter : IDisposable
                         await args.Interaction.CreateResponseAsync
                         (
                             DiscordInteractionResponseType.ChannelMessageWithSource,
-                            new() { Content = responseMessage, IsEphemeral = true }
+                            new DiscordInteractionResponseBuilder { Content = responseMessage, IsEphemeral = true }
                         );
                     }
                     else if (args.Interaction.ResponseState is DiscordInteractionResponseState.Deferred)
@@ -133,7 +133,7 @@ internal class ComponentEventWaiter : IDisposable
                             await args.Interaction.CreateResponseAsync
                             (
                                 DiscordInteractionResponseType.ChannelMessageWithSource,
-                                new() { Content = responseMessage, IsEphemeral = true }
+                                new DiscordInteractionResponseBuilder() { Content = responseMessage, IsEphemeral = true }
                             );
                         }
                         else if (args.Interaction.ResponseState is DiscordInteractionResponseState.Deferred)
