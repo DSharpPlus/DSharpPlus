@@ -1,8 +1,6 @@
 using System;
 using System.IO;
 
-using DSharpPlus.Voice.RuntimeServices.Pipes;
-
 namespace DSharpPlus.Voice;
 
 /// <summary>

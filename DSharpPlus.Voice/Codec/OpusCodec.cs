@@ -1,7 +1,8 @@
-using DSharpPlus.Voice.RuntimeServices.Memory;
+using DSharpPlus.Voice.MemoryServices;
 
 namespace DSharpPlus.Voice.Codec;
 
+/// <inheritdoc cref="IAudioCodec"/>
 public sealed class OpusCodec : IAudioCodec
 {
     /// <inheritdoc/>

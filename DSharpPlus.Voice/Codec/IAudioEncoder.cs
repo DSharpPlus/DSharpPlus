@@ -1,6 +1,6 @@
 using System;
 
-using DSharpPlus.Voice.RuntimeServices.Memory;
+using DSharpPlus.Voice.MemoryServices;
 
 namespace DSharpPlus.Voice.Codec;
 

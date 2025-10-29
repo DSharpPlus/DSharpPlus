@@ -11,9 +11,9 @@ using CommunityToolkit.HighPerformance;
 
 using DSharpPlus.Voice.Cryptors;
 using DSharpPlus.Voice.E2EE;
-using DSharpPlus.Voice.Transport.Models.VoicePayloads;
-using DSharpPlus.Voice.Transport.Models.VoicePayloads.Inbound;
-using DSharpPlus.Voice.Transport.Models.VoicePayloads.Outbound;
+using DSharpPlus.Voice.Protocol.Gateway.DaveV1;
+using DSharpPlus.Voice.Protocol.Gateway.DaveV1.Inbound;
+using DSharpPlus.Voice.Protocol.Gateway.DaveV1.Outbound;
 
 namespace DSharpPlus.Voice.Transport.Factories;
 

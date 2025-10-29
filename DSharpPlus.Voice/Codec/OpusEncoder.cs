@@ -3,7 +3,7 @@ using System.Buffers;
 using System.Diagnostics;
 
 using DSharpPlus.Voice.Interop.Opus;
-using DSharpPlus.Voice.RuntimeServices.Memory;
+using DSharpPlus.Voice.MemoryServices;
 
 namespace DSharpPlus.Voice.Codec;
 

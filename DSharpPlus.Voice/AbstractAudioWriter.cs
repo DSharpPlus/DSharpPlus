@@ -5,7 +5,7 @@ using System.Runtime.ExceptionServices;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
-using DSharpPlus.Voice.RuntimeServices.Memory;
+using DSharpPlus.Voice.MemoryServices;
 
 namespace DSharpPlus.Voice;
 

@@ -1,8 +1,8 @@
 using System;
 using System.Threading.Tasks;
 
+using DSharpPlus.Voice.Protocol.Gateway.DaveV1;
 using DSharpPlus.Voice.Transport;
-using DSharpPlus.Voice.Transport.Models.VoicePayloads;
 
 namespace DSharpPlus.Voice.E2EE;
 
