@@ -22,12 +22,8 @@ public class DiscordRole : SnowflakeObject, IEquatable<DiscordRole>
     /// <summary>
     /// Gets the color of this role.
     /// </summary>
-    [JsonIgnore]
-    public DiscordColor Color
-        => new(this.color);
-
-    [JsonProperty("color", NullValueHandling = NullValueHandling.Ignore)]
-    internal int color;
+    [JsonProperty("colors", NullValueHandling = NullValueHandling.Ignore)]
+    public DiscordRoleColors Colors { get; internal set; }
 
     /// <summary>
     /// Gets whether this role is hoisted.
@@ -83,6 +79,12 @@ public class DiscordRole : SnowflakeObject, IEquatable<DiscordRole>
     /// </summary>
     [JsonProperty("tags", NullValueHandling = NullValueHandling.Ignore)]
     public DiscordRoleTags Tags { get; internal set; }
+    
+    /// <summary>
+    /// Gets the flags this role has.
+    /// </summary>
+    [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
+    public DiscordRoleFlags Flags { get; internal set; }
 
     [JsonIgnore]
     internal ulong guild_id = 0;

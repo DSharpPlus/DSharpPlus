@@ -106,12 +106,12 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// Gets the color associated with this user's top color-giving role, otherwise 0 (no color).
     /// </summary>
     [JsonIgnore]
-    public DiscordColor Color
+    public DiscordRoleColors Color
     {
         get
         {
-            DiscordRole? role = this.Roles.OrderByDescending(xr => xr.Position).FirstOrDefault(xr => xr.Color.Value != 0);
-            return role != null ? role.Color : new DiscordColor();
+            DiscordRole? role = this.Roles.OrderByDescending(xr => xr.Position).FirstOrDefault(xr => xr.Colors.PrimaryColor.Value != 0);
+            return role is not null ? role.Colors : new DiscordRoleColors();
         }
     }
 

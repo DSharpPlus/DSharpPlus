@@ -37,7 +37,7 @@ You can install the library from following sources:
 
 # Documentation
 
-The documentation for the latest stable version is available at [dsharpplus.github.io](https://dsharpplus.github.io/DSharpPlus).
+The documentation for the latest nightly version is available at [dsharpplus.github.io](https://dsharpplus.github.io/DSharpPlus).
 
 ## Resources
 
