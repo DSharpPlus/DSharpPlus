@@ -4,7 +4,7 @@ title: Article Preamble
 ---
 
 >[!NOTE]
-> These articles and the [API documentation][11] are built for the latest [nightly][18] version (`v5.0`)
+> These articles and the [API documentation][11] are built for the latest [nightly][18] version (`v5.0`). Please use v5.0 nightlies instead of v4.5.X. v5.0 is a major rewrite of the library and no support will be provided for v4.5.X.
 
 ## Knowledge Prerequisites
 
