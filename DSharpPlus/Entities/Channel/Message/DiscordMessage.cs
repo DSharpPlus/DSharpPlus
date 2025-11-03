@@ -52,13 +52,23 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         this.EditedTimestamp = other.EditedTimestamp;
         this.Id = other.Id;
         this.IsTTS = other.IsTTS;
+        this.MentionEveryone = other.MentionEveryone;
         this.Poll = other.Poll;
         this.MessageType = other.MessageType;
         this.Pinned = other.Pinned;
         this.Timestamp = other.Timestamp;
         this.WebhookId = other.WebhookId;
         this.ApplicationId = other.ApplicationId;
+        this.Activity = other.Activity;
+        this.Application = other.Application;
+        this.Flags = other.Flags;
+        this.ReferencedMessage = other.ReferencedMessage;
+        this.MessageSnapshots = other.MessageSnapshots;
+        this.Interaction = other.Interaction;
         this.Components = other.Components;
+        this.internalReference = other.internalReference;
+        this.guildId = other.guildId;
+        this.channel = other.channel;
     }
 
     /// <summary>
