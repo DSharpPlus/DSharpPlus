@@ -25,7 +25,7 @@ public sealed class TextInputModalSubmission : IModalSubmission
     }
 
     /// <summary>
-    /// Parse <see cref="Value"/> as supplied data type.
+    /// Parse <see cref="Value"/> as <typeparamref name="T"/>.
     /// </summary>
     /// <typeparam name="T">Supplied data type you wish to convert the <see cref="Value"/> to.</typeparam>
     /// <returns></returns>
@@ -39,7 +39,7 @@ public sealed class TextInputModalSubmission : IModalSubmission
     }
 
     /// <summary>
-    /// Try Parse <see cref="Value"/> as supplied data type.
+    /// Try Parse <see cref="Value"/> as <typeparamref name="T"/>.
     /// </summary>
     /// <typeparam name="T">Supplied data type you wish to try convert the <see cref="Value"/> to.</typeparam>
     /// <param name="value"></param>
@@ -47,7 +47,7 @@ public sealed class TextInputModalSubmission : IModalSubmission
     public bool TryGetValueAs<T>(out T value) where T : IParsable<T> => T.TryParse(this.Value, CultureInfo.InvariantCulture, out value);
 
     /// <summary>
-    /// Parse <see cref="Value"/> as supplied data type, else <![CDATA[default(T)]]>.
+    /// Parse <see cref="Value"/> as <typeparamref name="T"/>, else <![CDATA[default(T)]]>.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
@@ -59,7 +59,7 @@ public sealed class TextInputModalSubmission : IModalSubmission
     }
 
     /// <summary>
-    /// Parse <see cref="Value"/> as supplied data type, else return your supplied <paramref name="defaultValue"/>.
+    /// Parse <see cref="Value"/> as <typeparamref name="T"/>, else return your supplied <paramref name="defaultValue"/>.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="defaultValue"></param>
