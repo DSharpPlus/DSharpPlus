@@ -32,6 +32,7 @@ public sealed class SelectMenuModalSubmission : IModalSubmission
     /// Parse all <see cref="SelectMenuModalSubmission.Values"/> as <typeparamref name="T"/>
     /// </summary>
     /// <typeparam name="T">Supplied data type you wish to convert the <see cref="SelectMenuModalSubmission.Values"/> to.</typeparam>
+    /// <exception cref="AggregateException"></exception>
     /// <returns>All parsable <see cref="SelectMenuModalSubmission.Values"/></returns>
     public IEnumerable<T> GetValuesAs<T>()
         where T : IParsable<T>
