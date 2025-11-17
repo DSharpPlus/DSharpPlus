@@ -37,24 +37,26 @@ public sealed class SelectMenuModalSubmission : IModalSubmission
     public IEnumerable<T> GetValuesAs<T>()
         where T : IParsable<T>
     {
-        List<FormatException> errors = [];
+        List<FormatException> errors = new(this.Values.Count);
+        List<T> results = new(this.Values.Count);
 
         foreach (string i in this.Values)
         {
             if (i.TryGetValueAs<T>(out T? value))
             {
-                yield return value;
+                results.Add(value);
             }
             else
             {
-                errors.Add(new FormatException($"Value \"{i}\" cannot be parsed as {typeof(T).Name}."));
+                errors.Add(new FormatException(
+                    $"Value \"{i}\" cannot be parsed as {typeof(T).Name}."));
             }                
         }
 
-        if (errors.Count > 0)
-        {
-            throw new AggregateException($"One or more values cannot be parsed as {typeof(T).Name}.", errors);
-        }
+        return errors.Count > 0
+            ? throw new AggregateException(
+                $"One or more values cannot be parsed as {typeof(T).Name}.", errors)
+            : (IEnumerable<T>)results;
     }
 
     /// <summary>
