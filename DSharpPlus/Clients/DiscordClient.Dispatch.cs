@@ -1811,11 +1811,12 @@ public sealed partial class DiscordClient
 
         if (message.MessageType == DiscordMessageType.PollResult)
         {
-            message = new DiscordPollCompletionMessage(message);
+            message = DiscordPollCompletionMessage.Parse(message) ?? message;
 
             MessagePollCompletedEventArgs pollEventArgs = new()
             {
-                PollCompletion = (DiscordPollCompletionMessage)message
+                PollCompletion = message as DiscordPollCompletionMessage,
+                Message = message
             };
 
             await this.dispatcher.DispatchAsync(this, pollEventArgs);
