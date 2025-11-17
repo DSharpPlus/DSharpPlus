@@ -152,6 +152,6 @@ public class DiscordPollCompletionMessage : DiscordMessage
     /// A message link pointing to the poll message.
     /// </summary>
     [JsonIgnore]
-    public string PollMessageLink =>
-        $"https://discord.com/channels/{this.guildId}/{this.ChannelId}/{this.Reference!.Message.Id}";
+    public string PollMessageLink
+        => $"https://discord.com/channels/{this.guildId}/{this.ChannelId}/{this.Reference!.Message.Id}";
 }
