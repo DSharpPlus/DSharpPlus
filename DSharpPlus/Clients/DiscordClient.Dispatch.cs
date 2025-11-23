@@ -2777,6 +2777,12 @@ public sealed partial class DiscordClient
         interaction.Discord = this;
         interaction.Data.Discord = this;
 
+        if (channel != null)
+        {
+            channel.Discord = this;
+            interaction.ContextChannel = channel;
+        }
+
         if (member is not null && guildId is not null && interaction.Guild is not null)
         {
             usr = new DiscordMember(member) { guild_id = guildId.Value, Discord = this };
