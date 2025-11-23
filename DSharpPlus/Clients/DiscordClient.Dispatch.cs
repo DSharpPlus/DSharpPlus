@@ -2777,7 +2777,7 @@ public sealed partial class DiscordClient
         interaction.Discord = this;
         interaction.Data.Discord = this;
 
-        if(channel != null)
+        if (channel != null)
         {
             channel.Discord = this;
             interaction.ContextChannel = channel;
