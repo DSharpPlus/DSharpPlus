@@ -302,6 +302,18 @@ public enum DiscordPermission
     /// Allows members to use external, user-installable apps.
     /// </summary>
     [Display(Name = "Use External Apps")]
-    UseExternalApps = 50
+    UseExternalApps = 50,
+
+    /// <summary>
+    /// Allows members to pin and unpin messages.
+    /// </summary>
+    [Display(Name = "Pin Messages")]
+    PinMessages = 51,
+
+    /// <summary>
+    /// Allows members to bypass slowmode.
+    /// </summary>
+    [Display(Name = "Bypass Slowmode")]
+    BypassSlowmode = 52
 }
 
