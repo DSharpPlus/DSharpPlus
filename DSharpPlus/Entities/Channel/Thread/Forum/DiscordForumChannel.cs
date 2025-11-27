@@ -28,13 +28,11 @@ public sealed class DiscordForumChannel : DiscordChannel
     /// <summary>
     /// Gets the available tags for the forum.
     /// </summary>
-    public IReadOnlyList<DiscordForumTag> AvailableTags => this.availableTags;
+    public IReadOnlyList<DiscordForumTag> AvailableTags => this.availableTagsInternal;
 
-#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value null
     // Justification: Used by JSON.NET
     [JsonProperty("available_tags")]
-    private readonly List<DiscordForumTag> availableTags;
-#pragma warning restore CS0649
+    internal List<DiscordForumTag> availableTagsInternal;
 
     /// <summary>
     /// The default reaction shown on posts when they are created.
