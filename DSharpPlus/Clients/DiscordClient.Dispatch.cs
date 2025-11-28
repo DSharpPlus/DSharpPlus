@@ -417,6 +417,11 @@ public sealed partial class DiscordClient
                 gid = (ulong)dat["guild_id"];
                 await OnVoiceServerUpdateEventAsync((string)dat["endpoint"], (string)dat["token"], this.guilds[gid]);
                 break;
+            
+            case "voice_channel_effect_send":
+
+                await OnVoiceChannelEffectSendAsync(dat.ToDiscordObject<VoiceChannelEffectSendEventArgs>());
+                break;
 
             #endregion
 
@@ -2471,6 +2476,9 @@ public sealed partial class DiscordClient
 
         await this.dispatcher.DispatchAsync(this, ea);
     }
+
+    private async Task OnVoiceChannelEffectSendAsync(VoiceChannelEffectSendEventArgs eventArgs) 
+        => await this.dispatcher.DispatchAsync(this, eventArgs);
 
     #endregion
 
