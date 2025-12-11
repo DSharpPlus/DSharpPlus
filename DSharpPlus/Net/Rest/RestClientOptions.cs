@@ -8,9 +8,12 @@ namespace DSharpPlus.Net;
 public sealed class RestClientOptions
 {
     /// <summary>
-    /// Sets the timeout for HTTP operations. Set this to <see cref="System.Threading.Timeout.InfiniteTimeSpan"/> 
+    /// Sets the timeout for RestClient operations. Set this to <see cref="System.Threading.Timeout.InfiniteTimeSpan"/> 
     /// to never time out. Defaults to 100 seconds.
     /// </summary>
+    /// <remarks>
+    /// Setting this value does not affect the <see cref="System.Net.Http.HttpClient.Timeout"/> of the <see cref="System.Net.Http.HttpClient"/> supplied by Dependency Injection.
+    /// </remarks>
     public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(100);
 
     /// <summary>
