@@ -2248,7 +2248,7 @@ public sealed partial class DiscordClient
 
     internal async Task OnMessageReactionRemoveEmojiAsync(ulong messageId, ulong channelId, ulong guildId, JToken dat)
     {
-        DiscordGuild guild = InternalGetCachedGuild(guildId);
+        DiscordGuild? guild = InternalGetCachedGuild(guildId);
         DiscordChannel? channel = InternalGetCachedChannel(channelId, guildId) ?? InternalGetCachedThread(channelId, guildId);
 
         if (channel == null)

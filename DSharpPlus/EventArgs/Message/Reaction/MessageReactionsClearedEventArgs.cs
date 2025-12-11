@@ -25,8 +25,8 @@ public class MessageReactionsClearedEventArgs : DiscordEventArgs
     /// <summary>
     /// Gets the guild in which the reactions were cleared.
     /// </summary>
-    public DiscordGuild Guild
-        => this.Channel.Guild;
+    public DiscordGuild? Guild
+        => this.Channel?.Guild;
 
     internal MessageReactionsClearedEventArgs() : base() { }
 }

@@ -15,7 +15,7 @@ public sealed class MessageReactionRemovedEmojiEventArgs : DiscordEventArgs
     /// <summary>
     /// Gets the guild the removed reactions were in.
     /// </summary>
-    public DiscordGuild Guild { get; internal set; }
+    public DiscordGuild? Guild { get; internal set; }
 
     /// <summary>
     /// Gets the message that had the removed reactions.
