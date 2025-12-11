@@ -12,7 +12,7 @@ public sealed class RestClientOptions
     /// to never time out. Defaults to 100 seconds.
     /// </summary>
     /// <remarks>
-    /// Setting this value does not affect the timeout of the <see cref="System.Net.Http.HttpClient"/> supplied by Dependency Injection.
+    /// Setting this value does not affect the <see cref="System.Net.Http.HttpClient.Timeout"/> of the <see cref="System.Net.Http.HttpClient"/> supplied by Dependency Injection.
     /// </remarks>
     public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(100);
 
