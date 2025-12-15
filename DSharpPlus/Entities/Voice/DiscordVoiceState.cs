@@ -179,7 +179,7 @@ public class DiscordVoiceState
 
         DiscordChannel? channel = null;
         DiscordGuild? guild = null;
-        if (this.Discord is DiscordClient discordClient && this.GuildId is not null)
+        if (this.Discord is DiscordClient discordClient)
         {
             channel = discordClient.InternalGetCachedChannel(this.ChannelId.Value, this.GuildId);
         }
