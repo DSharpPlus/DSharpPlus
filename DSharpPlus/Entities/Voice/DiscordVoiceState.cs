@@ -19,7 +19,7 @@ public class DiscordVoiceState
     /// Gets ID of the guild this voice state is associated with.
     /// </summary>
     [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
-    public ulong? GuildId { get; init; }
+    public ulong? GuildId { get; internal set; }
 
     /// <summary>
     /// Gets ID of the channel this user is connected to.

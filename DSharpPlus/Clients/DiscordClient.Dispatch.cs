@@ -1258,57 +1258,58 @@ public sealed partial class DiscordClient
             guild.voiceStates[kvp.Key] = kvp.Value;
         }
 
-        foreach (DiscordScheduledGuildEvent xe in guild.scheduledEvents.Values)
+        foreach (DiscordScheduledGuildEvent scheduledEvent in guild.scheduledEvents.Values)
         {
-            xe.Discord = this;
+            scheduledEvent.Discord = this;
 
-            if (xe.Creator != null)
+            if (scheduledEvent.Creator != null)
             {
-                xe.Creator.Discord = this;
+                scheduledEvent.Creator.Discord = this;
             }
         }
 
-        foreach (DiscordChannel xc in guild.channels.Values)
+        foreach (DiscordChannel channel in guild.channels.Values)
         {
-            xc.GuildId = guild.Id;
-            xc.Discord = this;
-            foreach (DiscordOverwrite xo in xc.permissionOverwrites)
+            channel.GuildId = guild.Id;
+            channel.Discord = this;
+            foreach (DiscordOverwrite xo in channel.permissionOverwrites)
             {
                 xo.Discord = this;
-                xo.channelId = xc.Id;
+                xo.channelId = channel.Id;
             }
         }
 
-        foreach (DiscordThreadChannel xt in guild.threads.Values)
+        foreach (DiscordThreadChannel thread in guild.threads.Values)
         {
-            xt.GuildId = guild.Id;
-            xt.Discord = this;
+            thread.GuildId = guild.Id;
+            thread.Discord = this;
         }
 
-        foreach (DiscordEmoji xe in guild.emojis.Values)
+        foreach (DiscordEmoji emoji in guild.emojis.Values)
         {
-            xe.Discord = this;
+            emoji.Discord = this;
         }
 
-        foreach (DiscordMessageSticker xs in guild.stickers.Values)
+        foreach (DiscordMessageSticker sticker in guild.stickers.Values)
         {
-            xs.Discord = this;
+            sticker.Discord = this;
         }
 
-        foreach (DiscordVoiceState xvs in guild.voiceStates.Values)
+        foreach (DiscordVoiceState voicestate in guild.voiceStates.Values)
         {
-            xvs.Discord = this;
+            voicestate.Discord = this; 
+            voicestate.GuildId = guild.Id;
         }
 
-        foreach (DiscordRole xr in guild.roles.Values)
+        foreach (DiscordRole role in guild.roles.Values)
         {
-            xr.Discord = this;
-            xr.guild_id = guild.Id;
+            role.Discord = this;
+            role.guild_id = guild.Id;
         }
 
-        foreach (DiscordStageInstance instance in guild.stageInstances.Values)
+        foreach (DiscordStageInstance stageInstance in guild.stageInstances.Values)
         {
-            instance.Discord = this;
+            stageInstance.Discord = this;
         }
 
         bool old = Volatile.Read(ref this.guildDownloadCompleted);
