@@ -1,5 +1,5 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
 using DSharpPlus.Net.Abstractions;
@@ -19,7 +19,7 @@ public class DiscordVoiceState
     /// Gets ID of the guild this voice state is associated with.
     /// </summary>
     [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
-    public ulong? GuildId { get; init; }
+    public ulong? GuildId { get; internal set; }
 
     /// <summary>
     /// Gets ID of the channel this user is connected to.
@@ -89,7 +89,7 @@ public class DiscordVoiceState
 
     [JsonProperty("member", NullValueHandling = NullValueHandling.Ignore)]
     internal TransportMember TransportMember { get; init; }
-    
+
     /// <summary>
     /// Gets the guild associated with this voice state.
     /// </summary>
@@ -100,7 +100,7 @@ public class DiscordVoiceState
         {
             return null;
         }
-        
+
         if (skipCache)
         {
             return await this.Discord.ApiClient.GetGuildAsync(this.GuildId.Value, false);
@@ -116,11 +116,11 @@ public class DiscordVoiceState
         if (this.Discord is DiscordClient dc)
         {
             dc.guilds.TryAdd(this.GuildId.Value, guild);
-        } 
-            
+        }
+
         return guild;
     }
-    
+
     /// <summary>
     /// Gets the member associated with this voice state.
     /// </summary>
@@ -137,14 +137,14 @@ public class DiscordVoiceState
         {
             return await this.Discord.ApiClient.GetGuildMemberAsync(this.GuildId.Value, this.UserId);
         }
-        
+
         DiscordGuild? guild = await GetGuildAsync(skipCache);
 
         if (guild is null)
         {
             return null;
         }
-        
+
         if (guild.Members.TryGetValue(this.UserId, out DiscordMember? member))
         {
             return member;
@@ -159,7 +159,7 @@ public class DiscordVoiceState
 
         return member;
     }
-    
+
     /// <summary>
     /// Gets the channel associated with this voice state.
     /// </summary>
@@ -167,7 +167,7 @@ public class DiscordVoiceState
     /// <returns>Returns the channel associated with this voice state. Null if the voice state is not associated with a guild.</returns>
     public async ValueTask<DiscordChannel?> GetChannelAsync(bool skipCache = false)
     {
-        if (this.ChannelId is null || this.GuildId is null)
+        if (this.ChannelId is null)
         {
             return null;
         }
@@ -176,22 +176,34 @@ public class DiscordVoiceState
         {
             return await this.Discord.ApiClient.GetChannelAsync(this.ChannelId.Value);
         }
-        
-        DiscordGuild? guild = await GetGuildAsync(skipCache);
 
-        if (guild is null)
+        DiscordChannel? channel = null;
+        DiscordGuild? guild = null;
+        if (this.Discord is DiscordClient discordClient)
         {
-            return null;
+            channel = discordClient.InternalGetCachedChannel(this.ChannelId.Value, this.GuildId);
         }
-        
-        if (guild.Channels.TryGetValue(this.ChannelId.Value, out DiscordChannel? channel))
+        else if (this.GuildId is not null)
+        {
+            guild = this.Discord.Guilds.GetValueOrDefault(this.GuildId.Value);
+            guild?.Channels.TryGetValue(this.ChannelId.Value, out channel);
+        }
+
+        if (channel is not null)
         {
             return channel;
         }
 
         channel = await this.Discord.ApiClient.GetChannelAsync(this.ChannelId.Value);
 
-        if (this.Discord is DiscordClient dc)
+        if (this.GuildId is null)
+        {
+            return channel;
+        }
+
+        guild ??= this.Discord.Guilds.GetValueOrDefault(this.GuildId.Value);
+
+        if (guild is not null && this.Discord is DiscordClient dc)
         {
             dc.guilds.TryAdd(this.GuildId.Value, guild);
         }
@@ -200,17 +212,7 @@ public class DiscordVoiceState
     }
 
     internal DiscordVoiceState() { }
-    internal DiscordVoiceState(DiscordMember member)
-    {
-        this.Discord = (DiscordClient)member.Discord;
-        this.UserId = member.Id;
-        this.ChannelId = 0;
-        this.GuildId = member.guild_id;
-        this.IsServerDeafened = member.IsDeafened;
-        this.IsServerMuted = member.IsMuted;
 
-        // Values not filled out are values that are not known from a DiscordMember
-    }
-
-    public override string ToString() => $"{this.UserId.ToString(CultureInfo.InvariantCulture)} in {this.GuildId?.ToString(CultureInfo.InvariantCulture)}";
+    public override string ToString() 
+        => $"{this.UserId.ToString(CultureInfo.InvariantCulture)} in {this.GuildId?.ToString(CultureInfo.InvariantCulture)}";
 }
