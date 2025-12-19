@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
@@ -8,20 +9,30 @@ public class DiscordPollCompletionMessage : DiscordMessage
 {
     internal DiscordPollCompletionMessage(DiscordMessage other) : base(other)
     {
-        Debug.Assert(other.MessageType == DiscordMessageType.PollResult);
+    }
 
-        if (other.Embeds is not [DiscordEmbed embed])
+    internal static DiscordPollCompletionMessage? Parse(DiscordMessage message)
+    {
+        Debug.Assert(message.MessageType == DiscordMessageType.PollResult);
+
+        if (message.Embeds is not [DiscordEmbed embed])
         {
-            throw new ArgumentException("The provided poll completion message had no embeds.");
+            message.Discord.Logger.LogInformation(
+                "Received a poll completion message without an embed. This is likely due to missing the MessageContent intent.");
+            return null;
         }
+
+        DiscordPollCompletionMessage result = new(message);
 
         if (embed.Type != "poll_result" || embed.Fields.Count == 0)
         {
-            throw new ArgumentException("The provided poll completion message's embed was malformed and does not represent poll results.");
+            throw new ArgumentException(
+                "The provided poll completion message's embed was malformed and does not represent poll results.");
         }
 
         ulong winningAnswerEmojiId = 0;
         string? winningAnswerEmojiName = null;
+        bool winningAnswerEmojiIsAnimated = false;
 
         // https://discord.com/developers/docs/resources/message#embed-fields-by-embed-type-poll-result-embed-fields
         // i asked the devil whether they understood what the thought process here was, they said no.
@@ -30,31 +41,35 @@ public class DiscordPollCompletionMessage : DiscordMessage
             switch (field.Name)
             {
                 case "poll_question_text":
-                    this.PollQuestionText = field.Value!;
+                    result.PollQuestionText = field.Value!;
                     break;
 
                 case "victor_answer_votes":
-                    this.WinningAnswerVoteCount = int.Parse(field.Value!);
+                    result.WinningAnswerVoteCount = int.Parse(field.Value!);
                     break;
 
                 case "total_votes":
-                    this.TotalVotes = int.Parse(field.Value!);
+                    result.TotalVotes = int.Parse(field.Value!);
                     break;
 
                 case "victor_answer_id":
-                    this.WinningAnswerId = int.Parse(field.Value!);
+                    result.WinningAnswerId = int.Parse(field.Value!);
                     break;
 
                 case "victor_answer_text":
-                    this.WinningAnswerText = field.Value!;
+                    result.WinningAnswerText = field.Value!;
                     break;
 
                 case "victor_answer_emoji_id":
-                    winningAnswerEmojiId = ulong.Parse(field.Value)!;
+                    winningAnswerEmojiId = ulong.Parse(field.Value!);
                     break;
 
                 case "victor_answer_emoji_name":
                     winningAnswerEmojiName = field.Value!;
+                    break;
+
+                case "victor_answer_emoji_animated":
+                    winningAnswerEmojiIsAnimated = bool.TryParse(field.Value!, out bool animated) && animated;
                     break;
 
                 default:
@@ -64,16 +79,25 @@ public class DiscordPollCompletionMessage : DiscordMessage
 
         if (winningAnswerEmojiId != 0)
         {
-            this.WinningAnswerEmoji = DiscordEmoji.FromGuildEmote(this.Discord, winningAnswerEmojiId);
+            result.WinningAnswerEmoji = new DiscordEmoji
+            {
+                Id = winningAnswerEmojiId,
+                Name = winningAnswerEmojiName ?? "",
+                IsAnimated = winningAnswerEmojiIsAnimated,
+                IsManaged = false,
+                Discord = result.Discord
+            };
         }
         else if (winningAnswerEmojiName is not null)
         {
-            this.WinningAnswerEmoji = DiscordEmoji.FromUnicode(this.Discord, winningAnswerEmojiName);
+            result.WinningAnswerEmoji = DiscordEmoji.FromUnicode(result.Discord, winningAnswerEmojiName);
         }
         else
         {
-            this.WinningAnswerEmoji = null;
+            result.WinningAnswerEmoji = null;
         }
+
+        return result;
     }
 
     /// <summary>
@@ -128,5 +152,6 @@ public class DiscordPollCompletionMessage : DiscordMessage
     /// A message link pointing to the poll message.
     /// </summary>
     [JsonIgnore]
-    public string PollMessageLink => $"https://discord.com/channels/{this.guildId}/{this.ChannelId}/{this.Reference!.Message.Id}";
+    public string PollMessageLink
+        => $"https://discord.com/channels/{this.guildId}/{this.ChannelId}/{this.Reference!.Message.Id}";
 }

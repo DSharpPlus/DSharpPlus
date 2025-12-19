@@ -11,6 +11,12 @@ namespace DSharpPlus.Entities;
 public class DiscordInteraction : SnowflakeObject
 {
     /// <summary>
+    /// The channel context this interaction was provided during the event dispatch, if any.
+    /// </summary>
+    [JsonIgnore]
+    internal DiscordChannel? ContextChannel { get; set; }
+
+    /// <summary>
     /// Gets the response state of the interaction.
     /// </summary>
     [JsonIgnore]
@@ -63,6 +69,11 @@ public class DiscordInteraction : SnowflakeObject
             if (cachedChannel is not null)
             {
                 return cachedChannel;
+            }
+
+            if (this.ContextChannel is not null)
+            {
+                return this.ContextChannel;
             }
 
             return new DiscordDmChannel

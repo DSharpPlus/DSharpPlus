@@ -142,7 +142,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             return null;
         }
 
-        return await GetChannelAsync(this.AfkChannelId.Value);
+        return await GetChannelAsync(this.AfkChannelId.Value, skipCache);
     }
 
     /// <summary>
@@ -318,7 +318,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
     [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
-    internal ConcurrentDictionary<ulong, DiscordRole> roles;
+    internal ConcurrentDictionary<ulong, DiscordRole> roles = [];
 
     /// <summary>
     /// Gets a collection of this guild's stickers.
@@ -1110,9 +1110,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns>All the roles in the guild.</returns>
     public async Task<IReadOnlyList<DiscordRole>> GetRolesAsync()
     {
-        IReadOnlyList<DiscordRole> roles = await this.Discord.ApiClient.GetGuildRolesAsync(this.Id);
-        this.roles = new ConcurrentDictionary<ulong, DiscordRole>(roles.ToDictionary(x => x.Id));
-        return roles;
+        IReadOnlyList<DiscordRole> apiRoles = await this.Discord.ApiClient.GetGuildRolesAsync(this.Id);
+        this.roles = new ConcurrentDictionary<ulong, DiscordRole>(apiRoles.ToDictionary(x => x.Id));
+        return apiRoles;
     }
 
     /// <summary>
@@ -1150,7 +1150,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         IReadOnlyList<DiscordRole> returnedRoles = await this.Discord.ApiClient.ModifyGuildRolePositionsAsync(this.Id, roles.Select(x => new DiscordRolePosition() { RoleId = x.Value.Id, Position = x.Key }), reason);
 
         // Update the cache as the endpoint returns all roles in the order they were sent.
-        this.roles = new(returnedRoles.Select(x => new KeyValuePair<ulong, DiscordRole>(x.Id, x)));
+        this.roles = new ConcurrentDictionary<ulong, DiscordRole>(returnedRoles.Select(x => new KeyValuePair<ulong, DiscordRole>(x.Id, x)));
         return returnedRoles;
     }
 
@@ -1452,27 +1452,19 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<int> GetPruneCountAsync(int days = 7, IEnumerable<DiscordRole> includedRoles = null)
+    public async Task<int> GetPruneCountAsync(int days = 7, IEnumerable<DiscordRole>? includedRoles = null)
     {
-        if (includedRoles != null)
+        if (includedRoles is null)
         {
-            includedRoles = includedRoles.Where(r => r != null);
-            int roleCount = includedRoles.Count();
-            DiscordRole[] roleArr = includedRoles.ToArray();
-            List<ulong> rawRoleIds = [];
-
-            for (int i = 0; i < roleCount; i++)
-            {
-                if (this.roles.ContainsKey(roleArr[i].Id))
-                {
-                    rawRoleIds.Add(roleArr[i].Id);
-                }
-            }
-
-            return await this.Discord.ApiClient.GetGuildPruneCountAsync(this.Id, days, rawRoleIds);
+            return await this.Discord.ApiClient.GetGuildPruneCountAsync(this.Id, days);
         }
+        
+        IEnumerable<ulong> rawRoleIds = includedRoles
+            .Where(r => this.roles.ContainsKey(r.Id))
+            .Select(x => x.Id);
 
-        return await this.Discord.ApiClient.GetGuildPruneCountAsync(this.Id, days, null);
+        return await this.Discord.ApiClient.GetGuildPruneCountAsync(this.Id, days, rawRoleIds);
+
     }
 
     /// <summary>

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -843,9 +842,9 @@ public sealed partial class DiscordClient
         });
     }
 
-    internal async Task OnChannelUpdateEventAsync(DiscordChannel channel)
+    internal async Task OnChannelUpdateEventAsync(DiscordChannel? channel)
     {
-        if (channel == null)
+        if (channel is null)
         {
             return;
         }
@@ -857,7 +856,14 @@ public sealed partial class DiscordClient
         DiscordChannel? channel_new = InternalGetCachedChannel(channel.Id, channel.GuildId);
         DiscordChannel channel_old = null!;
 
-        if (channel_new != null)
+        if(channel is DiscordForumChannel forum_channel_update && (channel_new is null || channel_new is DiscordForumChannel))
+        {
+            DiscordForumChannel? forum_channel_new = channel_new as DiscordForumChannel;
+            await OnForumChannelUpdateAsync(forum_channel_new , forum_channel_update, gld);
+            return;
+        }
+
+        if (channel_new is not null)
         {
             channel_old = new DiscordChannel
             {
@@ -868,7 +874,7 @@ public sealed partial class DiscordClient
                 //IsPrivate = channel_new.IsPrivate,
                 LastMessageId = channel_new.LastMessageId,
                 Name = channel_new.Name,
-                permissionOverwrites = new List<DiscordOverwrite>(channel_new.permissionOverwrites),
+                permissionOverwrites = [..channel_new.permissionOverwrites],
                 Position = channel_new.Position,
                 Topic = channel_new.Topic,
                 Type = channel_new.Type,
@@ -902,15 +908,91 @@ public sealed partial class DiscordClient
 
             channel_new.permissionOverwrites.AddRange(channel.permissionOverwrites);
         }
-        else if (gld != null)
+        else
         {
-            gld.channels[channel.Id] = channel;
+            gld?.channels[channel.Id] = channel;
         }
 
         await this.dispatcher.DispatchAsync(this, new ChannelUpdatedEventArgs
         {
             ChannelAfter = channel_new,
             Guild = gld,
+            ChannelBefore = channel_old
+        });
+    }
+
+    internal async Task OnForumChannelUpdateAsync(DiscordForumChannel? channel_new, DiscordForumChannel updateChannel, DiscordGuild? guild)
+    {
+        DiscordForumChannel channel_old = null!;
+        if(channel_new is not null)
+        {
+            channel_old = new DiscordForumChannel
+            {
+                Bitrate = channel_new.Bitrate,
+                Discord = this,
+                GuildId = channel_new.GuildId,
+                Id = channel_new.Id,
+                LastMessageId = channel_new.LastMessageId,
+                Name = channel_new.Name,
+                permissionOverwrites = [.. channel_new.permissionOverwrites],
+                Position = channel_new.Position,
+                Topic = channel_new.Topic,
+                Type = channel_new.Type,
+                UserLimit = channel_new.UserLimit,
+                ParentId = channel_new.ParentId,
+                IsNSFW = channel_new.IsNSFW,
+                PerUserRateLimit = channel_new.PerUserRateLimit,
+                RtcRegionId = channel_new.RtcRegionId,
+                QualityMode = channel_new.QualityMode,
+                availableTagsInternal = [.. channel_new.AvailableTags],
+                DefaultLayout = channel_new.DefaultLayout,
+                DefaultPerUserRateLimit = channel_new.DefaultPerUserRateLimit,
+                DefaultReaction = channel_new.DefaultReaction,
+                DefaultSortOrder = channel_new.DefaultSortOrder
+            };
+
+            channel_new.Bitrate = updateChannel.Bitrate;
+            channel_new.Name = updateChannel.Name;
+            channel_new.Position = updateChannel.Position;
+            channel_new.Topic = updateChannel.Topic;
+            channel_new.UserLimit = updateChannel.UserLimit;
+            channel_new.ParentId = updateChannel.ParentId;
+            channel_new.IsNSFW = updateChannel.IsNSFW;
+            channel_new.PerUserRateLimit = updateChannel.PerUserRateLimit;
+            channel_new.Type = updateChannel.Type;
+            channel_new.RtcRegionId = updateChannel.RtcRegionId;
+            channel_new.QualityMode = updateChannel.QualityMode;
+
+            channel_new.permissionOverwrites.Clear();
+
+            foreach (DiscordOverwrite po in updateChannel.permissionOverwrites)
+            {
+                po.Discord = this;
+                po.channelId = updateChannel.Id;
+            }
+
+            channel_new.permissionOverwrites.AddRange(updateChannel.permissionOverwrites);
+            channel_new.availableTagsInternal.Clear();
+
+            foreach (DiscordForumTag tag in updateChannel.AvailableTags)
+            {
+                tag.Discord = this;
+            }
+            channel_new.availableTagsInternal.AddRange(updateChannel.AvailableTags);
+            channel_new.DefaultLayout = updateChannel.DefaultLayout;
+            channel_new.DefaultPerUserRateLimit = updateChannel.DefaultPerUserRateLimit;
+            channel_new.DefaultReaction = updateChannel.DefaultReaction;
+            channel_new.DefaultSortOrder = updateChannel.DefaultSortOrder;
+        }
+        else
+        {
+            guild?.channels[updateChannel.Id] = updateChannel;
+        }
+
+        await this.dispatcher.DispatchAsync(this, new ChannelUpdatedEventArgs
+        {
+            ChannelAfter = channel_new,
+            Guild = guild,
             ChannelBefore = channel_old
         });
     }
@@ -1176,57 +1258,58 @@ public sealed partial class DiscordClient
             guild.voiceStates[kvp.Key] = kvp.Value;
         }
 
-        foreach (DiscordScheduledGuildEvent xe in guild.scheduledEvents.Values)
+        foreach (DiscordScheduledGuildEvent scheduledEvent in guild.scheduledEvents.Values)
         {
-            xe.Discord = this;
+            scheduledEvent.Discord = this;
 
-            if (xe.Creator != null)
+            if (scheduledEvent.Creator != null)
             {
-                xe.Creator.Discord = this;
+                scheduledEvent.Creator.Discord = this;
             }
         }
 
-        foreach (DiscordChannel xc in guild.channels.Values)
+        foreach (DiscordChannel channel in guild.channels.Values)
         {
-            xc.GuildId = guild.Id;
-            xc.Discord = this;
-            foreach (DiscordOverwrite xo in xc.permissionOverwrites)
+            channel.GuildId = guild.Id;
+            channel.Discord = this;
+            foreach (DiscordOverwrite xo in channel.permissionOverwrites)
             {
                 xo.Discord = this;
-                xo.channelId = xc.Id;
+                xo.channelId = channel.Id;
             }
         }
 
-        foreach (DiscordThreadChannel xt in guild.threads.Values)
+        foreach (DiscordThreadChannel thread in guild.threads.Values)
         {
-            xt.GuildId = guild.Id;
-            xt.Discord = this;
+            thread.GuildId = guild.Id;
+            thread.Discord = this;
         }
 
-        foreach (DiscordEmoji xe in guild.emojis.Values)
+        foreach (DiscordEmoji emoji in guild.emojis.Values)
         {
-            xe.Discord = this;
+            emoji.Discord = this;
         }
 
-        foreach (DiscordMessageSticker xs in guild.stickers.Values)
+        foreach (DiscordMessageSticker sticker in guild.stickers.Values)
         {
-            xs.Discord = this;
+            sticker.Discord = this;
         }
 
-        foreach (DiscordVoiceState xvs in guild.voiceStates.Values)
+        foreach (DiscordVoiceState voicestate in guild.voiceStates.Values)
         {
-            xvs.Discord = this;
+            voicestate.Discord = this; 
+            voicestate.GuildId = guild.Id;
         }
 
-        foreach (DiscordRole xr in guild.roles.Values)
+        foreach (DiscordRole role in guild.roles.Values)
         {
-            xr.Discord = this;
-            xr.guild_id = guild.Id;
+            role.Discord = this;
+            role.guild_id = guild.Id;
         }
 
-        foreach (DiscordStageInstance instance in guild.stageInstances.Values)
+        foreach (DiscordStageInstance stageInstance in guild.stageInstances.Values)
         {
-            instance.Discord = this;
+            stageInstance.Discord = this;
         }
 
         bool old = Volatile.Read(ref this.guildDownloadCompleted);
@@ -1811,11 +1894,12 @@ public sealed partial class DiscordClient
 
         if (message.MessageType == DiscordMessageType.PollResult)
         {
-            message = new DiscordPollCompletionMessage(message);
+            message = DiscordPollCompletionMessage.Parse(message) ?? message;
 
             MessagePollCompletedEventArgs pollEventArgs = new()
             {
-                PollCompletion = (DiscordPollCompletionMessage)message
+                PollCompletion = message as DiscordPollCompletionMessage,
+                Message = message
             };
 
             await this.dispatcher.DispatchAsync(this, pollEventArgs);
@@ -2775,6 +2859,12 @@ public sealed partial class DiscordClient
         interaction.GuildId = guildId;
         interaction.Discord = this;
         interaction.Data.Discord = this;
+
+        if (channel != null)
+        {
+            channel.Discord = this;
+            interaction.ContextChannel = channel;
+        }
 
         if (member is not null && guildId is not null && interaction.Guild is not null)
         {
