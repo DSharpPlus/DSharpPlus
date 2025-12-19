@@ -18,7 +18,7 @@ public abstract class AbstractPcmAudioWriter : AbstractAudioWriter
 {
     private byte[]? rentedBuffer;
     private readonly short[] overflowBuffer;
-    private readonly IAudioEncoder encoder;
+    protected readonly IAudioEncoder encoder;
 
     private int overflowSamples;
 

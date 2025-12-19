@@ -38,6 +38,24 @@ public sealed unsafe class OpusEncoderHandle : SafeHandleZeroOrMinusOneIsInvalid
         => OpusInterop.EncodeFrame(this.Encoder, pcm, target);
 
     /// <summary>
+    /// Encodes a frame, returning the amount of bytes written to the target buffer.
+    /// </summary>
+    /// <param name="pcm">The PCM source data. This must be provided in 48KHz, 24-bit little endian, two channel format.</param>
+    /// <param name="target">The output buffer to write to. If this buffer is not small enough, opus will lower the quality accordingly to fit.</param>
+    /// <returns></returns>
+    public int EncodeFrame(ReadOnlySpan<int> pcm, Span<byte> target)
+        => OpusInterop.EncodeFrame(this.Encoder, pcm, target);
+
+    /// <summary>
+    /// Encodes a frame, returning the amount of bytes written to the target buffer.
+    /// </summary>
+    /// <param name="pcm">The PCM source data. This must be provided in 48KHz, single-precision float little endian, two channel format.</param>
+    /// <param name="target">The output buffer to write to. If this buffer is not small enough, opus will lower the quality accordingly to fit.</param>
+    /// <returns></returns>
+    public int EncodeFrame(ReadOnlySpan<float> pcm, Span<byte> target)
+        => OpusInterop.EncodeFrame(this.Encoder, pcm, target);
+
+    /// <summary>
     /// Sets the audio type used by this encoder.
     /// </summary>
     public void SetAudioType(AudioType audioType)

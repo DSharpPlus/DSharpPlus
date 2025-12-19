@@ -1,6 +1,7 @@
 using System;
 using System.Buffers;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 using DSharpPlus.Voice.Interop.Opus;
 using DSharpPlus.Voice.MemoryServices;
@@ -48,6 +49,40 @@ public sealed class OpusEncoder : IAudioEncoder
     }
 
     /// <inheritdoc/>
+    public AudioBufferLease Encode(ReadOnlySpan<int> pcm, out int written)
+    {
+        if (this.type == AudioType.Voice)
+        {
+            written = int.Min(pcm.Length, 1920);
+            return Encode20msCore(pcm[..written]);
+        }
+        else if (this.type is AudioType.Music or AudioType.Auto)
+        {
+            written = int.Min(pcm.Length, 11520);
+            return Encode120msCore(pcm[..written]);
+        }
+
+        throw new UnreachableException("Invalid audio type. The audio type must be a defined enum value.");
+    }
+
+    /// <inheritdoc/>
+    public AudioBufferLease Encode(ReadOnlySpan<float> pcm, out int written)
+    {
+        if (this.type == AudioType.Voice)
+        {
+            written = int.Min(pcm.Length, 1920);
+            return Encode20msCore(pcm[..written]);
+        }
+        else if (this.type is AudioType.Music or AudioType.Auto)
+        {
+            written = int.Min(pcm.Length, 11520);
+            return Encode120msCore(pcm[..written]);
+        }
+
+        throw new UnreachableException("Invalid audio type. The audio type must be a defined enum value.");
+    }
+
+    /// <inheritdoc/>
     public AudioBufferLease WriteSilenceFrame()
     {
         AudioBufferLease lease = AudioBufferPool.OpusSilenceFrames.Rent();
@@ -66,14 +101,20 @@ public sealed class OpusEncoder : IAudioEncoder
     public void SetAudioType(AudioType audioType)
         => this.type = audioType;
 
-    private AudioBufferLease Encode20msCore(ReadOnlySpan<short> pcm)
+    private AudioBufferLease Encode20msCore<T>(ReadOnlySpan<T> pcm)
     {
         // 0.02s of two-channel 48khz stereo is 960 samples, or 1920 elements
         ArgumentOutOfRangeException.ThrowIfGreaterThan(pcm.Length, 1920, nameof(pcm));
 
         AudioBufferLease lease = this.pool.Rent();
 
-        int written = this.encoder.EncodeFrame(pcm, lease.Buffer.AsSpan()[12..]);
+        int written = pcm[0] switch
+        {
+            short => this.encoder.EncodeFrame(Unsafe.As<ReadOnlySpan<T>, ReadOnlySpan<short>>(ref pcm), lease.Buffer.AsSpan()[12..]),
+            int => this.encoder.EncodeFrame(Unsafe.As<ReadOnlySpan<T>, ReadOnlySpan<int>>(ref pcm), lease.Buffer.AsSpan()[12..]),
+            float => this.encoder.EncodeFrame(Unsafe.As<ReadOnlySpan<T>, ReadOnlySpan<float>>(ref pcm), lease.Buffer.AsSpan()[12..]),
+            _ => throw new InvalidOperationException($"The generic parameter {typeof(T)} is not valid")
+        };
 
         // 12 for the rtp header
         lease.Length = written + 12;
@@ -82,7 +123,7 @@ public sealed class OpusEncoder : IAudioEncoder
         return lease;
     }
 
-    private AudioBufferLease Encode120msCore(ReadOnlySpan<short> pcm)
+    private AudioBufferLease Encode120msCore<T>(ReadOnlySpan<T> pcm)
     {
         // 0.02s of two-channel 48khz stereo is 960 samples, or 1920 elements
         ArgumentOutOfRangeException.ThrowIfGreaterThan(pcm.Length, 11520, nameof(pcm));
@@ -97,7 +138,15 @@ public sealed class OpusEncoder : IAudioEncoder
         {
             // we guarantee above that this won't have more than 120ms to encode.
             int nextTarget = int.Min(read + 1920, pcm.Length);
-            written = this.encoder.EncodeFrame(pcm[read..nextTarget], frame);
+
+            written = pcm[0] switch
+            {
+                short => this.encoder.EncodeFrame(Unsafe.As<ReadOnlySpan<T>, ReadOnlySpan<short>>(ref pcm)[read..nextTarget], frame),
+                int => this.encoder.EncodeFrame(Unsafe.As<ReadOnlySpan<T>, ReadOnlySpan<int>>(ref pcm)[read..nextTarget], frame),
+                float => this.encoder.EncodeFrame(Unsafe.As<ReadOnlySpan<T>, ReadOnlySpan<float>>(ref pcm)[read..nextTarget], frame),
+                _ => throw new InvalidOperationException($"The generic parameter {typeof(T)} is not valid")
+            };
+
             this.repacketizer.Emplace(frame.AsSpan()[..written]);
 
             read = nextTarget;

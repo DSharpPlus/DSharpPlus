@@ -25,12 +25,17 @@ partial class MemoryHelpers
         // we pin both spans because we're going to be manually aligning our operations, and that's just easier to do here
         // it would of course be terrible if the GC decided to move our buffers with its guaranteed 8-byte alignment, considering
         // we need to align to 64 bytes.
+        //
+        // given the characteristics of how we move memory around, AVX2 lacking a full-lane shuffle makes it not actually any faster
+        // than SSSE3 here (and it's quite a bit more annoying to implement), so we only implement a more optimized version for AVX512
+        // where we can in fact shuffle (or permute) across the full vector width at the element size we have (AVX2 permute only supports
+        // 32-bit and 64-bit elements, we have functionally 16-bit elements)
         if (Avx512Vbmi.IsSupported)
         {
             fixed (short* pIn = mono)
             fixed (Int16x2* pOut = stereo)
             {
-                if (mono.Length >= 131072 && CanAlign(pIn, pOut))
+                if (mono.Length >= 131072 && (nuint)pOut % 4 == 0)
                 {
                     WidenToStereoImpl.Avx512VbmiGreaterThan256KB(ref start, ref targetStart, index, mono.Length);
                 }
@@ -43,12 +48,6 @@ partial class MemoryHelpers
         else
         {
             WidenToStereoImpl.V128(ref start, ref targetStart, index, mono.Length);
-        }
-
-        // if we're given unmanaged memory that isn't aligned to the native alignment of ints and shorts respectively, we can't fix it up
-        static bool CanAlign(void* pIn, void* pOut)
-        {
-            return (nuint)pIn % 2 == 0 && (nuint)pOut % 4 == 0;
         }
     }
 }

@@ -43,7 +43,7 @@ internal static unsafe partial class OpusInterop
     }
 
     /// <summary>
-    /// Encodes a 20ms frame from the provided pcm data into the target buffer.
+    /// Encodes a 20ms frame from the provided s16le pcm data into the target buffer.
     /// </summary>
     /// <returns>The amount of bytes written to the target buffer.</returns>
     public static int EncodeFrame(NativeOpusEncoder* encoder, ReadOnlySpan<short> pcm, Span<byte> target)
@@ -55,6 +55,54 @@ internal static unsafe partial class OpusInterop
         fixed (byte* pTarget = target)
         {
             result = opus_encode(encoder, pPcm, samples, pTarget, target.Length);
+        }
+
+        if (result < 0)
+        {
+            OpusError error = (OpusError)result;
+            throw new OpusException(error, "encoding");
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Encodes a 20ms frame from the provided s24le pcm data into the target buffer.
+    /// </summary>
+    /// <returns>The amount of bytes written to the target buffer.</returns>
+    public static int EncodeFrame(NativeOpusEncoder* encoder, ReadOnlySpan<int> pcm, Span<byte> target)
+    {
+        int samples = pcm.Length / (Channels * sizeof(int));
+        int result;
+
+        fixed (int* pPcm = pcm)
+        fixed (byte* pTarget = target)
+        {
+            result = opus_encode24(encoder, pPcm, samples, pTarget, target.Length);
+        }
+
+        if (result < 0)
+        {
+            OpusError error = (OpusError)result;
+            throw new OpusException(error, "encoding");
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Encodes a 20ms frame from the provided float32 pcm data into the target buffer.
+    /// </summary>
+    /// <returns>The amount of bytes written to the target buffer.</returns>
+    public static int EncodeFrame(NativeOpusEncoder* encoder, ReadOnlySpan<float> pcm, Span<byte> target)
+    {
+        int samples = pcm.Length / (Channels * sizeof(float));
+        int result;
+
+        fixed (float* pPcm = pcm)
+        fixed (byte* pTarget = target)
+        {
+            result = opus_encode_float(encoder, pPcm, samples, pTarget, target.Length);
         }
 
         if (result < 0)

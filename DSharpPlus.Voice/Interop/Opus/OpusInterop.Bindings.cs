@@ -38,6 +38,34 @@ internal static unsafe partial class OpusInterop
 
     /// <summary>
     /// <code>
+    /// <![CDATA[opus_int32 opus_encode24(
+    ///     OpusEncoder *st,
+    ///     const opus_int32 *pcm,
+    ///     int frame_size,
+    ///     unsigned char *data,
+    ///     opus_int32 max_data_bytes
+    /// );]]>
+    /// </code>
+    /// </summary>
+    [LibraryImport("opus")]
+    private static partial int opus_encode24(NativeOpusEncoder* encoder, int* pcm, int frameSize, byte* data, int maxDataBytes);
+
+    /// <summary>
+    /// <code>
+    /// <![CDATA[opus_int32 opus_encode_float(
+    ///     OpusEncoder *st,
+    ///     const float *pcm,
+    ///     int frame_size,
+    ///     unsigned char *data,
+    ///     opus_int32 max_data_bytes
+    /// );]]>
+    /// </code>
+    /// </summary>
+    [LibraryImport("opus")]
+    private static partial int opus_encode_float(NativeOpusEncoder* encoder, float* pcm, int frameSize, byte* data, int maxDataBytes);
+
+    /// <summary>
+    /// <code>
     /// <![CDATA[void opus_encoder_destroy(OpusEncoder *st);]]>
     /// </code>
     /// </summary>
