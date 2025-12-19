@@ -38,7 +38,6 @@ public abstract class AbstractAudioWriter : PipeWriter
     public virtual void SignalCompletion()
     {
         SignalSilence();
-        this.connection
     }
 
     /// <inheritdoc/>

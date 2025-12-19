@@ -160,10 +160,10 @@ file static unsafe class WidenToStereoImpl
             Vector128<byte> v2 = Vector128.Create(_2).As<ulong, byte>();
             Vector128<byte> v3 = Vector128.Create(_3).As<ulong, byte>();
 
-            v0 = MemoryHelpers.Shuffle(v0, mask);
-            v1 = MemoryHelpers.Shuffle(v1, mask);
-            v2 = MemoryHelpers.Shuffle(v2, mask);
-            v3 = MemoryHelpers.Shuffle(v3, mask);
+            v0 = Vector128.Shuffle(v0, mask);
+            v1 = Vector128.Shuffle(v1, mask);
+            v2 = Vector128.Shuffle(v2, mask);
+            v3 = Vector128.Shuffle(v3, mask);
 
             v0.StoreUnsafe(ref Unsafe.Add(ref stereo, index * 2));
             v1.StoreUnsafe(ref Unsafe.Add(ref stereo, (index * 2) + 16));

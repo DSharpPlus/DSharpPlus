@@ -236,10 +236,10 @@ file static unsafe class NarrowToS16LEImpl
             // since we can't pass in two lanes like in the case of PermuteVar64x8x2, just throw the upper lane away
             Vector128<byte> mask = Vector128.Create(V128Mask);
 
-            i0 = MemoryHelpers.Shuffle(i0, mask);
-            i1 = MemoryHelpers.Shuffle(i1, mask);
-            i2 = MemoryHelpers.Shuffle(i2, mask);
-            i3 = MemoryHelpers.Shuffle(i3, mask);
+            i0 = Vector128.Shuffle(i0, mask);
+            i1 = Vector128.Shuffle(i1, mask);
+            i2 = Vector128.Shuffle(i2, mask);
+            i3 = Vector128.Shuffle(i3, mask);
 
             Unsafe.WriteUnaligned(ref Unsafe.Add(ref s16le, index / 2), i0.As<byte, ulong>().GetElement(0));
             Unsafe.WriteUnaligned(ref Unsafe.Add(ref s16le, (index / 2) + 8), i1.As<byte, ulong>().GetElement(0));
