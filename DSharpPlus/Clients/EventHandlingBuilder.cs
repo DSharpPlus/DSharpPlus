@@ -913,4 +913,17 @@ public sealed class EventHandlingBuilder
 
         return this;
     }
+
+    /// <summary>
+    /// Fired if a request made over the gateway got ratelimited.
+    /// </summary>
+    public EventHandlingBuilder HandleRatelimited(Func<DiscordClient, RatelimitedEventArgs, Task> handler)
+    {
+        this.Services.Configure<EventHandlerCollection>
+        (
+            c => c.Register(handler)
+        );
+
+        return this;
+    }
 }

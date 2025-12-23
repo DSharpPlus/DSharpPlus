@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.Tracing;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -975,6 +976,23 @@ public sealed partial class DiscordClient : BaseDiscordClient
             this.guildMembersChunkedEvents.Remove(code, out _);
             eventChannel.Writer.Complete();
         }
+    }
+
+    private void CancelGuildMemberEnumeration(ulong guildId, string? nonce, TimeSpan retryAfter)
+    {
+        if (this.guildMembersChunkedEvents.Count is 0)
+        {
+            return;
+        }
+
+        Int128 code = new(guildId, (ulong)(nonce?.GetHashCode() ?? 0));
+
+        if (!this.guildMembersChunkedEvents.TryGetValue(code, out Channel<GuildMembersChunkedEventArgs>? eventChannel))
+        {
+            return;
+        }
+
+        eventChannel.Writer.Complete(new GatewayRatelimitedException(retryAfter));
     }
 
     #region Internal Caching Methods
