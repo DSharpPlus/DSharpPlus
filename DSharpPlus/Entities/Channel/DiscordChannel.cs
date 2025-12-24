@@ -313,7 +313,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <returns>The created event.</returns>
     /// <exception cref="InvalidOperationException"></exception>
     public Task<DiscordScheduledGuildEvent> CreateGuildEventAsync(string name, string description, DiscordScheduledGuildEventPrivacyLevel privacyLevel, DateTimeOffset start, DateTimeOffset? end)
-        => this.Type is not (DiscordChannelType.Voice or DiscordChannelType.Stage) ? throw new InvalidOperationException("Events can only be created on voice stage channels") :
+        => this.Type is not (DiscordChannelType.Voice or DiscordChannelType.Stage) ? throw new InvalidOperationException("Events can only be created on voice and stage channels") :
             this.Guild.CreateEventAsync(name, description, this.Id, this.Type is DiscordChannelType.Stage ? DiscordScheduledGuildEventType.StageInstance : DiscordScheduledGuildEventType.VoiceChannel, privacyLevel, start, end);
 
     // Please send memes to Naamloos#2887 at discord <3 thank you
@@ -1285,4 +1285,5 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     public static bool operator !=(DiscordChannel e1, DiscordChannel e2)
         => !(e1 == e2);
 }
+
 
