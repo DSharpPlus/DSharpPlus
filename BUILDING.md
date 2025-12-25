@@ -19,4 +19,7 @@ DSharpPlus' voice implementation is a bit more finicky. On platforms `{win, osx,
    - Third, place the shared library file (.dll, .so, .dylib) in the same directory as your bot.
    - Fourth, if you built OpenSSL yourself, you may have to provide libcrypto to your bot as well, in the same way.
 
-We may not accept bug reports only reproducible on unsupported platforms, and we may not be able to help with building for unsupported platforms. General experience with using cmake is highly recommended. 
+We may not accept bug reports only reproducible on unsupported platforms, and we may not be able to help with building for unsupported platforms. General experience with using cmake is highly recommended.
+
+>[!NOTE]
+> Our native builds for x86-64 target `x86-64-v2`, which is any CPU that supports SSE4.2, LAHF-SAHF, POPCNT and CMPXCHG16B at the very least, or any CPU built after 2008. If you are using an older CPU that does not support these features, you will also need to self-build the natives according to the above instructions. Additionally, you must remove the native libraries provided by DSharpPlus, since they will be incompatible with your CPU.

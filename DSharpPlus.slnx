@@ -1,9 +1,10 @@
 <Solution>
   <Folder Name="/Build Items/">
+    <File Path=".github/workflows/build-commit.yml" />
+    <File Path=".github/workflows/build-pr.yml" />
+    <File Path=".github/workflows/release.yml" />
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
-    <File Path=".github\workflows\publish_nightly_v5.yml" />
-    <File Path=".github\workflows\publish_release_v5.yml" />
   </Folder>
   <Folder Name="/DSharpPlus.Analyzers/">
     <Project Path="DSharpPlus.Analyzers\DSharpPlus.Analyzers.Test\DSharpPlus.Analyzers.Test.csproj" />
