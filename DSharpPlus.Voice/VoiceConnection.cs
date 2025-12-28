@@ -16,104 +16,78 @@ namespace DSharpPlus.Voice;
 /// <summary>
 /// Stores all state data related to voice connections to discord
 /// </summary>
-public sealed class VoiceConnection : IDisposable
+public sealed partial class VoiceConnection : IDisposable
 {
-    /// <summary>
-    /// Internal constructor as this type should be 
-    /// created using its corresponding factory
-    /// </summary>
-    internal VoiceConnection() => _ = Task.Run(SendHeartbeatTaskAsync);
+    public VoiceConnection
+    (
+        string sessionId,
+        ulong userId,
+        ulong channelId,
+        ulong guildId,
+        string voiceToken,
+        string endpoint,
+        uint ssrc
+    )
+    {
+        this.sessionId = sessionId;
+        this.userId = userId;
+        this.channelId = channelId;
+        this.guildId = guildId;
 
-    /// <summary>
-    /// CancellationToken for when we dispose of this class
-    /// </summary>
+        this.voiceToken = voiceToken;
+        this.endpoint = endpoint;
+        this.ssrc = ssrc;
+
+        // it'll be set when we start heartbeating, this is safe
+        this.heartbeatTimer = default!;
+        this.sendTimer = new(TimeSpan.FromMilliseconds(20));
+        this.sendHeartbeatTask = Task.Run(SendHeartbeatTaskAsync);
+    }
+
+    private readonly string sessionId;
+    private readonly ulong userId;
+    private readonly ulong channelId;
+    private readonly ulong guildId;
+
+    private readonly string voiceToken;
+    private readonly string endpoint;
+    private readonly uint ssrc;
+
+    private bool isE2ee;
+    private bool isSpeaking;
+
+    private ushort lastSeenSequenceNumber;
+
+    private readonly ConcurrentDictionary<ulong, VoiceUser> otherUsers = []; 
+
     private readonly CancellationTokenSource cancellationTokenSource = new();
 
     // backing fields for properties below
-    private uint heartbeatInterval = 0;
-    private PeriodicTimer? heartbeatTimer;
-    private ushort sequenceNumber = unchecked((ushort)Random.Shared.NextInt64());
+    private PeriodicTimer heartbeatTimer;
+    private readonly PeriodicTimer sendTimer;
+
+    private readonly Task sendHeartbeatTask;
+    private readonly Task sendAudioTask;
 
     /// <summary>
-    /// The delay in milliseconds between sending heartbeat payloads
-    /// On set we start a timer to send the heartbeat to discord
+    /// The delay, in milliseconds, at which we send heartbeats to the voice gateway.
     /// </summary>
-    public uint HeartbeatInterval
+    internal uint HeartbeatInterval
     {
-        get => this.heartbeatInterval;
+        get;
 
         set
         {
-            this.heartbeatInterval = value;
+            field = value;
             this.heartbeatTimer?.Dispose();
             this.heartbeatTimer = new PeriodicTimer(TimeSpan.FromMilliseconds(value));
         }
-    }
+    } = 10000;
 
     /// <summary>
     /// MediaTransportService for sending voice data frames
     /// </summary>
     public IMediaTransportService MediaTransportService { get; set; }
-
-    /// <summary>
-    /// SessionId for dicord voice connection
-    /// </summary>
-    public required string SessionId { get; set; }
-
-    /// <summary>
-    /// UserId for dicord voice connection
-    /// </summary>
-    public required string UserId { get; set; }
-
-    /// <summary>
-    /// VoiceToken for dicord voice connection
-    /// </summary>
-    public required string VoiceToken { get; set; }
-
-    /// <summary>
-    /// Endpoint for dicord voice connection
-    /// </summary>
-    public required string Endpoint { get; set; }
-
-    /// <summary>
-    /// Connected Server(Guild)Id for dicord voice connection
-    /// </summary>
-    public required string ServerId { get; set; }
-
-    /// <summary>
-    /// Channel the discord voice connection was created in and is connected to
-    /// </summary>
-    public required string ConnectedChannel { get; set; }
-
-    /// <summary>
-    /// Indicates whether end-to-end encryption is enabled for this connection.
-    /// </summary>
-    public required bool E2EEIsActive { get; set; }
-
-    /// <summary>
-    /// Gets or sets whether the bot is sending voice data
-    /// </summary>
-    public bool IsSpeaking { get; private set; }
-
-    /// <summary>
-    /// Maps all known users id's to their corresponding ssrc value
-    /// </summary>
-    public ConcurrentDictionary<ulong, int> SsrcMap { get; set; } = new();
-
-    /// <summary>
-    /// The sequence number used for resuming a connection with the discord voice gateway
-    /// </summary>
-    public ushort SequenceNumber => this.VoiceNegotiationTransportService?.SequenceNumber ?? 0;
-
-    /// <summary>
-    /// ID for our voice data packets
-    /// </summary>
-    public uint Ssrc { get; set; }
-
-    /// <summary>
-    /// A dictionary that maps all know users to their UserInVoice object
-    /// </summary>
-    public ConcurrentDictionary<ulong, UserInVoice> OtherUsersInVoice { get; set; } = [];
 
     /// <summary>
     /// Keeps track of DaveState and handles events
@@ -131,19 +105,6 @@ public sealed class VoiceConnection : IDisposable
     public ICryptor? VoiceCryptor { get; set; }
 
     /// <summary>
-    /// Gets a sequence number for the next audio packet to be sent.
-    /// </summary>
-    public ushort AudioSequenceNumber
-    {
-        get
-        {
-            ushort sequence = this.sequenceNumber;
-            this.sequenceNumber++;
-            return sequence;
-        }
-    }
-
-    /// <summary>
     /// Gets the writer currently used for this connection.
     /// </summary>
     internal AbstractAudioWriter ActiveWriter { get; private set; }
@@ -159,11 +120,11 @@ public sealed class VoiceConnection : IDisposable
             {
                 Delay = 0,
                 Speaking = VoiceSpeakingFlags.Microphone,
-                Ssrc = this.Ssrc,
+                Ssrc = this.ssrc,
             }
         });
 
-        this.IsSpeaking = true;
+        this.isSpeaking = true;
     }
 
     /// <summary>
@@ -180,11 +141,11 @@ public sealed class VoiceConnection : IDisposable
             {
                 Delay = 0,
                 Speaking = VoiceSpeakingFlags.None,
-                Ssrc = this.Ssrc,
+                Ssrc = this.ssrc,
             }
         });
 
-        this.IsSpeaking = false;
+        this.isSpeaking = false;
     }
 
     /// <summary>
@@ -195,10 +156,10 @@ public sealed class VoiceConnection : IDisposable
     {
         await this.VoiceNegotiationTransportService.SendAsync<DiscordGatewayMessage<VoiceHeartbeatAckData>>(new()
         {
-            OpCode = (int)VoiceGatewayOpcode.Heartbeat,
+            Opcode = (int)VoiceGatewayOpcode.Heartbeat,
             Data = new()
             { 
-                SequenceAck = this.SequenceNumber,
+                SequenceAck = this.lastSeenSequenceNumber,
                 Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
             }
         });
@@ -212,13 +173,12 @@ public sealed class VoiceConnection : IDisposable
     {
         while (!this.cancellationTokenSource.IsCancellationRequested)
         {
-            while (await (this.heartbeatTimer?.WaitForNextTickAsync(this.cancellationTokenSource.Token) ?? ValueTask.FromResult(false)))
+            while (await this.heartbeatTimer.WaitForNextTickAsync(this.cancellationTokenSource.Token))
             {
                 await SendHeartbeatAsync();
             }
 
-            // We get here if we do not have a heartbeat timer setup
-            // We delay until one exists
+            // We get here if we do not have a heartbeat timer set up, so we delay until one exists
             await Task.Delay(10000);
         }
     }
@@ -232,5 +192,8 @@ public sealed class VoiceConnection : IDisposable
         this.cancellationTokenSource.Dispose();
         this.DaveStateHandler.Dispose();
         this.MediaTransportService.Dispose();
+
+        this.sendHeartbeatTask.Dispose();
+        this.sendAudioTask.Dispose();
     }
 }

@@ -7,16 +7,17 @@ using DSharpPlus.Voice.Transport;
 namespace DSharpPlus.Voice.E2EE;
 
 /// <summary>
-/// Keeps track of the DAVE state for a single media connection
+/// Keeps track of the DAVE state for a single media connection.
 /// </summary>
 public class DaveStateHandler : IDisposable
 {
     /// <summary>
-    /// Dave protocol we are using
+    /// The active DAVE protocol version.
     /// </summary>
     public ushort ProtocolVersion { get; private set; }
+
     /// <summary>
-    /// Current epoch for our dave session
+    /// The current epoch for the DAVE session.
     /// </summary>
     public uint CurrentEpoch { get; private set; }
 
@@ -27,9 +28,6 @@ public class DaveStateHandler : IDisposable
     private readonly ITransportService voiceNegotiationTransportService;
     private readonly Action<bool> setE2eeActive;
 
-    /// <summary>
-    /// Internal constructor as this type should be constructed with its corresponding factory
-    /// </summary>
     internal DaveStateHandler(MlsSession mlsSession, ITransportService voiceNegotiationTransportService, Action<bool> setE2eeActive)
     {
         this.mlsSession = mlsSession;
@@ -81,7 +79,7 @@ public class DaveStateHandler : IDisposable
     }
 
     /// <summary>
-    /// We have been requested to downgrade to a lower DAVE version
+    /// Transitions to a new DAVE protocol version.
     /// </summary>
     /// <param name="payload"></param>
     /// <returns></returns>
@@ -90,25 +88,27 @@ public class DaveStateHandler : IDisposable
         uint transitionId = payload.Data.TransitionId;
         this.pendingTransitionId = transitionId;
         this.pendingEpochId = null;
-        this.pendingDowngrade = true;
+        this.pendingDowngrade = payload.Data.ProtocolVersion == 0;
 
-        await this.voiceNegotiationTransportService.SendAsync<DiscordGatewayMessage<DavePrepareTransitionData>>(
+        await this.voiceNegotiationTransportService.SendAsync<DiscordGatewayMessage<DavePrepareTransitionData>>
+        (
             new()
             {
-                OpCode = (int)VoiceGatewayOpcode.TransitionReady,
+                Opcode = (int)VoiceGatewayOpcode.TransitionReady,
                 Data = new() { TransitionId = payload.Data.TransitionId }
-            }); // Transition Ready
+            }
+        );
     }
 
     /// <summary>
-    /// Execute a pending transition. If the transitionId is 0 we are (re)initializing
+    /// Execute a pending transition. If <paramref name="transitionId"/> is 0 we are (re)initializing.
     /// </summary>
-    /// <param name="transitionId"></param>
+    /// <param name="transitionId">The transition ID received from Discord.</param>
     public void OnExecuteTransition(uint transitionId)
     {
         if (this.pendingTransitionId != transitionId && transitionId != 0)
         {
-            Console.WriteLine("The pending transaction and the one asked to execute didnt match.");
+            throw new InvalidOperationException("The pending transaction and the one asked to execute didnt match.");
         }
 
         if (this.pendingDowngrade)
@@ -120,6 +120,7 @@ public class DaveStateHandler : IDisposable
         else
         {
             this.setE2eeActive(true);
+
             if (this.pendingEpochId.HasValue)
             {
                 this.CurrentEpoch = this.pendingEpochId.Value;
@@ -140,6 +141,7 @@ public class DaveStateHandler : IDisposable
     public async Task OnProposalsAsync(byte[] payload, ulong[] roster)
     {
         byte[] commitBytes = this.mlsSession.ProcessProposals(payload, roster);
+
         if (commitBytes is { Length: > 0 })
         {
             await SendDaveBinaryAsync(this.voiceNegotiationTransportService, (int)VoiceGatewayOpcode.MlsCommitWelcome, commitBytes);  // MLS Commit/Welcome

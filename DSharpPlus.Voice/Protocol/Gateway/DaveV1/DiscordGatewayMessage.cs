@@ -1,7 +1,8 @@
 using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Voice.Protocol.Gateway.DaveV1;
-public class DiscordGatewayMessage<PayloadT>
+
+public class DiscordGatewayMessage<T> 
 {
     /// <summary>
     /// Gets/Sets the type
@@ -10,23 +11,20 @@ public class DiscordGatewayMessage<PayloadT>
     public string? Type { get; set; }
 
     /// <summary>
-    /// Gets or sets the sequence number (<c>seq</c>) associated with
-    /// this payload. Used to maintain message ordering.
+    /// Gets or sets the sequence number associated with this payload. Used to maintain message ordering.
     /// </summary>
     [JsonPropertyName("seq")]
     public int? Sequence { get; set; }
 
     /// <summary>
-    /// Gets or sets the operation code (<c>op</c>) that specifies
-    /// the type of voice event or instruction.
+    /// Gets or sets the operation code (<c>op</c>) that specifies the type of voice event or instruction.
     /// </summary>
     [JsonPropertyName("op")]
-    public int OpCode { get; set; }
+    public int Opcode { get; set; }
 
     /// <summary>
-    /// Gets or sets the data object (<c>d</c>) containing details
-    /// about the epoch preparation, such as protocol version and epoch ID.
+    /// Gets or sets the data object (<c>d</c>) containing details  about the epoch preparation, such as protocol version and epoch ID.
     /// </summary>
     [JsonPropertyName("d")]
-    public PayloadT Data { get; set; }
+    public T Data { get; set; } = default!;
 }

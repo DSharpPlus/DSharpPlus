@@ -144,17 +144,17 @@ public class VoiceStateFactory : IVoiceStateFactory
         // the proposed addition of the mls group members match the expected media session users
         transportServiceBuilder.AddJsonHandler<DiscordGatewayMessage<VoiceUserIdsData>>((int)VoiceGatewayOpcode.ClientsConnected, (x, y) =>
         {
-            IEnumerable<KeyValuePair<ulong, UserInVoice>> kvps = x.Data.UserIds.Select(x =>
+            IEnumerable<KeyValuePair<ulong, VoiceUser>> kvps = x.Data.UserIds.Select(x =>
             {
                 ulong userId = ulong.Parse(x);
-                return new KeyValuePair<ulong, UserInVoice>(userId, new() 
+                return new KeyValuePair<ulong, VoiceUser>(userId, new() 
                 { 
                     IsSpeaking = false, 
                     UserId = userId 
                 });
             });
 
-            state.OtherUsersInVoice = new System.Collections.Concurrent.ConcurrentDictionary<ulong, UserInVoice>(kvps);
+            state.OtherUsersInVoice = new System.Collections.Concurrent.ConcurrentDictionary<ulong, VoiceUser>(kvps);
             return Task.CompletedTask;
         });
 
@@ -211,7 +211,7 @@ public class VoiceStateFactory : IVoiceStateFactory
                         Mode = selectedMode
                     }
                 },
-                OpCode = (int)VoiceGatewayOpcode.SelectProtocol
+                Opcode = (int)VoiceGatewayOpcode.SelectProtocol
             };
 
             await client.SendAsync(payload);
@@ -233,7 +233,7 @@ public class VoiceStateFactory : IVoiceStateFactory
                     SessionId = state.SessionId,
                     MaxSupportedDaveVersion = 1
                 },
-                OpCode = (int)VoiceGatewayOpcode.Identify
+                Opcode = (int)VoiceGatewayOpcode.Identify
             };
             await client.SendAsync(payload);
         });
@@ -242,9 +242,9 @@ public class VoiceStateFactory : IVoiceStateFactory
         transportServiceBuilder.AddJsonHandler<DiscordGatewayMessage<VoiceOtherUserSpeakingData>>((int)VoiceGatewayOpcode.Speaking, (x, client) =>
         {
             state.SsrcMap[x.Data.UserId] = x.Data.Ssrc;
-            if (!state.OtherUsersInVoice.TryGetValue(x.Data.UserId, out UserInVoice userInVoice))
+            if (!state.OtherUsersInVoice.TryGetValue(x.Data.UserId, out VoiceUser userInVoice))
             {
-                state.OtherUsersInVoice[x.Data.UserId] = userInVoice = new UserInVoice()
+                state.OtherUsersInVoice[x.Data.UserId] = userInVoice = new VoiceUser()
                 {
                     IsSpeaking = true,
                     Ssrc = x.Data.Ssrc,
