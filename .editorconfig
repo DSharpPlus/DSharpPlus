@@ -1,4 +1,4 @@
-###############################
+﻿###############################
 # Core EditorConfig Options   #
 ###############################
 root = true
@@ -56,6 +56,9 @@ dotnet_diagnostic.IDE0025.severity = error
 dotnet_diagnostic.IDE0026.severity = error
 dotnet_diagnostic.IDE0027.severity = error
 
+# don't turn everything into ternary hell
+dotnet_diagnostic.IDE0046.severity = none
+
 # Suppress CS1591: Missing XML comment for publicly visible type or member
 dotnet_diagnostic.CS1591.severity = suggestion
 
@@ -63,8 +66,8 @@ dotnet_diagnostic.CS1591.severity = suggestion
 dotnet_diagnostic.IDE0058.severity = none
 
 # Organize usings
-dotnet_sort_system_directives_first = true:error
-dotnet_separate_import_directive_groups = true:error
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = true
 
 # Unfortunately, no java-style usings
 dotnet_diagnostic.IDE0064.severity = none
@@ -176,7 +179,7 @@ csharp_style_throw_expression = true:error
 csharp_style_conditional_delegate_call = true:error
 
 # Modifier preferences
-csharp_preferred_modifier_order = public,private,protected,internal,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,volatile,async:error
+csharp_preferred_modifier_order = public,private,protected,internal,file,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,volatile,async:error
 
 # Expression-level preferences
 csharp_prefer_braces = true:error
