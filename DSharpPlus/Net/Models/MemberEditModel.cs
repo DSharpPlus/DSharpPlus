@@ -37,6 +37,21 @@ public class MemberEditModel : BaseEditModel
     /// </summary>
     public Optional<DiscordMemberFlags> MemberFlags { internal get; set; }
 
+    /// <summary>
+    /// New banner
+    /// </summary>
+    public Optional<string> Banner { internal get; set; }
+
+    /// <summary>
+    /// New avatar
+    /// </summary>
+    public Optional<string> Avatar { internal get; set; }
+
+    /// <summary>
+    /// New bio
+    /// </summary>
+    public Optional<string> Bio { internal get; set; }
+
     internal MemberEditModel()
     {
 
