@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.Net.Models;
@@ -40,12 +41,12 @@ public class MemberEditModel : BaseEditModel
     /// <summary>
     /// New banner
     /// </summary>
-    public Optional<string> Banner { internal get; set; }
+    public Optional<Stream> Banner { internal get; set; }
 
     /// <summary>
     /// New avatar
     /// </summary>
-    public Optional<string> Avatar { internal get; set; }
+    public Optional<Stream> Avatar { internal get; set; }
 
     /// <summary>
     /// New bio

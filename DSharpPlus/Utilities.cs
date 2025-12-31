@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -160,6 +161,25 @@ public static partial class Utilities
             DiscordChannelType.Stage => true,
             _ => false,
         };
+    
+    /// <summary>
+    /// Converts a stream to a base64-encoded data URL string.
+    /// </summary>
+    /// <param name="stream">The optional stream to convert.</param>
+    /// <returns>
+    /// An optional base64 string. If the stream has no value or is explicitly null, returns null.
+    /// Otherwise, returns the base64-encoded string.
+    /// </returns>
+    internal static Optional<string> ConvertStreamToBase64(Optional<Stream> stream)
+    {
+        if (!stream.HasValue || stream.Value is null)
+        {
+            return null;
+        }
+
+        using InlineMediaTool imgtool = new(stream.Value);
+        return imgtool.GetBase64();
+    }
 
     // https://discord.com/developers/docs/topics/gateway#sharding-sharding-formula
     /// <summary>
