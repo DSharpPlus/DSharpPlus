@@ -171,7 +171,7 @@ public static partial class Utilities
     /// If the stream has a value but it is null, returns an optional containing null.
     /// Otherwise, returns the base64-encoded data URL string.
     /// </returns>
-    internal static Optional<string> ConvertStreamToBase64(Optional<Stream> stream)
+    internal static Optional<string?> ConvertStreamToBase64(Optional<Stream?> stream)
     {
         if (stream.HasValue && stream.Value is not null)
         {
@@ -179,9 +179,9 @@ public static partial class Utilities
             return imgtool.GetBase64();
         }
 
-        return stream.HasValue 
-            ? null 
-            : Optional.FromNoValue<string>();
+        return stream.HasValue
+            ? Optional.FromValue<string?>(null)
+            : Optional.FromNoValue<string?>();
     }
 
     // https://discord.com/developers/docs/topics/gateway#sharding-sharding-formula

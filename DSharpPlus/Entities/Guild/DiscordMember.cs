@@ -393,8 +393,8 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
         bool hasCurrentMemberFields = mdl.Nickname.HasValue || mdl.Banner.HasValue || mdl.Avatar.HasValue || mdl.Bio.HasValue;
         if (hasCurrentMemberFields && this.Discord.CurrentUser.Id == this.Id)
         {
-            Optional<string> avatarBase64 = Utilities.ConvertStreamToBase64(mdl.Avatar);
-            Optional<string> bannerBase64 = Utilities.ConvertStreamToBase64(mdl.Banner);
+            Optional<string?> avatarBase64 = Utilities.ConvertStreamToBase64(mdl.Avatar);
+            Optional<string?> bannerBase64 = Utilities.ConvertStreamToBase64(mdl.Banner);
 
             await this.Discord.ApiClient.ModifyCurrentMemberAsync(this.Guild.Id, mdl.Nickname,
                 bannerBase64, avatarBase64, mdl.Bio, mdl.AuditLogReason);

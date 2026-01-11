@@ -41,12 +41,12 @@ public class MemberEditModel : BaseEditModel
     /// <summary>
     /// New banner
     /// </summary>
-    public Optional<Stream> Banner { internal get; set; }
+    public Optional<Stream?> Banner { internal get; set; }
 
     /// <summary>
     /// New avatar
     /// </summary>
-    public Optional<Stream> Avatar { internal get; set; }
+    public Optional<Stream?> Avatar { internal get; set; }
 
     /// <summary>
     /// New bio

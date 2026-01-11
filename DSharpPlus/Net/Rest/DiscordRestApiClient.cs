@@ -3876,8 +3876,8 @@ public sealed class DiscordRestApiClient
     (
         ulong guildId,
         Optional<string> nick = default,
-        Optional<string> banner = default,
-        Optional<string> avatar = default,
+        Optional<string?> banner = default,
+        Optional<string?> avatar = default,
         Optional<string> bio = default,
         string? reason = null
     )
