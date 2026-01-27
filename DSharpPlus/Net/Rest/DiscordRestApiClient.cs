@@ -3875,7 +3875,10 @@ public sealed class DiscordRestApiClient
     public async ValueTask ModifyCurrentMemberAsync
     (
         ulong guildId,
-        string nick,
+        Optional<string> nick = default,
+        Optional<string?> banner = default,
+        Optional<string?> avatar = default,
+        Optional<string> bio = default,
         string? reason = null
     )
     {
@@ -3887,7 +3890,10 @@ public sealed class DiscordRestApiClient
 
         RestGuildMemberModifyPayload pld = new()
         {
-            Nickname = nick
+            Nickname = nick,
+            Banner = banner,
+            Avatar = avatar,
+            Bio = bio
         };
 
         string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.MEMBERS}/{Endpoints.ME}";
