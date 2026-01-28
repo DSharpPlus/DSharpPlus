@@ -1,85 +1,25 @@
-# Building DSharpPlus
+﻿# Building DSharpPlus
 
-These are detailed instructions on how to build the DSharpPlus library under various environmnets.
+DSharpPlus, for the most part, is just like any other `dotnet` library. You will need the latest .NET SDK installed, either explicitly or bundled by the latest version of your IDE, and you will need to simply run `dotnet build`, `dotnet publish` or `dotnet pack` depending on whether you aim to create a dev-time build, prod builds or local package files.
 
-It is recommended you have prior experience with multi-target .NET Core/Standard projects, as well as the `dotnet` CLI utility, and MSBuild.
+Optionally, DSharpPlus can use zstd for its gateway compression and sodium for receiving [interactions](https://discord.com/developers/docs/interactions/overview#preparing-for-interactions) or [other events](https://discord.com/developers/docs/events/webhook-events). Both of those libraries are provided for platforms `{win, osx, linux, linux-musl}-{x64, arm64}` via the NuGet packages `DSharpPlus.Natives.Zstd` and `DSharpPlus.Natives.Sodium`. On other operating systems or other CPU architectures, you have to provide the libraries yourself.
 
-## Requirements
+---
 
-In order to build the library, you will first need to install some software.
+## DSharpPlus.Voice
 
-### Windows
+DSharpPlus' voice implementation is a bit more finicky. On platforms `{win, osx, linux, linux-musl}-{x64, arm64}`, the necessary native libraries are provided for you by DSharpPlus. On other operating systems or other CPU architectures, including but not limited to 32-bit platforms, mobile operating systems or RISC-V, you have to build the libraries yourself:
 
-On Windows, we only officially support Visual Studio 2017 15.3 or newer. Visual Studio Code and other IDEs might work, but are generally not supported or even guaranteed to work properly.
+- [Sodium](https://github.com/jedisct1/libsodium) is unmodified and may be provided by whatever mechanism your platform provides. You may receive a warning on startup that AES-256 GCM is not supported on certain platforms or CPUs, but DSharpPlus.Voice will function regardless - albeit with limitations.
+- [SpeexDSP](https://github.com/xiph/speexdsp) is unmodified and may be provided by whatever mechanism your platform provides. 
+- [Opus](https://github.com/xiph/opus) is modified and must be self-built from https://github.com/dsharpplus/opus. Please follow the opus build instructions for your platform and place the shared library file (.dll, .so, .dylib) in the same directory as your bot.
+- [Koana](https://github.com/dsharpplus/libkoana) is a heavily stripped-down and slightly modified fork of [DPP's E2EE implementation](https://github.com/brainboxdotcc/dpp) and must be self-built.  
+   - First, you must provide OpenSSL **3.x** on your system, either building it or installing the **development** package. Merely installing OpenSSL libraries is insufficient. Before continuing, make sure you have the header files and **static** OpenSSL libraries on your system.
+   - Second, build koana itself, using your platform's mechanism to create a release build using cmake. Koana will attempt to detect OpenSSL in common locations, but you may have to provide it using the following arguments to cmake: `-DOPENSSL_ROOT_DIR=path`, `-DOPENSSL_CRYPTO_LIBRARY=path/to/libcrypto`, `-DOPENSSL_SSL_LIBRARY=path/to/libssl`, `-DOPENSSL_INCLUDE_DIR=path/to/headers`. Note that you must provide all four of them.
+   - Third, place the shared library file (.dll, .so, .dylib) in the same directory as your bot.
+   - Fourth, if you built OpenSSL yourself, you may have to provide libcrypto to your bot as well, in the same way.
 
-* **Windows 10** - while we support running the library on Windows 7 and above, we only support building on Windows 10.
-* [**Git for Windows**](https://git-scm.com/download/win) - required to clone the repository.
-* [**Visual Studio 2017**](https://www.visualstudio.com/downloads/) - community edition or better. We do not support Visual Studio 2015 and older. Note that to build the library, you need Visual Studio 2017 version 15.3 or newer.
-  * **Workloads**:
-    * **.NET Framework Desktop** - required to build .NETFX (4.5, 4.6, and 4.7 targets)
-    * **.NET Core Cross-Platform Development** - required to build .NET Standard targets (1.1, 1.3, and 2.0) and the project overall.
-  * **Individual Components**:
-    * **.NET Framework 4.5 SDK** - required for .NETFX 4.5 target
-    * **.NET Framework 4.6 SDK** - required for .NETFX 4.6 target
-    * **.NET Framework 4.7 SDK** - required for .NETFX 4.7 target
-* [**.NET Core SDK 2.0**](https://www.microsoft.com/net/download) - required to build the project.
-* **Windows PowerShell** - required to run the build scripts. You need to make sure your script execution policy allows execution of unsigned scripts.
+We may not accept bug reports only reproducible on unsupported platforms, and we may not be able to help with building for unsupported platforms. General experience with using cmake is highly recommended.
 
-### GNU/Linux
-
-On GNU/Linux, we support building via Visual Studio Code and .NET Core SDK. Other IDEs might work, but are not supported or guaranteed to work properly.
-
-While these should apply to any modern distribution, we only test against Debian 10. Your mileage may vary.
-
-When installing the below, make sure you install all the dependencies properly. We might ship a build environmnent as a docker container in the future.
-
-* **Any modern GNU/Linux distribution** - like Debian 9.
-* **Git** - to clone the repository.
-* [**Visual Studio Code**](https://code.visualstudio.com/Download) - a recent version is required.
-  * **C# for Visual Studio Code (powered by OmniSharp)** - required for syntax highlighting and basic Intellisense
-* [**.NET Core SDK 2.0**](https://www.microsoft.com/net/download) - required to build the project.
-* [**Mono 5.x**](http://www.mono-project.com/download/#download-lin) - required to build the .NETFX 4.5, 4.6, and 4.7 targets, as well as to build the docs.
-* [**PowerShell Core**](https://docs.microsoft.com/en-us/powershell/scripting/setup/Installing-PowerShell-Core-on-macOS-and-Linux?view=powershell-6) - required to execute the build scripts.
-* **p7zip-full** - required to package docs.
-
-## Instructions
-
-Once you install all the necessary prerequisites, you can proceed to building. These instructions assume you have already cloned the repository.
-
-### Windows
-
-Building on Windows is relatively easy. There's 2 ways to build the project:
-
-#### Building through Visual Studio
-
-Building through Visual Studio yields just binaries you can use in your projects.
-
-1. Open the solution in Visual Studio.
-2. Set the configuration to Release.
-3. Select Build > Build Solution to build the project.
-4. Select Build > Publish DSharpPlus to publish the binaries.
-
-#### Building with the build script
-
-Building this way outputs NuGet packages, and a documentation package. Ensure you have an internet connection available, as the script will install programs necessary to build the documentation.
-
-1. Open PowerShell and navigate to the directory which you cloned DSharpPlus to.
-2. Execute `.\rebuild-all.ps1 -configuration Release` and wait for the script to finish execution.
-3. Once it's done, the artifacts will be available in *dsp-artifacts* directory, next to the directory to which the repository is cloned.
-
-### GNU/Linux
-
-When all necessary prerequisites are installed, you can proceed to building. There are technically 2 ways to build the library, though both of them perform the same steps, they are just invoked slightly differently.
-
-#### Through Visual Studio Code
-
-1. Open Visual Studio Code and open the folder to which you cloned DSharpPlus as your workspace.
-2. Select Build > Run Task...
-3. Select `buildRelease` task and wait for it to finish.
-4. The artifacts will be placed in *dsp-artifacts* directory, next to whoch the repository is cloned.
-
-#### Through PowerShell
-
-1. Open PowerShell (`pwsh`) and navigate to the directory which you cloned DSharpPlus to.
-2. Execute `.\rebuild-all.ps1 -configuration Release` and wait for the script to finish execution.
-3. Once it's done, the artifacts will be available in *dsp-artifacts* directory, next to the directory to which the repository is cloned.
+>[!NOTE]
+> Our native builds for x86-64 target `x86-64-v2`, which is any CPU that supports SSE4.2, LAHF-SAHF, POPCNT and CMPXCHG16B at the very least, or any CPU built after 2008. If you are using an older CPU that does not support these features, you will also need to self-build the natives according to the above instructions. Additionally, you must remove the native libraries provided by DSharpPlus, since they will be incompatible with your CPU.
