@@ -18,3 +18,5 @@ You can put detailed description of the changes in here.
 
 # Notes
 Any additional notes go here.
+
+- [ ] All features in this pull request were tested.
