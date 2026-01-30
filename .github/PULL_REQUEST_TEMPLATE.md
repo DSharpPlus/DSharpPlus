@@ -1,4 +1,8 @@
-Make sure you familiarize yourself with our contributing guidelines.
+Make sure you familiarize yourself with our contributing guidelines. (delete this line afterwards)
+
+- [ ] This pull request was written by AI
+- [ ] This pull request was assisted by AI, but you wrote the final code
+- [ ] This pull request did not involve AI in any way
 
 # Summary
 Fixes #issue/Resolves #issue/Implements functionality. Short description of changes.

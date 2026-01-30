@@ -5,6 +5,10 @@ We're really happy to accept contributions. However we also ask that you follow 
 > [!NOTE]
 > We do not merge pull requests for undocumented or in-PR Discord features. Before we merge support for any Discord feature, we require the relevant docs PR to be merged first.
 
+# Authorship
+
+We require that you own the intellectual property to any contribution you choose to submit. Don't take code from other people, and don't submit AI-generated code. Additionally, please test your contributions before submitting them.
+
 # Proper base
 
 When opening a PR, please make sure your branch targets the latest master branch. Also make sure your branch is even with the target branch, to avoid unnecessary surprises.
