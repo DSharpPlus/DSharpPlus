@@ -62,6 +62,15 @@ public abstract class BaseDiscordSelectComponent : DiscordComponent
         bool required = true
     )
     {
+        ArgumentOutOfRangeException.ThrowIfLessThan(minOptions, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(maxOptions, 1);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(minOptions, maxOptions);
+
+        if (this.Required)
+        {
+            ArgumentOutOfRangeException.ThrowIfEqual(minOptions, 0);
+        }
+        
         this.Type = type;
         this.CustomId = customId;
         this.Placeholder = placeholder;
@@ -69,14 +78,5 @@ public abstract class BaseDiscordSelectComponent : DiscordComponent
         this.MinimumSelectedValues = minOptions;
         this.MaximumSelectedValues = maxOptions;
         this.Required = required;
-        
-        ArgumentOutOfRangeException.ThrowIfLessThan(this.MinimumSelectedValues ?? 0, 0, nameof(minOptions));
-        ArgumentOutOfRangeException.ThrowIfLessThan(this.MaximumSelectedValues ?? 1, 1, nameof(maxOptions));
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(this.MinimumSelectedValues ?? 0, this.MaximumSelectedValues ?? 1, nameof(minOptions));
-
-        if (this.MinimumSelectedValues == 0)
-        {
-            this.Required = false;
-        }
     }
 }
