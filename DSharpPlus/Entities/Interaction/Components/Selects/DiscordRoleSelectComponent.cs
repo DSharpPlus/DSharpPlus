@@ -96,6 +96,6 @@ public sealed class DiscordRoleSelectComponent : BaseDiscordSelectComponent
     /// <param name="minOptions">The minimum amount of options to be selected.</param>
     /// <param name="maxOptions">The maximum amount of options to be selected, up to 25.</param>
     /// <param name="required">Indicates whether this component, in a modal, requires user input.</param>
-    public DiscordRoleSelectComponent(string customId, string placeholder, bool disabled = false, int minOptions = 1, int maxOptions = 1, bool required = true)
+    public DiscordRoleSelectComponent(string customId, string placeholder, bool disabled = false, int minOptions = 1, int maxOptions = 1, bool? required = null)
         : base(DiscordComponentType.RoleSelect, customId, placeholder, disabled, minOptions, maxOptions, required) { }
 }

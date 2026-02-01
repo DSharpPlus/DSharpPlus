@@ -110,7 +110,7 @@ public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
         bool disabled = false,
         int minOptions = 1,
         int maxOptions = 1,
-        bool required = true
+        bool? required = null
     ) 
         : base(DiscordComponentType.ChannelSelect, customId, placeholder, disabled, minOptions, maxOptions, required) 
         => this.ChannelTypes = channelTypes?.ToList();

@@ -56,7 +56,7 @@ public sealed class DiscordSelectComponent : BaseDiscordSelectComponent
         bool disabled = false, 
         int minOptions = 1, 
         int maxOptions = 1,
-        bool required = false
+        bool? required = null
     )
         : base(DiscordComponentType.StringSelect, customId, placeholder, disabled, minOptions, maxOptions, required)
         => this.Options = options.ToArray();
