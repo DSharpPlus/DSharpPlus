@@ -38,7 +38,26 @@ public sealed class DiscordSelectComponent : BaseDiscordSelectComponent
 
     internal DiscordSelectComponent() => this.Type = DiscordComponentType.StringSelect;
 
-    public DiscordSelectComponent(string customId, string placeholder, IEnumerable<DiscordSelectComponentOption> options, bool disabled = false, int minOptions = 1, int maxOptions = 1)
-        : base(DiscordComponentType.StringSelect, customId, placeholder, disabled, minOptions, maxOptions)
+    /// <summary>
+    /// Creates a new string select component.
+    /// </summary>
+    /// <param name="customId">The ID of this component.</param>
+    /// <param name="placeholder">Placeholder text that's shown when no options are selected.</param>
+    /// <param name="options">The selectable options for this component.</param>
+    /// <param name="disabled">Whether this component is disabled.</param>
+    /// <param name="minOptions">The minimum amount of options to be selected.</param>
+    /// <param name="maxOptions">The maximum amount of options to be selected, up to 25.</param>
+    /// <param name="required">Indicates whether this component, in a modal, requires user input.</param>
+    public DiscordSelectComponent
+    (
+        string customId, 
+        string placeholder, 
+        IEnumerable<DiscordSelectComponentOption> options, 
+        bool disabled = false, 
+        int minOptions = 1, 
+        int maxOptions = 1,
+        bool required = false
+    )
+        : base(DiscordComponentType.StringSelect, customId, placeholder, disabled, minOptions, maxOptions, required)
         => this.Options = options.ToArray();
 }

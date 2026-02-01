@@ -1,4 +1,6 @@
 using System;
+using System.Runtime.CompilerServices;
+
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
@@ -56,7 +58,8 @@ public abstract class BaseDiscordSelectComponent : DiscordComponent
         string placeholder,
         bool disabled = false,
         int minOptions = 1,
-        int maxOptions = 1
+        int maxOptions = 1,
+        bool required = true
     )
     {
         this.Type = type;
@@ -65,20 +68,15 @@ public abstract class BaseDiscordSelectComponent : DiscordComponent
         this.Disabled = disabled;
         this.MinimumSelectedValues = minOptions;
         this.MaximumSelectedValues = maxOptions;
+        this.Required = required;
+        
+        ArgumentOutOfRangeException.ThrowIfLessThan(this.MinimumSelectedValues ?? 0, 0, nameof(minOptions));
+        ArgumentOutOfRangeException.ThrowIfLessThan(this.MaximumSelectedValues ?? 1, 1, nameof(maxOptions));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(this.MinimumSelectedValues ?? 0, this.MaximumSelectedValues ?? 1, nameof(minOptions));
 
-        if (this.MinimumSelectedValues < 0)
+        if (this.MinimumSelectedValues == 0)
         {
-            throw new ArgumentOutOfRangeException(nameof(minOptions), "Minimum selected values must be greater than or equal to zero.");
-        }
-
-        if (this.MaximumSelectedValues < 1)
-        {
-            throw new ArgumentOutOfRangeException(nameof(maxOptions), "Maximum selected values must be greater than or equal to one.");
-        }
-
-        if (this.MinimumSelectedValues > this.MaximumSelectedValues)
-        {
-            throw new ArgumentOutOfRangeException(nameof(minOptions), "Minimum selected values must be less than or equal to maximum selected values.");
+            this.Required = false;
         }
     }
 }
