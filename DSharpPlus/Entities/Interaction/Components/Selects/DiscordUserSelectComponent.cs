@@ -99,6 +99,7 @@ public sealed class DiscordUserSelectComponent : BaseDiscordSelectComponent
     /// <param name="disabled">Whether this component is disabled.</param>
     /// <param name="minOptions">The minimum amount of options to be selected.</param>
     /// <param name="maxOptions">The maximum amount of options to be selected, up to 25.</param>
-    public DiscordUserSelectComponent(string customId, string placeholder, bool disabled = false, int minOptions = 1, int maxOptions = 1)
-    : base(DiscordComponentType.UserSelect, customId, placeholder, disabled, minOptions, maxOptions) { }
+    /// <param name="required">Indicates whether this component, in a modal, requires user input.</param>
+    public DiscordUserSelectComponent(string customId, string placeholder, bool disabled = false, int minOptions = 1, int maxOptions = 1, bool? required = null)
+    : base(DiscordComponentType.UserSelect, customId, placeholder, disabled, minOptions, maxOptions, required) { }
 }

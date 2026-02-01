@@ -101,6 +101,7 @@ public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
     /// <param name="disabled">Whether this component is disabled.</param>
     /// <param name="minOptions">The minimum amount of options to be selected.</param>
     /// <param name="maxOptions">The maximum amount of options to be selected, up to 25.</param>
+    /// <param name="required">Indicates whether this component, in a modal, requires user input.</param>
     public DiscordChannelSelectComponent
     (
         string customId,
@@ -108,7 +109,9 @@ public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
         IEnumerable<DiscordChannelType>? channelTypes = null,
         bool disabled = false,
         int minOptions = 1,
-        int maxOptions = 1
-    ) : base(DiscordComponentType.ChannelSelect, customId, placeholder, disabled, minOptions, maxOptions) =>
-        this.ChannelTypes = channelTypes?.ToList();
+        int maxOptions = 1,
+        bool? required = null
+    ) 
+        : base(DiscordComponentType.ChannelSelect, customId, placeholder, disabled, minOptions, maxOptions, required) 
+        => this.ChannelTypes = channelTypes?.ToList();
 }
