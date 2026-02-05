@@ -160,6 +160,84 @@ public class DiscordModalBuilder
         return this;
     }
 
+    /// <summary>
+    /// Adds a single-binary-choice checkbox to this modal.
+    /// </summary>
+    /// <param name="checkbox">The checkbox to add to this modal.</param>
+    /// <param name="label">The user-facing label for this checkbox.</param>
+    /// <param name="description">An optional description for the checkbox.</param>
+    /// <returns>The builder instance for chaining.</returns>
+    public DiscordModalBuilder AddCheckbox
+    (
+        DiscordCheckboxComponent checkbox,
+        string label,
+        string? description = null
+    )
+    {
+        if (this.components.Count >= 5)
+        {
+            throw new InvalidOperationException("Modals can only have 5 components at this time.");
+        }
+
+        DiscordLabelComponent component = new(checkbox, label, description);
+
+        this.components.Add(component);
+
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a group of checkboxes to this modal.
+    /// </summary>
+    /// <param name="checkboxGroup">The group of checkboxes to add to this modal.</param>
+    /// <param name="label">A label text shown above the checkbox group. Each individual checkbox has its own label.</param>
+    /// <param name="description">An optional description for the checkbox group. Each individual checkbox may have its own description.</param>
+    /// <returns>The builder instance for chaining.</returns>
+    public DiscordModalBuilder AddCheckboxGroup
+    (
+        DiscordCheckboxGroupComponent checkboxGroup,
+        string label,
+        string? description = null
+    )
+    {
+        if (this.components.Count >= 5)
+        {
+            throw new InvalidOperationException("Modals can only have 5 components at this time.");
+        }
+
+        DiscordLabelComponent component = new(checkboxGroup, label, description);
+
+        this.components.Add(component);
+
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a radio group to this modal.
+    /// </summary>
+    /// <param name="radioGroup">The radio group to add to this modal.</param>
+    /// <param name="label">A label text shown above the radio group. Each individual option has its own label.</param>
+    /// <param name="description">An optional description for the radio group. Each individual option may have its own description.</param>
+    /// <returns>The builder instance for chaining.</returns>
+    public DiscordModalBuilder AddRadioGroup
+    (
+        DiscordRadioGroupComponent radioGroup,
+        string label,
+        string? description = null
+    )
+    {
+        if (this.components.Count >= 5)
+        {
+            throw new InvalidOperationException("Modals can only have 5 components at this time.");
+        }
+
+        DiscordLabelComponent component = new(radioGroup, label, description);
+
+        this.components.Add(component);
+
+        return this;
+    }
+
     public void Clear()
     {
         this.components.Clear();

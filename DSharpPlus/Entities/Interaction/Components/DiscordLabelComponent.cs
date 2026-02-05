@@ -24,38 +24,14 @@ public class DiscordLabelComponent : DiscordComponent
     public string? Description { get; set; }
 
     /// <summary>
-    /// Gets the component contained within the label. At this time, this may only be <see cref="BaseDiscordSelectComponent"/> or <see cref="DiscordTextInputComponent"/>.
+    /// Gets the component contained within the label.
     /// </summary>
     [JsonProperty("component")]
     public DiscordComponent Component { get; internal set; }
 
     public DiscordLabelComponent
     (
-        DiscordTextInputComponent component,
-        string label = "",
-        string? description = null
-    )
-    {
-        this.Component = component;
-        this.Label = label;
-        this.Description = description;
-    }
-
-    public DiscordLabelComponent
-    (
-        BaseDiscordSelectComponent component,
-        string label = "",
-        string? description = null
-    )
-    {
-        this.Component = component;
-        this.Label = label;
-        this.Description = description;
-    }
-
-    public DiscordLabelComponent
-    (
-        DiscordFileUploadComponent component,
+        DiscordComponent component,
         string label = "",
         string? description = null
     )
