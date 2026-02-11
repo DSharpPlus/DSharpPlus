@@ -5,6 +5,10 @@ namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents a single checkbox for a binary choice. Only available in modals.
 /// </summary>
+/// <remarks>
+/// This component cannot be marked as required. To create a checkbox that must be checked for submitting a modal, use a
+/// <see cref="DiscordCheckboxGroupComponent"/> with one option and the <c>minValues</c> parameter set to 1.
+/// </remarks>
 public class DiscordCheckboxComponent : DiscordComponent
 {
     /// <summary>
