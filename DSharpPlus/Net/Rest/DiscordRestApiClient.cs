@@ -3969,6 +3969,22 @@ public sealed class DiscordRestApiClient
 
         return roles;
     }
+    public async ValueTask<IReadOnlyDictionary<ulong, int>> GetGuildRoleMemberCountsAsync
+    (
+        ulong guildId    
+    )
+    {
+        RestRequest request = new()
+        {
+            Route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.ROLES}/{Endpoints.MEMBER_COUNTS}",
+            Url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.ROLES}/{Endpoints.MEMBER_COUNTS}",
+            Method = HttpMethod.Get
+        };
+
+        RestResponse res = await this.rest.ExecuteRequestAsync(request);
+
+        return JsonConvert.DeserializeObject<IReadOnlyDictionary<ulong, int>>(res.Response!)!;
+    }
 
     public async ValueTask<DiscordGuild> GetGuildAsync
     (
