@@ -89,5 +89,20 @@ public enum DiscordComponentType
     /// <summary>
     /// A component for uploading files to a bot. Only used in modals.
     /// </summary>
-    FileUpload = 19
+    FileUpload = 19,
+
+    /// <summary>
+    /// A component containing a single-choice group of up to ten options.
+    /// </summary>
+    RadioGroup = 21,
+
+    /// <summary>
+    /// A component containing a multiple-choice group of checkboxes.
+    /// </summary>
+    CheckboxGroup = 22,
+
+    /// <summary>
+    /// A single checkbox component.
+    /// </summary>
+    Checkbox = 23
 }
