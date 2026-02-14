@@ -46,12 +46,18 @@ public partial class DiscordUserConverter : ISlashArgumentConverter<DiscordUser>
             if (!match.Success || !ulong.TryParse(match.Groups[1].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out memberId))
             {
                 // If this is invoked in a guild, try to get the member first.
-                if (context.Guild is not null
-                    && context.Guild.Members.Values.FirstOrDefault(member => member.DisplayName.Equals(value, StringComparison.Ordinal)) is DiscordMember namedMember
-                )
+                if (context.Guild is not null)
                 {
-                    // Attempt to find a member by name, case sensitive.
-                    return Optional.FromValue<DiscordUser>(namedMember);
+                    // Attempt to find a member by username, which are always lowercased by Discord.
+                    DiscordMember? namedMember = context.Guild.Members.Values.FirstOrDefault(member => member.Username.Equals(value, StringComparison.Ordinal));
+
+                    // Attempt to find a member by display name, case sensitive.
+                    namedMember ??= context.Guild.Members.Values.FirstOrDefault(member => member.DisplayName.Equals(value, StringComparison.Ordinal));
+
+                    if (namedMember is not null)
+                    {
+                        return Optional.FromValue<DiscordUser>(namedMember);
+                    }
                 }
 
                 // An invalid user id was passed and we couldn't find a member by name.

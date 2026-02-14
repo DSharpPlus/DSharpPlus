@@ -51,11 +51,12 @@ public partial class DiscordMemberConverter : ISlashArgumentConverter<DiscordMem
             Match match = GetMemberRegex().Match(value);
             if (!match.Success || !ulong.TryParse(match.Groups[1].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out memberId))
             {
-                // Try to find a member by name, case sensitive.
-                DiscordMember? namedMember = context.Guild.Members.Values.FirstOrDefault(member => member.DisplayName.Equals(value, StringComparison.Ordinal));
-                return namedMember is not null
-                    ? Optional.FromValue(namedMember)
-                    : Optional.FromNoValue<DiscordMember>();
+                // Attempt to find a member by username, which are always lowercased by Discord.
+                DiscordMember? namedMember = context.Guild.Members.Values.FirstOrDefault(member => member.Username.Equals(value, StringComparison.Ordinal));
+
+                // Attempt to find a member by display name, case sensitive.
+                namedMember ??= context.Guild.Members.Values.FirstOrDefault(member => member.DisplayName.Equals(value, StringComparison.Ordinal));
+                return namedMember is null ? Optional.FromNoValue<DiscordMember>() : Optional.FromValue(namedMember);
             }
         }
 
