@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using Newtonsoft.Json;
 
@@ -43,6 +44,7 @@ public class DiscordRadioGroupComponent : DiscordComponent
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(options.Count, 2, "options.Count");
         ArgumentOutOfRangeException.ThrowIfGreaterThan(options.Count, 10, "options.Count");
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(options.Count(x => x.SelectedByDefault == true), 1, "options selected by default");
 
         this.CustomId = customId;
         this.Options = options;

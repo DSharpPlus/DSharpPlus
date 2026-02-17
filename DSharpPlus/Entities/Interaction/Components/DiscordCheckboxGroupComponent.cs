@@ -63,11 +63,18 @@ public class DiscordCheckboxGroupComponent : DiscordComponent
         ArgumentOutOfRangeException.ThrowIfGreaterThan(maxValues ?? 1, 10, nameof(maxValues));
         ArgumentOutOfRangeException.ThrowIfLessThan(maxValues ?? 1, 1, nameof(maxValues));
 
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(minValues ?? 0, maxValues ?? 10);
+
+        if (required ?? false)
+        {
+            ArgumentOutOfRangeException.ThrowIfEqual(minValues ?? 1, 0);
+        }
+        
         this.CustomId = customId;
         this.Options = options;
         this.MinValues = minValues;
         this.MaxValues = maxValues;
-        this.IsRequired = required;
+        this.IsRequired = required ?? minValues != 0;
     }
 
     internal DiscordCheckboxGroupComponent()
