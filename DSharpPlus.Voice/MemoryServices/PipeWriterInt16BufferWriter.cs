@@ -20,11 +20,8 @@ internal sealed class PipeWriterInt16BufferWriter : IBufferWriter<short>
         => this.pipeWriter.Advance(count * 2);
 
     /// <inheritdoc />
-    public Memory<short> GetMemory(int sizeHint = 0)
-    {
-        Memory<byte> memory = this.pipeWriter.GetMemory(sizeHint * 2);
-        return MemoryHelpers.CastMemory<byte, short>(memory);
-    }
+    public Memory<short> GetMemory(int sizeHint = 0) 
+        => throw new InvalidOperationException("Call GetSpan instead of GetMemory when acquiring a buffer for audio decoding");
 
     /// <inheritdoc />
     public Span<short> GetSpan(int sizeHint = 0)

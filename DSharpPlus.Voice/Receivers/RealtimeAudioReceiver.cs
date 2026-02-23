@@ -37,7 +37,7 @@ internal sealed class RealtimeAudioReceiver : IUserAudioReceiver
     public PipeReader Reader => this.pipe.Reader;
 
     /// <inheritdoc />
-    public bool IsSpeaking { get; }
+    public bool IsSpeaking { get; private set; }
 
     /// <inheritdoc />
     public void Ingest(ushort sequence, uint timestamp, byte[] audio)
@@ -56,6 +56,8 @@ internal sealed class RealtimeAudioReceiver : IUserAudioReceiver
         // out of order sequence received
         if (sequence < this.highestReceivedSequence && (this.highestReceivedSequence != ushort.MaxValue || sequence != 0))
         {
+            this.IsSpeaking = true;
+
             lock (this.outOfOrderFixupLock)
             {
                 List<(uint, byte[])> packets = [];
@@ -103,6 +105,8 @@ internal sealed class RealtimeAudioReceiver : IUserAudioReceiver
             // a silence frame is 20ms, but discord is stupid and allows sending fewer of them without any formal warning after the fifth
             if (this.silentCounter >= 5)
             {
+                this.IsSpeaking = false;
+
                 if (lastKnownTimestamp < expandedTimestamp - 20)
                 {
                     for (long i = lastKnownTimestamp; i < expandedTimestamp - 20; i++)
@@ -115,6 +119,7 @@ internal sealed class RealtimeAudioReceiver : IUserAudioReceiver
         // audio received
         else
         {
+            this.IsSpeaking = true;
             this.decoder.Decode(audio, new PipeWriterInt16BufferWriter(this.pipe.Writer));
             this.lastWrittenSequence = sequence;
             this.highestReceivedSequence = sequence;
