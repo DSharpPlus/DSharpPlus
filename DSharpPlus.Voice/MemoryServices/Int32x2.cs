@@ -1,8 +1,11 @@
+using System.ComponentModel;
+
 namespace DSharpPlus.Voice.MemoryServices;
 
 /// <summary>
 /// Represents two signed 32-bit integers, used for a single audio sample. You should generally not use this type directly.
 /// </summary>
+[EditorBrowsable(EditorBrowsableState.Never)]
 public readonly struct Int32x2
 {
     private readonly ulong value;
@@ -11,5 +14,5 @@ public readonly struct Int32x2
     public int Second => (int)(this.value & 0x00000000_FFFFFFFF);
 
     public Int32x2(int value)
-        => this.value = (((ulong)(uint)value) << 32) | (uint)value;
+        => this.value = (ulong)(uint)value << 32 | (uint)value;
 }

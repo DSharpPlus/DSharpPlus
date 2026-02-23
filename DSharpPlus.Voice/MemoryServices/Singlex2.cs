@@ -1,8 +1,11 @@
+using System.ComponentModel;
+
 namespace DSharpPlus.Voice.MemoryServices;
 
 /// <summary>
 /// Represents two signed 32-bit integers, used for a single audio sample. You should generally not use this type directly.
 /// </summary>
+[EditorBrowsable(EditorBrowsableState.Never)]
 public readonly struct Singlex2
 {
     private readonly float value0;

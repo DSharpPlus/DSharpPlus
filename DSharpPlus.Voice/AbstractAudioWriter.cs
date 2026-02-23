@@ -36,9 +36,7 @@ public abstract class AbstractAudioWriter : PipeWriter
     /// Signals that this writer will not be used further. It is possible to re-request a writer of any given audio format.
     /// </summary>
     public virtual void SignalCompletion()
-    {
-        SignalSilence();
-    }
+        => SignalSilence();
 
     /// <inheritdoc/>
     [EditorBrowsable(EditorBrowsableState.Never)]

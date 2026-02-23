@@ -1,6 +1,6 @@
 using System;
 
-namespace DSharpPlus.Voice.MemoryServices;
+namespace DSharpPlus.Voice.MemoryServices.Collections;
 
 /// <summary>
 /// A simple utility to aggregate bytes from different writes into a buffer.

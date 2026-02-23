@@ -1,8 +1,11 @@
+using System.ComponentModel;
+
 namespace DSharpPlus.Voice.MemoryServices;
 
 /// <summary>
 /// Represents two signed 16-bit integers, used for a single audio sample. You should generally not use this type directly.
 /// </summary>
+[EditorBrowsable(EditorBrowsableState.Never)]
 public readonly struct Int16x2
 {
     private readonly int value;
@@ -11,5 +14,5 @@ public readonly struct Int16x2
     public short Second => (short)(this.value & 0x0000_FFFF);
 
     public Int16x2(short value)
-        => this.value = (((int)(ushort)value) << 16) | (ushort)value;
+        => this.value = (int)(ushort)value << 16 | (ushort)value;
 }

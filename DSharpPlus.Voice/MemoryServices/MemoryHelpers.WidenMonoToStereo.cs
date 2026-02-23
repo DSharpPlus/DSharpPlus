@@ -80,11 +80,11 @@ file static unsafe class WidenToStereoImpl
 
         byte* pTarget = (byte*)Unsafe.AsPointer(ref stereo);
 
-        nuint misalignment = 64 - ((nuint)pTarget % 64);
+        nuint misalignment = 64 - (nuint)pTarget % 64;
         pTarget += misalignment;
         index += (int)(misalignment / 2);
 
-        for (; index <= (length * 2) - 128; index += 128)
+        for (; index <= length * 2 - 128; index += 128)
         {
             Vector256<byte> i0 = Vector256.LoadUnsafe(ref Unsafe.Add(ref mono, index));
             Vector256<byte> i1 = Vector256.LoadUnsafe(ref Unsafe.Add(ref mono, index + 32));
@@ -115,7 +115,7 @@ file static unsafe class WidenToStereoImpl
 
     public static void Avx512VbmiLessThan256KB(ref byte mono, ref byte stereo, int index, int length)
     {
-        for (; index <= (length * 2) - 128; index += 128)
+        for (; index <= length * 2 - 128; index += 128)
         {
             Vector256<byte> i0 = Vector256.LoadUnsafe(ref Unsafe.Add(ref mono, index));
             Vector256<byte> i1 = Vector256.LoadUnsafe(ref Unsafe.Add(ref mono, index + 32));
@@ -135,9 +135,9 @@ file static unsafe class WidenToStereoImpl
             v3 = Avx512Vbmi.PermuteVar64x8(v3, mask);
 
             v0.StoreUnsafe(ref Unsafe.Add(ref stereo, index * 2));
-            v1.StoreUnsafe(ref Unsafe.Add(ref stereo, (index * 2) + 64));
-            v2.StoreUnsafe(ref Unsafe.Add(ref stereo, (index * 2) + 128));
-            v3.StoreUnsafe(ref Unsafe.Add(ref stereo, (index * 2) + 192));
+            v1.StoreUnsafe(ref Unsafe.Add(ref stereo, index * 2 + 64));
+            v2.StoreUnsafe(ref Unsafe.Add(ref stereo, index * 2 + 128));
+            v3.StoreUnsafe(ref Unsafe.Add(ref stereo, index * 2 + 192));
         }
 
         V128(ref mono, ref stereo, index, length);
@@ -145,7 +145,7 @@ file static unsafe class WidenToStereoImpl
 
     public static void V128(ref byte mono, ref byte stereo, int index, int length)
     {
-        for (; index <= (length * 2) - 32; index += 32)
+        for (; index <= length * 2 - 32; index += 32)
         {
             ulong _0 = Unsafe.ReadUnaligned<ulong>(ref Unsafe.Add(ref mono, index));
             ulong _1 = Unsafe.ReadUnaligned<ulong>(ref Unsafe.Add(ref mono, index + 8));
@@ -165,9 +165,9 @@ file static unsafe class WidenToStereoImpl
             v3 = Vector128.Shuffle(v3, mask);
 
             v0.StoreUnsafe(ref Unsafe.Add(ref stereo, index * 2));
-            v1.StoreUnsafe(ref Unsafe.Add(ref stereo, (index * 2) + 16));
-            v2.StoreUnsafe(ref Unsafe.Add(ref stereo, (index * 2) + 32));
-            v3.StoreUnsafe(ref Unsafe.Add(ref stereo, (index * 2) + 48));
+            v1.StoreUnsafe(ref Unsafe.Add(ref stereo, index * 2 + 16));
+            v2.StoreUnsafe(ref Unsafe.Add(ref stereo, index * 2 + 32));
+            v3.StoreUnsafe(ref Unsafe.Add(ref stereo, index * 2 + 48));
         }
 
         // fallback loop for any elements not processed by the SIMD loop(s) above

@@ -2,11 +2,11 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace DSharpPlus.Voice.MemoryServices;
+namespace DSharpPlus.Voice.MemoryServices.Collections;
 
-internal struct OverflowBuffer3Bytes
+internal struct OverflowBuffer7Bytes
 {
-    private Buffer3 buffer;
+    private Buffer7 buffer;
 
     public int Available { get; private set; }
 
@@ -27,8 +27,8 @@ internal struct OverflowBuffer3Bytes
         this.Available = 0;
     }
 
-    [InlineArray(3)]
-    private struct Buffer3
+    [InlineArray(7)]
+    private struct Buffer7
     {
         public byte value;
     }

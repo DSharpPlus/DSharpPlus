@@ -1,17 +1,18 @@
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace DSharpPlus.Voice.MemoryServices;
+namespace DSharpPlus.Voice.MemoryServices.Collections;
 
-internal struct OverflowBuffer1Byte
+internal struct OverflowBuffer3Bytes
 {
-    private byte buffer;
+    private Buffer3 buffer;
 
     public int Available { get; private set; }
 
     public void SetOverflow(ReadOnlySpan<byte> overflow)
     {
-        overflow.CopyTo(MemoryMarshal.CreateSpan(ref this.buffer, 1));
+        overflow.CopyTo(this.buffer);
         this.Available = overflow.Length;
     }
 
@@ -20,9 +21,15 @@ internal struct OverflowBuffer1Byte
 
     public void CopyTo(Span<byte> target, out int written)
     {
-        MemoryMarshal.CreateReadOnlySpan(ref this.buffer, this.Available).CopyTo(target);
+        MemoryMarshal.CreateReadOnlySpan(ref this.buffer.value, this.Available).CopyTo(target);
         written = this.Available;
 
         this.Available = 0;
+    }
+
+    [InlineArray(3)]
+    private struct Buffer3
+    {
+        public byte value;
     }
 }

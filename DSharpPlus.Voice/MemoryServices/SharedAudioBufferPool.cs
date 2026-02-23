@@ -5,6 +5,8 @@ using System.Linq;
 using System.Threading;
 using System.Timers;
 
+using DSharpPlus.Voice.MemoryServices.Collections;
+
 using Timer = System.Timers.Timer;
 
 namespace DSharpPlus.Voice.MemoryServices;

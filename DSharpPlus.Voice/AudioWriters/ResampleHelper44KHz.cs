@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 
 using DSharpPlus.Voice.Interop.Speex;
 using DSharpPlus.Voice.MemoryServices;
+using DSharpPlus.Voice.MemoryServices.Collections;
 
 namespace DSharpPlus.Voice.AudioWriters;
 

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 using DSharpPlus.Voice.Codec;
 using DSharpPlus.Voice.MemoryServices;
+using DSharpPlus.Voice.MemoryServices.Collections;
 
 namespace DSharpPlus.Voice.AudioWriters;
 

@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 
-namespace DSharpPlus.Voice.MemoryServices;
+namespace DSharpPlus.Voice.MemoryServices.Collections;
 
 /// <summary>
 /// A fixed-size, lock-free and thread-safe circular collection of a power of two of byte arrays. All byte arrays in the 
