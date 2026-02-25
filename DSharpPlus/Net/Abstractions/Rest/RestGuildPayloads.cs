@@ -215,6 +215,15 @@ internal sealed class RestGuildMemberModifyPayload
 
     [JsonProperty("flags")]
     public Optional<DiscordMemberFlags> MemberFlags { get; set; }
+
+    [JsonProperty("banner")]
+    public Optional<string> Banner { get; set; }
+
+    [JsonProperty("avatar")]
+    public Optional<string> Avatar { get; set; }
+
+    [JsonProperty("bio")]
+    public Optional<string> Bio { get; set; }
 }
 
 internal sealed class RestGuildRolePayload

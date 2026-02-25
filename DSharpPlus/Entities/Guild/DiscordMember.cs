@@ -390,10 +390,14 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
             throw new ArgumentException($"{nameof(MemberEditModel)}.{nameof(mdl.VoiceChannel)} must be a voice or stage channel.", nameof(action));
         }
 
-        if (mdl.Nickname.HasValue && this.Discord.CurrentUser.Id == this.Id)
+        bool hasCurrentMemberFields = mdl.Nickname.HasValue || mdl.Banner.HasValue || mdl.Avatar.HasValue || mdl.Bio.HasValue;
+        if (hasCurrentMemberFields && this.Discord.CurrentUser.Id == this.Id)
         {
-            await this.Discord.ApiClient.ModifyCurrentMemberAsync(this.Guild.Id, mdl.Nickname.Value,
-                mdl.AuditLogReason);
+            Optional<string?> avatarBase64 = Utilities.ConvertStreamToBase64(mdl.Avatar);
+            Optional<string?> bannerBase64 = Utilities.ConvertStreamToBase64(mdl.Banner);
+
+            await this.Discord.ApiClient.ModifyCurrentMemberAsync(this.Guild.Id, mdl.Nickname,
+                bannerBase64, avatarBase64, mdl.Bio, mdl.AuditLogReason);
 
             await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, Optional.FromNoValue<string>(),
                 mdl.Roles.IfPresent(e => e.Select(xr => xr.Id)), mdl.Muted, mdl.Deafened,

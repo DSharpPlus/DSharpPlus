@@ -1,4 +1,5 @@
 using System;
+
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
@@ -24,7 +25,7 @@ public abstract class BaseDiscordSelectComponent : DiscordComponent
     /// Whether this component is required. Only affects usage in modals. Defaults to <c>true</c>.
     /// </summary>
     [JsonProperty("required", NullValueHandling = NullValueHandling.Ignore)]
-    public bool Required { get; internal set; } = true; // Align with Discord's default
+    public bool Required { get; internal set; }
 
     /// <summary>
     /// The minimum amount of options that can be selected. Must be less than or equal to <see cref="MaximumSelectedValues"/>. Defaults to one.
@@ -56,29 +57,25 @@ public abstract class BaseDiscordSelectComponent : DiscordComponent
         string placeholder,
         bool disabled = false,
         int minOptions = 1,
-        int maxOptions = 1
+        int maxOptions = 1,
+        bool? required = null
     )
     {
+        ArgumentOutOfRangeException.ThrowIfLessThan(minOptions, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(maxOptions, 1);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(minOptions, maxOptions);
+
+        if (required ?? false)
+        {
+            ArgumentOutOfRangeException.ThrowIfEqual(minOptions, 0);
+        }
+        
         this.Type = type;
         this.CustomId = customId;
         this.Placeholder = placeholder;
         this.Disabled = disabled;
         this.MinimumSelectedValues = minOptions;
         this.MaximumSelectedValues = maxOptions;
-
-        if (this.MinimumSelectedValues < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(minOptions), "Minimum selected values must be greater than or equal to zero.");
-        }
-
-        if (this.MaximumSelectedValues < 1)
-        {
-            throw new ArgumentOutOfRangeException(nameof(maxOptions), "Maximum selected values must be greater than or equal to one.");
-        }
-
-        if (this.MinimumSelectedValues > this.MaximumSelectedValues)
-        {
-            throw new ArgumentOutOfRangeException(nameof(minOptions), "Minimum selected values must be less than or equal to maximum selected values.");
-        }
+        this.Required = required ?? minOptions != 0;
     }
 }

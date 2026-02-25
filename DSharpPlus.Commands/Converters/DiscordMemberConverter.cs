@@ -1,12 +1,16 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+
 using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
+
+using Raffinert.FuzzySharp;
 
 namespace DSharpPlus.Commands.Converters;
 
@@ -51,11 +55,60 @@ public partial class DiscordMemberConverter : ISlashArgumentConverter<DiscordMem
             Match match = GetMemberRegex().Match(value);
             if (!match.Success || !ulong.TryParse(match.Groups[1].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out memberId))
             {
-                // Try to find a member by name, case sensitive.
-                DiscordMember? namedMember = context.Guild.Members.Values.FirstOrDefault(member => member.DisplayName.Equals(value, StringComparison.Ordinal));
-                return namedMember is not null
-                    ? Optional.FromValue(namedMember)
-                    : Optional.FromNoValue<DiscordMember>();
+                // try username first
+                if (context.Parameter.Attributes.Any(x => x.GetType() == typeof(DisableUsernameFuzzyMatchingAttribute)))
+                {
+                    if (context.Guild.Members.Values.FirstOrDefault(member => member.Username.Equals(value, StringComparison.InvariantCultureIgnoreCase)) 
+                        is DiscordMember memberByUsername)
+                    {
+                        return Optional.FromValue(memberByUsername);
+                    }
+                    
+                    // then try display name
+                    DiscordMember? fuzzyDisplayNameMember = context.Guild.Members.Values.Select(x => new
+                    {
+                        Member = x, 
+                            Ratio = Fuzz.Ratio(x.DisplayName, value)
+                    })
+                        .OrderByDescending(x => x.Ratio)
+                        .FirstOrDefault(x => x.Ratio >= 85)
+                        ?.Member;
+                    
+                    if (fuzzyDisplayNameMember is not null)
+                    {
+                        return Optional.FromValue(fuzzyDisplayNameMember);
+                    }
+                }
+                else
+                {
+                    // match them all and return the highest matching member at a score of 85 or higher
+                    // unfortunately, the tuple loses its names, so we can't give this readable names
+                    IEnumerable<(DiscordMember?, int, int)> sortedMembers = context.Guild.Members.Values.Select(x => 
+                    (
+                        Item1: x,
+                        Item2: Fuzz.Ratio(x.Username, value),
+                        Item3: Fuzz.Ratio(x.DisplayName, value)
+                    ));
+                    
+                    DiscordMember? highestScoringUsername = sortedMembers.OrderByDescending(x => x.Item2)
+                        .FirstOrDefault(x => x.Item2 >= 85)
+                        .Item1;
+                    
+                    if (highestScoringUsername is not null)
+                    {
+                        return Optional.FromValue(highestScoringUsername);
+                    }
+                    
+                    // then by display name
+                    DiscordMember? highestScoringDisplayName = sortedMembers.OrderByDescending(x => x.Item3)
+                        .FirstOrDefault(x => x.Item3 >= 85)
+                        .Item1;
+                    
+                    if (highestScoringDisplayName is not null)
+                    {
+                        return Optional.FromValue(highestScoringDisplayName);
+                    }
+                }
             }
         }
 

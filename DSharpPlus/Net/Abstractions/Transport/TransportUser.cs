@@ -12,7 +12,7 @@ internal class TransportUser
     public string Username { get; internal set; }
 
     [JsonProperty("global_name", NullValueHandling = NullValueHandling.Ignore)]
-    public string GlobalDisplayName { get; internal set; }
+    public string? GlobalDisplayName { get; internal set; }
 
     [JsonProperty("discriminator", NullValueHandling = NullValueHandling.Ignore)]
     public string Discriminator { get; set; }

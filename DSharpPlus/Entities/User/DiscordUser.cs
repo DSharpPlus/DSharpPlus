@@ -49,7 +49,7 @@ public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
     /// Nicknames in servers however still take precedence over global names, which take precedence over usernames.
     /// </remarks>
     [JsonProperty("global_name", NullValueHandling = NullValueHandling.Ignore)]
-    public virtual string GlobalName { get; internal set; }
+    public virtual string? GlobalName { get; internal set; }
 
     /// <summary>
     /// Gets the user's 4-digit discriminator.

@@ -25,7 +25,7 @@ body:
         label: What version of the library are you using?
         multiple: false
         options:
-          - v4.5.0 (Stable)
+          - v4.5.1 (Stable)
           - v5.0.0-nightly (make sure you are using the latest nightly!)
     validations:
       required: true
@@ -37,6 +37,8 @@ body:
         options:
           - .NET 8.0
           - .NET 9.0
+          - .NET 10.0
+          - .NET 11.0 Preview
     validations:
       required: true
   - type: input

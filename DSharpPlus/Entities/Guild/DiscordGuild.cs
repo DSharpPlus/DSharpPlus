@@ -1114,6 +1114,13 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         this.roles = new ConcurrentDictionary<ulong, DiscordRole>(apiRoles.ToDictionary(x => x.Id));
         return apiRoles;
     }
+    /// <summary>
+    /// Gets the member counts of all roles except the @everyone role in this guild.
+    /// </summary>
+    /// <returns>Role ids and their corresponding member counts.</returns>
+    public async Task<IReadOnlyDictionary<ulong, int>> GetRoleMemberCountsAsync()
+        => await this.Discord.ApiClient.GetGuildRoleMemberCountsAsync(this.Id);
+
 
     /// <summary>
     /// Gets a singular role from this guild by its ID.

@@ -62,6 +62,12 @@ public class ModalSubmittedEventArgs : InteractionCreatedEventArgs
                             .Select(x => interaction.Data.Resolved.Attachments[x])
                             .ToArray()),
 
+                    DiscordRadioGroupComponent radioGroup => new RadioGroupModalSubmission(radioGroup.CustomId, radioGroup.Value!),
+
+                    DiscordCheckboxGroupComponent checkboxGroup => new CheckboxGroupModalSubmission(checkboxGroup.CustomId, checkboxGroup.Values!),
+
+                    DiscordCheckboxComponent checkbox => new CheckboxModalSubmission(checkbox.CustomId, checkbox.Value!.Value),
+
                     _ => new UnknownComponentModalSubmission(label.Component.Type, label.Component.CustomId, label.Component)
                 }
             );

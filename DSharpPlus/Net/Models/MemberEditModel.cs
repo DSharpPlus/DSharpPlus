@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.Net.Models;
@@ -36,6 +37,21 @@ public class MemberEditModel : BaseEditModel
     /// Which flags this member should have
     /// </summary>
     public Optional<DiscordMemberFlags> MemberFlags { internal get; set; }
+
+    /// <summary>
+    /// New banner
+    /// </summary>
+    public Optional<Stream?> Banner { internal get; set; }
+
+    /// <summary>
+    /// New avatar
+    /// </summary>
+    public Optional<Stream?> Avatar { internal get; set; }
+
+    /// <summary>
+    /// New bio
+    /// </summary>
+    public Optional<string> Bio { internal get; set; }
 
     internal MemberEditModel()
     {

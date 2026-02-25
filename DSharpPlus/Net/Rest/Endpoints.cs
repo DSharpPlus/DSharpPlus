@@ -39,6 +39,7 @@ internal static class Endpoints
     public const string LOGIN = "login";
     public const string ME = "@me";
     public const string MEMBERS = "members";
+    public const string MEMBER_COUNTS = "member-counts";
     public const string MEMBER_VERIFICATION = "member-verification";
     public const string MESSAGES = "messages";
     public const string OAUTH2 = "oauth2";

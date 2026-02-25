@@ -44,6 +44,9 @@ internal sealed class DiscordComponentJsonConverter : JsonConverter
             DiscordComponentType.Container => new DiscordContainerComponent(),
             DiscordComponentType.Label => new DiscordLabelComponent(),
             DiscordComponentType.FileUpload => new DiscordFileUploadComponent(),
+            DiscordComponentType.RadioGroup => new DiscordRadioGroupComponent(),
+            DiscordComponentType.CheckboxGroup => new DiscordCheckboxGroupComponent(),
+            DiscordComponentType.Checkbox => new DiscordCheckboxComponent(),
             _ => new DiscordComponent() { Type = type.Value }
         };
 
