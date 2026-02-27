@@ -29,10 +29,9 @@ public sealed class AeadAes256GcmCryptor : ICryptor
     public string EncryptionMode => "aead_aes256_gcm_rtpsize";
 
     /// <inheritdoc/>
-    public void Decrypt(ReadOnlySpan<byte> encryptedFrame, ArrayPoolBufferWriter<byte> decrypted, out int extensionHeaderLength)
+    public void Decrypt(ReadOnlySpan<byte> encryptedFrame, ArrayPoolBufferWriter<byte> decrypted, out RtpFrameInfo frameInfo)
     {
-        RtpFrameInfo frameInfo = FrameParser.ParseRtpsizeSuffixedNonce(encryptedFrame, 4);
-        extensionHeaderLength = frameInfo.ExtensionHeaderLength;
+        frameInfo = FrameParser.ParseRtpsizeSuffixedNonce(encryptedFrame, 4);
 
         Span<byte> nonce = stackalloc byte[SodiumInterop.AeadAes256GcmNonceLength];
         encryptedFrame[frameInfo.Nonce].CopyTo(nonce);

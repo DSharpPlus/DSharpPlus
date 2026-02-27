@@ -29,10 +29,9 @@ public sealed class AeadXChaCha20Poly1305Cryptor : ICryptor
     public string EncryptionMode => "aead_xchacha20_poly1305_rtpsize";
 
     /// <inheritdoc/>
-    public void Decrypt(ReadOnlySpan<byte> encryptedFrame, ArrayPoolBufferWriter<byte> decrypted, out int extensionHeaderLength)
+    public void Decrypt(ReadOnlySpan<byte> encryptedFrame, ArrayPoolBufferWriter<byte> decrypted, out RtpFrameInfo frameInfo)
     {
-        RtpFrameInfo frameInfo = FrameParser.ParseRtpsizeSuffixedNonce(encryptedFrame, 4);
-        extensionHeaderLength = frameInfo.ExtensionHeaderLength;
+        frameInfo = FrameParser.ParseRtpsizeSuffixedNonce(encryptedFrame, 4);
 
         Span<byte> nonce = stackalloc byte[SodiumInterop.AeadXChaCha20Poly1305NonceLength];
         encryptedFrame[frameInfo.Nonce].CopyTo(nonce);

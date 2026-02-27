@@ -13,7 +13,7 @@ namespace DSharpPlus.Voice;
 public sealed class AudioReceiver
 {
     private readonly ConcurrentDictionary<VoiceUser, IUserAudioReceiver> receivers = [];
-    private readonly ConcurrentDictionary<int, VoiceUser> ssrcs = [];
+    private readonly ConcurrentDictionary<uint, VoiceUser> ssrcs = [];
     private readonly IAudioCodec codec;
 
     /// <summary>
@@ -26,13 +26,18 @@ public sealed class AudioReceiver
     /// </summary>
     public IReadOnlyDictionary<VoiceUser, IUserAudioReceiver> Receivers => this.receivers;
 
+    /// <summary>
+    /// Provides the voice user information for each user in the voice chat, keyed by their SSRC.
+    /// </summary>
+    public IReadOnlyDictionary<uint, VoiceUser> Ssrcs => this.ssrcs;
+
     internal AudioReceiver(IAudioCodec codec, AudioReceiveMode defaultReceiveMode)
     {
         this.codec = codec;
         this.DefaultReceiveMode = _ => defaultReceiveMode;
     }
 
-    internal void IngestAudio(int ssrc, uint timestamp, ushort sequence, byte[] audio)
+    internal void IngestAudio(uint ssrc, uint timestamp, ushort sequence, byte[] audio)
     {
         if (!this.ssrcs.TryGetValue(ssrc, out VoiceUser? user))
         {

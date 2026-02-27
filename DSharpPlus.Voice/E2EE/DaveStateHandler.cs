@@ -1,6 +1,8 @@
 using System;
 using System.Threading.Tasks;
 
+using CommunityToolkit.HighPerformance.Buffers;
+
 using DSharpPlus.Voice.Protocol.Gateway.DaveV1;
 using DSharpPlus.Voice.Transport;
 
@@ -73,7 +75,7 @@ public class DaveStateHandler : IDisposable
     /// <returns></returns>
     public async Task SendMlsKeyPackageAsync()
     {
-        CommunityToolkit.HighPerformance.Buffers.ArrayPoolBufferWriter<byte> writer = new();
+        ArrayPoolBufferWriter<byte> writer = new();
         this.mlsSession.WriteKeyPackage(writer);
         await SendDaveBinaryAsync(this.voiceNegotiationTransportService, (int)VoiceGatewayOpcode.MlsKeyPackage, writer.WrittenSpan);
     }

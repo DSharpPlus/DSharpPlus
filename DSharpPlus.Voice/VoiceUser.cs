@@ -18,5 +18,5 @@ public sealed record VoiceUser
     /// <summary>
     /// The SSRC of this user, if one has been specified.
     /// </summary>
-    public int? Ssrc { get; internal set; }
+    public uint? Ssrc { get; internal set; }
 }

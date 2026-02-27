@@ -20,6 +20,8 @@ internal static class FrameParser
         int headerLength = discordRtpHeaderSize + (csrcCount * 4);
 
         Range header, cipher, nonce;
+        uint ssrc, timestamp;
+        ushort sequence;
 
         if (BitHelper.HasFlag(frame[0], 4))
         {
@@ -36,13 +38,19 @@ internal static class FrameParser
             header = 0..(headerLength + 4);
             cipher = (headerLength + 4)..(frame.Length - nonceSize);
             nonce = (frame.Length - nonceSize)..frame.Length;
+            sequence = BinaryPrimitives.ReadUInt16BigEndian(frame[header][2..4]);
+            timestamp = BinaryPrimitives.ReadUInt32BigEndian(frame[header][4..8]);
+            ssrc = BinaryPrimitives.ReadUInt32BigEndian(frame[header][8..12]);
 
             return new RtpFrameInfo
             {
                 Header = header,
                 VoiceData = cipher,
                 Nonce = nonce,
-                ExtensionHeaderLength = extensionLength
+                ExtensionHeaderLength = extensionLength,
+                Ssrc = ssrc,
+                Timestamp = timestamp,
+                Sequence = sequence
             };
         }
 
@@ -51,13 +59,19 @@ internal static class FrameParser
         header = 0..headerLength;
         cipher = headerLength..(frame.Length - nonceSize);
         nonce = (frame.Length - nonceSize)..frame.Length;
+        sequence = BinaryPrimitives.ReadUInt16BigEndian(frame[header][2..4]);
+        timestamp = BinaryPrimitives.ReadUInt32BigEndian(frame[header][4..8]);
+        ssrc = BinaryPrimitives.ReadUInt32BigEndian(frame[header][8..12]);
 
         return new RtpFrameInfo
         {
             Header = header,
             VoiceData = cipher,
             Nonce = nonce,
-            ExtensionHeaderLength = 0
+            ExtensionHeaderLength = 0,
+            Ssrc = ssrc,
+            Timestamp = timestamp,
+            Sequence = sequence
         };
     }
 }

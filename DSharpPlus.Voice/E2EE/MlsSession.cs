@@ -121,11 +121,13 @@ public sealed class MlsSession : IDisposable
     /// <param name="unencryptedFrame">The unencrypted frame data.</param>
     /// <param name="encryptedFrame">A buffer for the E2EE-encrypted frame data.</param>
     /// <returns>The amount of bytes written to <paramref name="encryptedFrame"/>.</returns>
-    public int EncryptFrame(ReadOnlySpan<byte> unencryptedFrame, Span<byte> encryptedFrame)
+    public int EncryptFrame(ReadOnlySpan<byte> unencryptedFrame, ArrayPoolBufferWriter<byte> encryptedFrame)
     {
         lock (this.mlsLock)
         {
-            return this.koana.EncryptFrame(unencryptedFrame, encryptedFrame, this.ssrc);
+            int encrypted = this.koana.EncryptFrame(unencryptedFrame, encryptedFrame.GetSpan(unencryptedFrame.Length), this.ssrc);
+            encryptedFrame.Advance(encrypted);
+            return encrypted;
         }
     }
 
