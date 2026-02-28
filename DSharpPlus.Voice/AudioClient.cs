@@ -17,7 +17,7 @@ namespace DSharpPlus.Voice;
 /// <summary>
 /// Handles communicating over voice.
 /// </summary>
-internal sealed class DiscordAudioClient : IDisposable
+internal sealed class AudioClient : IDisposable
 {
     private readonly IMediaTransportService mediaTransport;
     private readonly AudioReceiver receiver;
@@ -32,7 +32,7 @@ internal sealed class DiscordAudioClient : IDisposable
 
     private readonly uint ssrc;
 
-    public DiscordAudioClient
+    public AudioClient
     (
         IMediaTransportService mediaTransport,
         AudioReceiver receiver,
