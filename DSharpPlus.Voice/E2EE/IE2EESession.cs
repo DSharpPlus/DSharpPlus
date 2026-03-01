@@ -34,12 +34,12 @@ public interface IE2EESession : IDisposable
     /// <summary>
     /// Processes proposals and retuns a message with the E2EE client's response in turn.
     /// </summary>
-    public byte[] ProcessProposals(byte[] payload);
+    public byte[] ProcessProposals(byte[] payload, ulong[] roster);
 
     /// <summary>
     /// Welcomes a new user to the E2EE group.
     /// </summary>
-    public void ProcessWelcome(byte[] payload);
+    public void ProcessWelcome(byte[] payload, ulong[] roster);
 
     /// <summary>
     /// Reinitializes the E2EE session with a different DAVE protocol version.

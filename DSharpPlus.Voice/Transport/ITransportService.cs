@@ -1,5 +1,5 @@
 using System;
-using System.Threading;
+using System.Net.WebSockets;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.Voice.Transport;
@@ -10,31 +10,34 @@ namespace DSharpPlus.Voice.Transport;
 public interface ITransportService : IDisposable
 {
     /// <summary>
-    /// Current Sequence number for the active connection
+    /// Current sequence number for the active connection
     /// </summary>
     public ushort SequenceNumber { get; }
 
     /// <summary>
-    /// Connects the client to the configured endpoint
+    /// Opens a connection to the voice gateway.
     /// </summary>
-    /// <param name="cancellationToken">Cancellation token passed into the internal websocket client</param>
-    /// <returns></returns>
-    public Task ConnectAsync(CancellationToken? cancellationToken = null);
+    public Task ConnectAsync(string url, ulong channelId);
 
     /// <summary>
-    /// Sends bytes data to the active connection
+    /// Sends the specified payload as binary data.
     /// </summary>
-    /// <param name="data"></param>
-    /// <param name="token"></param>
-    /// <returns></returns>
-    public Task SendAsync(ReadOnlyMemory<byte> data, CancellationToken? token = null);
+    public Task SendBinaryAsync(ReadOnlyMemory<byte> payload);
 
     /// <summary>
-    /// Converts T data to json and sends it as UTF8 bytes to the active connection
+    /// Sends the specified payload as JSON.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="data"></param>
-    /// <param name="token"></param>
-    /// <returns></returns>
-    public Task SendAsync<T>(T data, CancellationToken? token = null) where T : class;
+    public Task SendTextAsync<T>(T payload) 
+        where T : class;
+
+    /// <summary>
+    /// Receives a frame from the voice gateway.
+    /// </summary>
+    public Task<GatewayTransportFrame> ReceiveAsync();
+
+    /// <summary>
+    /// Disconnects from the gateway.
+    /// </summary>
+    /// <param name="status">The status message to send to the voice gateway.</param>
+    public Task DisconnectAsync(WebSocketCloseStatus status);
 }

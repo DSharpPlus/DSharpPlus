@@ -1,4 +1,3 @@
-
 using System;
 using System.Threading;
 
@@ -11,7 +10,7 @@ namespace DSharpPlus.Voice.E2EE;
 /// <summary>
 /// Provides the E2EE implementation for DSharpPlus.Voice, based on DAVE 1.1.4.
 /// </summary>
-public sealed class MlsSession : IDisposable
+public sealed class MlsSession : IE2EESession, IDisposable
 {
     private readonly KoanaInterop koana;
     private readonly Lock mlsLock;
@@ -50,7 +49,7 @@ public sealed class MlsSession : IDisposable
     /// <summary>
     /// Sets the voice gateway as an external sender capable of adding members to the E2EE group.
     /// </summary>
-    public void SetExternalSender(ReadOnlySpan<byte> payload)
+    public void SetExternalSender(byte[] payload)
     {
         lock (this.mlsLock)
         {

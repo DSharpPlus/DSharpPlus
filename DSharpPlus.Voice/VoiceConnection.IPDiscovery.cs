@@ -12,7 +12,7 @@ namespace DSharpPlus.Voice;
 
 partial class VoiceConnection
 {
-    private async Task<(IPAddress, ushort)> PerformIPDiscoveryAsync(uint ssrc)
+    private async Task<IPEndPoint> PerformIPDiscoveryAsync(uint ssrc)
     {
         byte[] request = new byte[74];
         Span<byte> requestSpan = request;
@@ -54,6 +54,6 @@ partial class VoiceConnection
         IPAddress address = IPAddress.Parse(addressSpan);
         ushort port = BinaryPrimitives.ReadUInt16BigEndian(receive.WrittenSpan[72..]);
 
-        return (address, port);
+        return new(address, port);
     }
 }

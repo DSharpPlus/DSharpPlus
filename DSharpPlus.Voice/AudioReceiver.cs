@@ -39,19 +39,9 @@ public sealed class AudioReceiver
 
     internal void IngestAudio(uint ssrc, uint timestamp, ushort sequence, byte[] audio)
     {
-        if (!this.ssrcs.TryGetValue(ssrc, out VoiceUser? user))
-        {
-            // race condition: we're still waiting on their ssrc but they already started speaking
-            // [TODO] consider buffering such received packets?
-            return;
-        }
-
-        if (!this.receivers.TryGetValue(user, out IUserAudioReceiver? receiver))
-        {
-            // same race condition as above
-            return;
-        }
-
+        VoiceUser user = this.ssrcs[ssrc];
+        IUserAudioReceiver receiver = this.receivers[user];
+        
         receiver.Ingest(sequence, timestamp, audio);
     }
 

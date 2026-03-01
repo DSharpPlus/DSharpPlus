@@ -1,12 +1,12 @@
 using System;
-using System.Buffers.Binary;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.WebSockets;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+
+using CommunityToolkit.HighPerformance.Buffers;
+
 using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Voice.Transport;
@@ -14,91 +14,214 @@ namespace DSharpPlus.Voice.Transport;
 /// <inheritdoc cref="ITransportService"/>
 public sealed class TransportService : ITransportService
 {
-    private readonly ILogger<ITransportService> logger;
-    private readonly ConcurrentDictionary<int, List<Func<string, TransportService, Task>>> jsonHandlers;
-    private readonly ConcurrentDictionary<int, List<Func<ReadOnlyMemory<byte>, TransportService, Task>>> binaryHandlers;
-    private readonly TransportServiceCore transportService;
+    private readonly ILoggerFactory loggerFactory;
+    private readonly ArrayPoolBufferWriter<byte> receiveWriter;
+    private readonly ArrayPoolBufferWriter<byte> sendWriter;
+    private ILogger logger;
+    private ClientWebSocket socket;
+
+    private bool isDisposed;
+    private bool isConnected;
 
     /// <inheritdoc/>
     public ushort SequenceNumber { get; internal set; }
 
-    internal TransportService
-    (
-        Uri uri,
-        ConcurrentDictionary<int, List<Func<string, TransportService, Task>>> jsonHandlers,
-        ConcurrentDictionary<int, List<Func<ReadOnlyMemory<byte>, TransportService, Task>>> binaryHandlers,
-        ILogger<ITransportService> logger,
-        Action<ClientWebSocketOptions>? configureOptions = null
-    )
+    internal TransportService(ILoggerFactory loggerFactory)
     {
-        this.transportService = new TransportServiceCore(uri, OnTextReceivedAsync, OnBinaryReceivedAsync, configureOptions);
-        this.jsonHandlers = jsonHandlers;
-        this.binaryHandlers = binaryHandlers;
-        this.logger = logger;
+        this.receiveWriter = new();
+        this.sendWriter = new();
+        this.loggerFactory = loggerFactory;
     }
 
     /// <inheritdoc/>
-    public async Task ConnectAsync(CancellationToken? cancellationToken = null) => await this.transportService.ConnectAsync(cancellationToken);
-
-    /// <inheritdoc/>
-    private async Task OnTextReceivedAsync(string messageText)
+    public async Task ConnectAsync(string url, ulong channelId)
     {
-        using JsonDocument doc = JsonDocument.Parse(messageText);
-        List<Task> handlerTasks = [];
+        ObjectDisposedException.ThrowIf(this.isDisposed, this);
 
-        if (doc.RootElement.TryGetProperty("s", out JsonElement property))
+        if (this.isConnected)
         {
-            this.SequenceNumber = property.GetUInt16();
+            this.logger.LogWarning("Attempted to connect, but there already is a connection opened. Ignoring.");
+            return;
         }
 
-        int opCode = doc.RootElement.GetProperty("op").GetUInt16();
-        this.logger.LogDebug("Received JSON OpCode: {opcode}", opCode);
+        this.logger = this.loggerFactory.CreateLogger($"DSharpPlus.Voice.Transport.ITransportService - Channel {channelId}");
+        this.socket = new();
 
-        if (this.jsonHandlers.TryGetValue(opCode, out List<Func<string, TransportService, Task>>? handler))
-        {
-            handlerTasks = [.. handler.Select(async x => await x.Invoke(messageText, this))];
-        }
+        this.logger.LogTrace("Connecting to the voice gateway.");
 
-        await Task.WhenAll(handlerTasks);
+        await this.socket.ConnectAsync(new(url), CancellationToken.None);
+        this.isConnected = true;
+
+        this.logger.LogDebug("Connected to the voice gateway.");
     }
 
     /// <inheritdoc/>
-    private async Task OnBinaryReceivedAsync(ReadOnlyMemory<byte> binaryResponse)
+    public async Task DisconnectAsync(WebSocketCloseStatus closeStatus)
     {
-        List<Task> handlerTasks = [];
+        this.logger.LogTrace("Disconnect requested: {CloseStatus}", closeStatus.ToString());
 
-        if (binaryResponse.Length < 3)
+        if (!this.isConnected)
         {
-            // log invalid binary message was received
-            this.logger.LogDebug("Invalid binary message was received!");
+            this.logger.LogTrace
+            (
+                "Attempting to disconnect from the Discord gateway, but there was no open connection. Ignoring."
+            );
 
             return;
         }
 
-        this.SequenceNumber = BinaryPrimitives.ReadUInt16BigEndian(binaryResponse.Span);
-        int opCode = binaryResponse.Span[2];
-        this.logger.LogDebug("Received Binary OpCode: {opcode}", opCode);
+        this.isConnected = false;
 
-        if (this.binaryHandlers.TryGetValue(opCode, out List<Func<ReadOnlyMemory<byte>, TransportService, Task>>? handler))
+        switch (this.socket.State)
         {
-            handlerTasks = [.. handler.Select(async (x, y) => await x.Invoke(binaryResponse, this))];
+            case WebSocketState.CloseSent:
+            case WebSocketState.CloseReceived:
+            case WebSocketState.Closed:
+            case WebSocketState.Aborted:
+
+                this.logger.LogTrace
+                (
+                    "Attempting to disconnect from the Discord gateway, but there is a disconnect in progress or complete. " +
+                    "Current websocket state: {state}",
+                    this.socket.State.ToString()
+                );
+
+                return;
+
+            case WebSocketState.Open:
+            case WebSocketState.Connecting:
+
+                this.logger.LogTrace("Disconnecting. Current websocket state: {state}", this.socket.State.ToString());
+
+                try
+                {
+                    await this.socket.CloseAsync(closeStatus, "Disconnecting.", CancellationToken.None);
+                }
+                catch (WebSocketException) { }
+                catch (OperationCanceledException) { }
+
+                break;
         }
 
-        await Task.WhenAll(handlerTasks);
+        this.socket.Dispose();
     }
 
     /// <inheritdoc/>
-    public async Task SendAsync(ReadOnlyMemory<byte> data, CancellationToken? token = null)
+    public async Task SendBinaryAsync(ReadOnlyMemory<byte> payload)
     {
-        this.logger.LogDebug("Sending Binary with OpCode: {opCode}", (int)data.Span[0]);
-        await this.transportService.SendAsync(data, token);
+        if (this.logger.IsEnabled(LogLevel.Trace))
+        {
+            this.logger.LogTrace("Sent outbound binary voice gateway event with opcode {opcode}", payload.Span[0]);
+        }
+
+        if (this.isConnected)
+        {
+            await this.socket.SendAsync
+            (
+                buffer: payload,
+                messageType: WebSocketMessageType.Binary,
+                endOfMessage: true,
+                cancellationToken: CancellationToken.None
+            );
+        }
     }
 
     /// <inheritdoc/>
-    public async Task SendAsync<T>(T data, CancellationToken? token = null) where T : class => await this.transportService.SendAsync(data, token);
+    public async Task SendTextAsync<T>(T payload) 
+        where T : class
+    {
+        Utf8JsonWriter writer = new(this.sendWriter);
+        JsonSerializer.Serialize(writer, payload);
 
-    /// <summary>
-    /// Cleanup
-    /// </summary>
-    public void Dispose() => this.transportService?.Dispose();
+        if (this.logger.IsEnabled(LogLevel.Trace))
+        {
+            this.logger.LogTrace("Payload for the last outbound voice gateway event: {event}", Encoding.UTF8.GetString(this.sendWriter.WrittenSpan));
+        }
+
+        if (this.isConnected)
+        {
+            await this.socket.SendAsync
+            (
+                buffer: this.sendWriter.WrittenMemory,
+                messageType: WebSocketMessageType.Text,
+                endOfMessage: true,
+                cancellationToken: CancellationToken.None
+            );
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<GatewayTransportFrame> ReceiveAsync()
+    {
+        ObjectDisposedException.ThrowIf(this.isDisposed, this);
+
+        if (!this.isConnected)
+        {
+            throw new InvalidOperationException("The transport service was not connected to the voice gateway.");
+        }
+
+        ValueWebSocketReceiveResult receiveResult = default;
+
+        this.receiveWriter.Clear();
+
+        try
+        {
+            do
+            {
+                receiveResult = await this.socket.ReceiveAsync(this.receiveWriter.GetMemory(), CancellationToken.None);
+                this.receiveWriter.Advance(receiveResult.Count);
+            } while (!receiveResult.EndOfMessage);
+        }
+        catch (OperationCanceledException) { }
+
+        if (receiveResult.MessageType == WebSocketMessageType.Binary)
+        {
+            int opcode = this.receiveWriter.WrittenSpan[2];
+            byte[] payload = new byte[this.receiveWriter.WrittenCount];
+            this.receiveWriter.WrittenSpan.CopyTo(payload);
+
+            this.logger.LogTrace("Received binary event from the voice gateway: (opcode {opcode}, length {length})", opcode, this.receiveWriter.WrittenCount);
+
+            return new GatewayTransportFrame
+            {
+                Opcode = opcode,
+                IsBinary = true,
+                Payload = payload
+            };
+        }
+        else
+        {
+            int index = this.receiveWriter.WrittenSpan.IndexOf("\"op\":"u8) + 5;
+            int endIndex = this.receiveWriter.WrittenSpan[index..].IndexOfAny(" ,"u8);
+
+            int opcode = int.Parse(this.receiveWriter.WrittenSpan[index..endIndex]);
+
+            byte[] payload = new byte[this.receiveWriter.WrittenCount];
+            this.receiveWriter.WrittenSpan.CopyTo(payload);
+
+            if (this.logger.IsEnabled(LogLevel.Trace))
+            {
+                this.logger.LogTrace
+                (
+                    "Received event from the voice gateway (length: {length}):\n{event}",
+                    this.receiveWriter.WrittenCount,
+                    Encoding.UTF8.GetString(this.receiveWriter.WrittenSpan)
+                );
+            }
+
+            return new GatewayTransportFrame
+            {
+                Opcode = opcode,
+                IsBinary = false,
+                Payload = payload
+            };
+        }
+    }
+
+    public void Dispose()
+    {
+        this.socket.Dispose();
+        this.isConnected = false;
+        this.isDisposed = true;
+    }
 }

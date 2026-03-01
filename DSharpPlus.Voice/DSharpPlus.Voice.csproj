@@ -7,6 +7,7 @@
     <PackageTags>$(PackageTags), voice, dave, e2ee</PackageTags>
     <IsPackable>true</IsPackable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>$(NoWarn);CA1873</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
