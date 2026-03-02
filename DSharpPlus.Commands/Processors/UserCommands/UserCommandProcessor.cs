@@ -89,10 +89,21 @@ public sealed class UserCommandProcessor : ICommandProcessor
             }
 
             this.commands.Add(command);
-            applicationCommands.Add(await ToApplicationCommandAsync(command));
+
+            if (command.GuildIds.Count == 0)
+            {
+                applicationCommands.Add(await ToApplicationCommandAsync(command));
+                continue;
+            }
+
+            DiscordApplicationCommand applicationCommand = await ToApplicationCommandAsync(command);
+            foreach (ulong guildId in command.GuildIds)
+            {
+                this.slashCommandProcessor.AddGuildApplicationCommand(guildId, applicationCommand);
+            }
         }
 
-        this.slashCommandProcessor.AddApplicationCommands(applicationCommands);
+        this.slashCommandProcessor.AddGlobalApplicationCommands(applicationCommands);
     }
 
     public async Task ExecuteInteractionAsync(DiscordClient client, ContextMenuInteractionCreatedEventArgs eventArgs)

@@ -31,7 +31,8 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
     private static partial Regex NameLocalizationRegex();
 
     private static FrozenDictionary<ulong, Command> applicationCommandMapping = FrozenDictionary<ulong, Command>.Empty;
-    private static readonly List<DiscordApplicationCommand> applicationCommands = [];
+    private static readonly List<DiscordApplicationCommand> globalApplicationCommands = [];
+    private static readonly Dictionary<ulong, List<DiscordApplicationCommand>> guildsApplicationCommands = [];
 
     // if registration failed, this is set to true and will trigger better error messages
     private bool registrationFailed = false;
@@ -41,8 +42,17 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
     /// </summary>
     public IReadOnlyDictionary<ulong, Command> ApplicationCommandMapping => applicationCommandMapping;
 
-    public void AddApplicationCommands(params DiscordApplicationCommand[] commands) => applicationCommands.AddRange(commands);
-    public void AddApplicationCommands(IEnumerable<DiscordApplicationCommand> commands) => applicationCommands.AddRange(commands);
+    public void AddGlobalApplicationCommands(params DiscordApplicationCommand[] commands) => globalApplicationCommands.AddRange(commands);
+    public void AddGlobalApplicationCommands(IEnumerable<DiscordApplicationCommand> commands) => globalApplicationCommands.AddRange(commands);
+    public void AddGuildApplicationCommand(ulong guildId, DiscordApplicationCommand command)
+    {
+        if (!guildsApplicationCommands.TryGetValue(guildId, out List<DiscordApplicationCommand>? guildCommands))
+        {
+            guildCommands = [];
+            guildsApplicationCommands.Add(guildId, guildCommands);
+        }
+        guildCommands.Add(command);
+    }
 
     /// <summary>
     /// Registers <see cref="CommandsExtension.Commands"/> as application commands.
@@ -59,9 +69,9 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         this.isApplicationCommandsRegistered = true;
 
         IReadOnlyList<Command> processorSpecificCommands = extension.GetCommandsForProcessor(this);
-        List<DiscordApplicationCommand> globalApplicationCommands = [];
-        Dictionary<ulong, List<DiscordApplicationCommand>> guildsApplicationCommands = [];
-        globalApplicationCommands.AddRange(applicationCommands);
+        List<DiscordApplicationCommand> globalCommands = [];
+        Dictionary<ulong, List<DiscordApplicationCommand>> guildsCommands = guildsApplicationCommands;
+        globalCommands.AddRange(globalApplicationCommands);
 
         try
         {
@@ -80,16 +90,16 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
                 DiscordApplicationCommand applicationCommand = await ToApplicationCommandAsync(command);
                 if (command.GuildIds.Count == 0)
                 {
-                    globalApplicationCommands.Add(applicationCommand);
+                    globalCommands.Add(applicationCommand);
                     continue;
                 }
 
                 foreach (ulong guildId in command.GuildIds)
                 {
-                    if (!guildsApplicationCommands.TryGetValue(guildId, out List<DiscordApplicationCommand>? guildCommands))
+                    if (!guildsCommands.TryGetValue(guildId, out List<DiscordApplicationCommand>? guildCommands))
                     {
                         guildCommands = [];
-                        guildsApplicationCommands.Add(guildId, guildCommands);
+                        guildsCommands.Add(guildId, guildCommands);
                     }
 
                     guildCommands.Add(applicationCommand);
@@ -113,11 +123,11 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             discordCommands.AddRange
             (
                 this.extension.DebugGuildId == 0
-                    ? await this.extension.Client.BulkOverwriteGlobalApplicationCommandsAsync(globalApplicationCommands)
+                    ? await this.extension.Client.BulkOverwriteGlobalApplicationCommandsAsync(globalCommands)
                     : await this.extension.Client.BulkOverwriteGuildApplicationCommandsAsync
                     (
                         this.extension.DebugGuildId,
-                        globalApplicationCommands
+                        globalCommands
                     )
             );
         }
@@ -127,11 +137,11 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
                 ? await this.extension.Client.GetGlobalApplicationCommandsAsync(true)
                 : await this.extension.Client.GetGuildApplicationCommandsAsync(this.extension.DebugGuildId, true);
 
-            discordCommands.AddRange(await VerifyAndUpdateRemoteCommandsAsync(globalApplicationCommands, preexisting));
+            discordCommands.AddRange(await VerifyAndUpdateRemoteCommandsAsync(globalCommands, preexisting));
         }
 
         // for the time being, we still overwrite guilds by force
-        foreach (KeyValuePair<ulong, List<DiscordApplicationCommand>> kv in guildsApplicationCommands)
+        foreach (KeyValuePair<ulong, List<DiscordApplicationCommand>> kv in guildsCommands)
         {
             discordCommands.AddRange
             (
