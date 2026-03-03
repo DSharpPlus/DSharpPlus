@@ -12,19 +12,29 @@ public sealed class DefaultCryptorFactory : ICryptorFactory
     /// <inheritdoc/>
     public IReadOnlyList<string> SupportedEncryptionModes => ["aead_aes256_gcm_rtpsize", "aead_xchacha20_poly1305_rtpsize"];
 
-    /// <inheritdoc/>
-    public ICryptor CreateCryptor(IEnumerable<string> acceptedEncryptionModes, byte[] key)
+    public string SelectPreferredEncryptionMode(params IEnumerable<string> supportedEncryptionModes)
     {
-        if (acceptedEncryptionModes.Contains("aead_aes256_gcm_rtpsize"))
+        if (supportedEncryptionModes.Contains("aead_aes256_gcm_rtpsize"))
         {
-            return new AeadAes256GcmCryptor(key);
+            return "aead_aes256_gcm_rtpsize";
         }
 
-        if (acceptedEncryptionModes.Contains("aead_xchacha20_poly1305_rtpsize"))
+        if (supportedEncryptionModes.Contains("aead_xchacha20_poly1305_rtpsize"))
         {
-            return new AeadXChaCha20Poly1305Cryptor(key);
+            return "aead_xchacha20_poly1305_rtpsize";
         }
 
-        throw new InvalidOperationException($"Cannot create a cryptor for encryption modes [{string.Join(", ", acceptedEncryptionModes)}]");
+        throw new InvalidOperationException($"None of the encryption modes [{string.Join(", ", supportedEncryptionModes)}] are supported.");
+    }
+
+    /// <inheritdoc/>
+    public ICryptor CreateCryptor(string selectedEncryptionMode, byte[] key)
+    {
+        return selectedEncryptionMode switch
+        {
+            "aead_aes256_gcm_rtpsize" => new AeadAes256GcmCryptor(key),
+            "aead_xchacha20_poly1305_rtpsize" => new AeadXChaCha20Poly1305Cryptor(key),
+            _ => throw new InvalidOperationException($"Unsupported encyrption mode {selectedEncryptionMode}.")
+        };
     }
 }

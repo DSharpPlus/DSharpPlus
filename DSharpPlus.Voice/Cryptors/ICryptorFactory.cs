@@ -8,11 +8,16 @@ namespace DSharpPlus.Voice.Cryptors;
 public interface ICryptorFactory
 {
     /// <summary>
-    /// Selects the preferred cryptor for this connection and returns a ready-to-use instance.
+    /// Creates a cryptor for this connection.
     /// </summary>
-    /// <param name="acceptedEncryptionModes">The encryption modes supported by the voice gateway node.</param>
+    /// <param name="selectedEncryptionMode">The encryption modes selected for this connection.</param>
     /// <param name="key">The key for the cryptor, valid for the lifetime of the transport connection.</param>
-    public ICryptor CreateCryptor(IEnumerable<string> acceptedEncryptionModes, byte[] key);
+    public ICryptor CreateCryptor(string selectedEncryptionMode, byte[] key);
+
+    /// <summary>
+    /// Selects the preferred encryption mode based on what the voice server supports.
+    /// </summary>
+    public string SelectPreferredEncryptionMode(params IEnumerable<string> supportedEncryptionModes);
 
     /// <summary>
     /// Gets the list of encryption modes supported by DSharpPlus.Voice.

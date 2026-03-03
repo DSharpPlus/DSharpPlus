@@ -1,5 +1,6 @@
-using System.Collections.Generic;
 using System.Text.Json.Serialization;
+
+namespace DSharpPlus.Voice.Protocol.Gateway.DaveV1.Inbound;
 
 /// <summary>
 /// Represents the details of a voice session description,
@@ -26,8 +27,8 @@ public class VoiceSessionDescription
     /// Gets or sets the secret key used for SRTP (Secure Real-Time Protocol)
     /// encryption. Provided as an array of bytes.
     /// </summary>
-    [JsonPropertyName("secret_key")]
-    public List<byte> SecretKey { get; set; }
+    [JsonPropertyName("secret_key"), JsonConverter(typeof(ByteArrayConverter))]
+    public byte[] SecretKey { get; set; }
 
     /// <summary>
     /// Gets or sets the encryption mode used by the voice connection

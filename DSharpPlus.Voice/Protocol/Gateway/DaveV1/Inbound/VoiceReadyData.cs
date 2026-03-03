@@ -21,7 +21,7 @@ public class VoiceReadyData
     /// observed by the voice server.
     /// </summary>
     [JsonPropertyName("ip")]
-    public string Ip { get; set; }
+    public string IP { get; set; }
 
     /// <summary>
     /// Gets or sets the UDP port assigned by the voice server
@@ -36,7 +36,7 @@ public class VoiceReadyData
     /// securing voice data.
     /// </summary>
     [JsonPropertyName("modes")]
-    public List<string> Modes { get; set; }
+    public IReadOnlyList<string> SupportedEncryptionModes { get; set; }
 
     /// <summary>
     /// Gets or sets the heartbeat interval (in milliseconds)

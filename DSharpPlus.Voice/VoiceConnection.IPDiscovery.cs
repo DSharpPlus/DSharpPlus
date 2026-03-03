@@ -26,8 +26,8 @@ partial class VoiceConnection
         BinaryPrimitives.WriteUInt16BigEndian(requestSpan[2..], 70);
         BinaryPrimitives.WriteUInt32BigEndian(requestSpan[4..], ssrc);
 
-        await this.MediaTransportService.SendAsync(request);
-        await this.MediaTransportService.ReceiveAsync(receive);
+        await this.mediaTransport.SendAsync(request);
+        await this.mediaTransport.ReceiveAsync(receive);
 
         // ensure the packet is well-formed
 

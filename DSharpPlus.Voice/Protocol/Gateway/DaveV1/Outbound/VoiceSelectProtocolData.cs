@@ -15,12 +15,12 @@ public class VoiceSelectProtocolData
     /// connection. This is typically <c>"udp"</c>.
     /// </summary>
     [JsonPropertyName("protocol")]
-    public string Protocol { get; set; } = "udp";
+    public string Protocol => "udp";
 
     /// <summary>
     /// Gets or sets the inner data object that contains protocol-specific
     /// configuration details such as IP address, port, and encryption mode.
     /// </summary>
     [JsonPropertyName("data")]
-    public VoiceSelectProtocolInnerData InnerData { get; set; }
+    public required VoiceSelectProtocolInnerData InnerData { get; init; }
 }

@@ -1,4 +1,4 @@
-namespace DSharpPlus.Voice.Protocol.Gateway.DaveV1.Bidirectional;
+namespace DSharpPlus.Voice.Protocol.Gateway;
 
 /// <summary>
 /// The following flags can be used to control how the application is able to speak.

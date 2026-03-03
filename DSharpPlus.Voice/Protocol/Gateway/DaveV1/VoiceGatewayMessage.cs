@@ -2,19 +2,19 @@ using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Voice.Protocol.Gateway.DaveV1;
 
-public class DiscordGatewayMessage<T> 
+public class VoiceGatewayMessage<T> 
 {
     /// <summary>
     /// Gets/Sets the type
     /// </summary>
-    [JsonPropertyName("t")]
-    public string? Type { get; set; }
+    [JsonPropertyName("t"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWriting)]
+    public string Type { get; set; } = "";
 
     /// <summary>
     /// Gets or sets the sequence number associated with this payload. Used to maintain message ordering.
     /// </summary>
-    [JsonPropertyName("seq")]
-    public int? Sequence { get; set; }
+    [JsonPropertyName("seq"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWriting)]
+    public int Sequence { get; set; }
 
     /// <summary>
     /// Gets or sets the operation code (<c>op</c>) that specifies the type of voice event or instruction.
