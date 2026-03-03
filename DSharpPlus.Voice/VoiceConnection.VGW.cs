@@ -25,15 +25,16 @@ namespace DSharpPlus.Voice;
 partial class VoiceConnection
 {
     private const int MaxDaveVersion = 1;
-    private int daveVersion;
-    private DateTimeOffset lastSentHeartbeat;
-    private int pendingHeartbeats;
+    
 
     // [NOTE] this code makes the assumption that discord will have the good sense to not change the semantics or contents of opcodes
     // that get exchanged before we know the DAVE version in future DAVE versions. if they don't show that modicum of common sense, 
     // that is a problem.
-    private async Task ConnectAsync(ulong channelId, ulong guildId)
+    internal async Task ConnectAsync()
     {
+        ulong channelId = this.channelId;
+        ulong guildId = this.guildId;
+
         this.logger = this.loggerFactory.CreateLogger($"DSharpPlus.Voice.VoiceConnection - Channel {channelId}");
         this.logger.LogDebug("Initiating connection to the voice gateway, DAVE version {daveVersion}", this.daveVersion);
 
@@ -102,6 +103,7 @@ partial class VoiceConnection
 
         bool helloReceived = false, readyReceived = false;
         string selectedEncryptionMode = default;
+        IPEndPoint remoteUdpEndpoint = default;
 
         while (!helloReceived && !readyReceived)
         {
@@ -112,7 +114,7 @@ partial class VoiceConnection
                 readyReceived = true;
                 
                 VoiceGatewayMessage<VoiceReadyData> ready = JsonSerializer.Deserialize<VoiceGatewayMessage<VoiceReadyData>>(frame.Payload);
-                this.remoteUdpEndpoint = new(IPAddress.Parse(ready.Data.IP), ready.Data.Port);
+                remoteUdpEndpoint = new(IPAddress.Parse(ready.Data.IP), ready.Data.Port);
                 this.ssrc = ready.Data.Ssrc;
                 selectedEncryptionMode = this.cryptorFactory.SelectPreferredEncryptionMode(ready.Data.SupportedEncryptionModes);
 
@@ -129,7 +131,7 @@ partial class VoiceConnection
         }
 
         // we have now received every bit of information necessary to connect to UDP...
-        await this.mediaTransport.ConnectAsync(this.remoteUdpEndpoint);
+        await this.mediaTransport.ConnectAsync(remoteUdpEndpoint);
         IPEndPoint localEndpoint = await PerformIPDiscoveryAsync(this.ssrc);
 
         // ... and to select the protocol we want
@@ -172,6 +174,17 @@ partial class VoiceConnection
         }
 
         this.vgwTask = ReceiveVoiceGatewayEventsAsync();
+
+        this.audioClient = new
+        (
+            this.mediaTransport,
+            this.receiver,
+            this.cryptor,
+            this.e2ee,
+            this.sendingAudioChannel.Reader,
+            this.encoder,
+            this.ssrc
+        );
     }
 
     /// <summary>
