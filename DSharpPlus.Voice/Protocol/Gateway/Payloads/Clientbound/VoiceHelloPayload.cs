@@ -1,11 +1,11 @@
 using System.Text.Json.Serialization;
 
-namespace DSharpPlus.Voice.Protocol.Gateway.DaveV1.Inbound;
+namespace DSharpPlus.Voice.Protocol.Gateway.Payloads.Clientbound;
 
 /// <summary>
 /// Represents a payload for <see cref="VoiceGatewayOpcode.Hello"/>.
 /// </summary>
-internal sealed record VoiceHelloPayload
+internal sealed record VoiceHelloPayload : IVoicePayload
 {
     /// <summary>
     /// The time in milliseconds between heartbeats sent to the server.

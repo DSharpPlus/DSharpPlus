@@ -1,9 +1,9 @@
-namespace DSharpPlus.Voice.Protocol.Gateway;
+namespace DSharpPlus.Voice.Protocol.Gateway.Payloads.Bidirectional;
 
 /// <summary>
 /// The following flags can be used to control how the application is able to speak.
 /// </summary>
-public enum VoiceSpeakingFlags
+internal enum VoiceSpeakingFlags
 {
     /// <summary>
     /// Disables transmitting voice from the application to Discord.

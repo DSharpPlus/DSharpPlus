@@ -13,9 +13,9 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Voice.Exceptions;
 using DSharpPlus.Voice.Protocol;
 using DSharpPlus.Voice.Protocol.Gateway;
-using DSharpPlus.Voice.Protocol.Gateway.DaveV1;
-using DSharpPlus.Voice.Protocol.Gateway.DaveV1.Inbound;
-using DSharpPlus.Voice.Protocol.Gateway.DaveV1.Outbound;
+using DSharpPlus.Voice.Protocol.Gateway.Payloads.Bidirectional;
+using DSharpPlus.Voice.Protocol.Gateway.Payloads.Clientbound;
+using DSharpPlus.Voice.Protocol.Gateway.Payloads.Serverbound;
 using DSharpPlus.Voice.Transport;
 
 using Microsoft.Extensions.Logging;
@@ -26,7 +26,6 @@ partial class VoiceConnection
 {
     private const int MaxDaveVersion = 1;
     
-
     // [NOTE] this code makes the assumption that discord will have the good sense to not change the semantics or contents of opcodes
     // that get exchanged before we know the DAVE version in future DAVE versions. if they don't show that modicum of common sense, 
     // that is a problem.
@@ -84,16 +83,16 @@ partial class VoiceConnection
         // we have all necessary information, connect to the vgw and identify
         await this.voiceGateway.ConnectAsync(this.endpoint, channelId);
 
-        await this.voiceGateway.SendTextAsync<VoiceGatewayMessage<VoiceIdentifyData>>(new()
+        await this.voiceGateway.SendTextAsync(new()
         {
-            Opcode = (int)VoiceGatewayOpcode.Identify,
-            Data = new()
+            Opcode = VoiceGatewayOpcode.Identify,
+            Payload = new VoiceIdentifyPayload()
             {
                 GuildId = guildId,
                 UserId = this.userId,
                 SessionId = this.sessionId,
                 Token = this.token,
-                MaxSupportedDaveVersion = MaxDaveVersion
+                HighestSupportedDaveVersion = MaxDaveVersion
             }
         });
 
@@ -107,26 +106,30 @@ partial class VoiceConnection
 
         while (!helloReceived && !readyReceived)
         {
-            GatewayTransportFrame frame = await this.voiceGateway.ReceiveAsync();
+            VoiceGatewayTransportFrame frame = await this.voiceGateway.ReceiveAsync();
 
-            if (frame.Opcode == (int)VoiceGatewayOpcode.Ready && !frame.IsBinary)
+            if (frame.Opcode == VoiceGatewayOpcode.Ready && !frame.IsBinary)
             {
                 readyReceived = true;
                 
-                VoiceGatewayMessage<VoiceReadyData> ready = JsonSerializer.Deserialize<VoiceGatewayMessage<VoiceReadyData>>(frame.Payload);
-                remoteUdpEndpoint = new(IPAddress.Parse(ready.Data.IP), ready.Data.Port);
-                this.ssrc = ready.Data.Ssrc;
-                selectedEncryptionMode = this.cryptorFactory.SelectPreferredEncryptionMode(ready.Data.SupportedEncryptionModes);
+                VoiceGatewayMessage readyMessage = JsonSerializer.Deserialize<VoiceGatewayMessage>(frame.Payload)!;
+                VoiceReadyPayload ready = (VoiceReadyPayload)readyMessage.Payload;
 
-                this.lastSequence = ready.Sequence;
+                remoteUdpEndpoint = new(IPAddress.Parse(ready.IPAddress), ready.Port);
+                this.ssrc = ready.SSRC;
+                selectedEncryptionMode = this.cryptorFactory.SelectPreferredEncryptionMode(ready.EncryptionModes);
+
+                this.lastSequence = readyMessage.Sequence;
             }
 
-            if (frame.Opcode == (int)VoiceGatewayOpcode.Hello && !frame.IsBinary)
+            if (frame.Opcode == VoiceGatewayOpcode.Hello && !frame.IsBinary)
             {
                 helloReceived = true;
                 
-                VoiceGatewayMessage<VoiceHelloPayload> hello = JsonSerializer.Deserialize<VoiceGatewayMessage<VoiceHelloPayload>>(frame.Payload);
-                this.heartbeatTask = HeartbeatAsync(hello.Data.HeartbeatInterval);
+                VoiceGatewayMessage helloMessage = JsonSerializer.Deserialize<VoiceGatewayMessage>(frame.Payload)!;
+                VoiceHelloPayload hello = (VoiceHelloPayload)helloMessage.Payload;
+
+                this.heartbeatTask = HeartbeatAsync(hello.HeartbeatInterval);
             }
         }
 
@@ -135,44 +138,46 @@ partial class VoiceConnection
         IPEndPoint localEndpoint = await PerformIPDiscoveryAsync(this.ssrc);
 
         // ... and to select the protocol we want
-        await this.voiceGateway.SendTextAsync<VoiceGatewayMessage<VoiceSelectProtocolData>>(new()
+        await this.voiceGateway.SendTextAsync(new()
         {
-            Opcode = (int)VoiceGatewayOpcode.SelectProtocol,
-            Data = new()
+            Opcode = VoiceGatewayOpcode.SelectProtocol,
+            Payload = new VoiceSelectProtocolPayload()
             {
-                InnerData = new()
+                Protocol = "udp",
+                Data = new()
                 {
-                    Address = localEndpoint.Address.ToString(),
+                    IPAddress = localEndpoint.Address.ToString(),
                     Port = localEndpoint.Port,
-                    Mode = selectedEncryptionMode
+                    EncryptionMode = selectedEncryptionMode
                 }
             }
         });
 
         while (true)
         {
-            GatewayTransportFrame sessionDescriptionFrame = await this.voiceGateway.ReceiveAsync();
+            VoiceGatewayTransportFrame sessionDescriptionFrame = await this.voiceGateway.ReceiveAsync();
 
-            if (sessionDescriptionFrame.Opcode != (int)VoiceGatewayOpcode.SessionDescription || sessionDescriptionFrame.IsBinary)
+            if (sessionDescriptionFrame.Opcode != VoiceGatewayOpcode.SessionDescription || sessionDescriptionFrame.IsBinary)
             {
                 // something silly happened
                 continue;
             }
 
-            VoiceGatewayMessage<VoiceSessionDescription> sessionDescription 
-                = JsonSerializer.Deserialize<VoiceGatewayMessage<VoiceSessionDescription>>(sessionDescriptionFrame.Payload);
+            VoiceGatewayMessage sessionDescription = JsonSerializer.Deserialize<VoiceGatewayMessage>(sessionDescriptionFrame.Payload);
+            VoiceSessionDescriptionPayload sd  = (VoiceSessionDescriptionPayload)sessionDescription.Payload;
 
-            if (selectedEncryptionMode != sessionDescription.Data.Mode)
+            if (selectedEncryptionMode != sd.EncryptionMode)
             {
                 throw new ConnectingFailedException("Failed to negotiate transport encryption mode.");
             }
 
-            this.cryptor = this.cryptorFactory.CreateCryptor(selectedEncryptionMode, sessionDescription.Data.SecretKey);
-            this.daveVersion = sessionDescription.Data.DaveProtocolVersion;
+            this.cryptor = this.cryptorFactory.CreateCryptor(selectedEncryptionMode, sd.SecretKey);
+            this.daveVersion = sd.DaveProtocolVersion;
 
             break;
         }
 
+        this.e2ee.Initialize((ushort)this.daveVersion, channelId, this.userId, this.ssrc);
         this.vgwTask = ReceiveVoiceGatewayEventsAsync();
 
         this.audioClient = new
@@ -213,15 +218,15 @@ partial class VoiceConnection
 
     private async Task SendSpeakingStatusAsync(VoiceSpeakingFlags flags)
     {
-        await this.voiceGateway.SendTextAsync<VoiceGatewayMessage<VoiceSpeakingData>>(new()
+        await this.voiceGateway.SendTextAsync(new()
         {
-            Data = new()
+            Payload = new VoiceSpeakingPayload()
             {
                 Delay = 0,
-                Speaking = flags,
-                Ssrc = this.ssrc,
+                SpeakingMode = flags,
+                SSRC = this.ssrc,
             },
-            Opcode = (int)VoiceGatewayOpcode.Speaking
+            Opcode = VoiceGatewayOpcode.Speaking
         });
     }
 
@@ -235,13 +240,13 @@ partial class VoiceConnection
             {
                 DateTimeOffset time = DateTimeOffset.UtcNow;
 
-                await this.voiceGateway.SendTextAsync<VoiceGatewayMessage<VoiceHeartbeatData>>(new()
+                await this.voiceGateway.SendTextAsync(new()
                 {
-                    Opcode = (int)VoiceGatewayOpcode.Heartbeat,
-                    Data = new()
+                    Opcode = VoiceGatewayOpcode.Heartbeat,
+                    Payload = new VoiceHeartbeatPayload()
                     {
-                        Timestamp = (ulong)time.ToUnixTimeMilliseconds(),
-                        LastSequence = this.lastSequence
+                        Nonce = time.ToUnixTimeMilliseconds(),
+                        LastAcknowledgedSequence = this.lastSequence
                     }
                 });
 
@@ -271,6 +276,68 @@ partial class VoiceConnection
 
     private async Task ReceiveVoiceGatewayEventsAsync()
     {
-        
+        while (true)
+        {
+            VoiceGatewayTransportFrame frame = await this.voiceGateway.ReceiveAsync();
+
+            if (!frame.IsBinary)
+            {
+                VoiceGatewayMessage message = JsonSerializer.Deserialize<VoiceGatewayMessage>(frame.Payload)!;
+
+                if (message.Sequence != -1)
+                {
+                    this.lastSequence = message.Sequence;
+                }
+
+                switch (frame.Opcode)
+                {
+                    case VoiceGatewayOpcode.HeartbeatAck:
+
+                        this.pendingHeartbeats = 0;
+
+                        break;
+
+                    case VoiceGatewayOpcode.ClientsConnected:
+
+                        VoiceClientsConnectedPayload clientsConnected = (VoiceClientsConnectedPayload)message.Payload;
+                        
+                        this.connectedUsers.AddRange(clientsConnected.UserIds);
+
+                        break;
+
+                    case VoiceGatewayOpcode.ClientDisconnected:
+
+                        VoiceClientDisconnectedPayload clientDisconnected = (VoiceClientDisconnectedPayload)message.Payload;
+
+                        this.connectedUsers.Remove(clientDisconnected.UserId);
+
+                        break;
+
+                    case VoiceGatewayOpcode.PrepareTransition:
+                    case VoiceGatewayOpcode.ExecuteTransition:
+                    case VoiceGatewayOpcode.PrepareEpoch:
+
+                        await (this.daveVersion switch
+                        {
+                            1 => HandleDaveV1JsonPayloadsAsync(message),
+                            _ => throw new InvalidOperationException($"Invalid DAVE version {this.daveVersion}.")
+                        });
+
+                        break;
+
+                    default:
+
+                        throw new InvalidOperationException($"Received invalid opcode {message.Opcode}.");
+                }
+            }
+            else
+            {
+                await (this.daveVersion switch
+                {
+                    1 => HandleDaveV1BinaryPayloadsAsync(frame),
+                    _ => throw new InvalidOperationException($"Invalid DAVE version {this.daveVersion}.")
+                });
+            }
+        }
     }
 }

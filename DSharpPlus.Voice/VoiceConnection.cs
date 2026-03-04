@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
@@ -7,6 +8,7 @@ using DSharpPlus.Voice.Codec;
 using DSharpPlus.Voice.Cryptors;
 using DSharpPlus.Voice.E2EE;
 using DSharpPlus.Voice.MemoryServices;
+using DSharpPlus.Voice.MemoryServices.Collections;
 using DSharpPlus.Voice.Transport;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -44,10 +46,13 @@ public sealed partial class VoiceConnection : IDisposable
 
         this.encoder = this.codec.CreateEncoder(bitrate, type, isStreamingConnection);
         this.sendingAudioChannel = Channel.CreateUnbounded<AudioBufferLease>();
+        this.connectedUsers = [];
 
         this.userId = userId;
         this.channelId = channelId;
         this.guildId = guildId;
+
+        this.mlsReady = new();
     }
 
     // services and stuff we receive from DI for customization purposes
@@ -62,6 +67,7 @@ public sealed partial class VoiceConnection : IDisposable
     private readonly IAudioCodec codec;
     private readonly IAudioEncoder encoder;
     private readonly IE2EESession e2ee;
+    private readonly SynchronizedList<ulong> connectedUsers;
     private readonly Channel<AudioBufferLease> sendingAudioChannel;
     private ICryptor cryptor;
     private ILogger logger;
@@ -70,12 +76,15 @@ public sealed partial class VoiceConnection : IDisposable
     private AbstractAudioWriter activeWriter;
 
     // vgw tracking
+    private TaskCompletionSource mlsReady;
     private Task heartbeatTask;
     private Task vgwTask;
     private int lastSequence;
     private int daveVersion;
     private DateTimeOffset lastSentHeartbeat;
     private int pendingHeartbeats;
+    private uint pendingTransitionId;
+    private int pendingTransitionProtocolVersion;
 
     // general connection info
     private string sessionId;

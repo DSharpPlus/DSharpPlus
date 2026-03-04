@@ -2,6 +2,8 @@ using System;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
 
+using DSharpPlus.Voice.Protocol.Gateway;
+
 namespace DSharpPlus.Voice.Transport;
 
 /// <summary>
@@ -27,13 +29,12 @@ public interface ITransportService : IDisposable
     /// <summary>
     /// Sends the specified payload as JSON.
     /// </summary>
-    public Task SendTextAsync<T>(T payload) 
-        where T : class;
+    public Task SendTextAsync(VoiceGatewayMessage payload);
 
     /// <summary>
     /// Receives a frame from the voice gateway.
     /// </summary>
-    public Task<GatewayTransportFrame> ReceiveAsync();
+    public Task<VoiceGatewayTransportFrame> ReceiveAsync();
 
     /// <summary>
     /// Disconnects from the gateway.

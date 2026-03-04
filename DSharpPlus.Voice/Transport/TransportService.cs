@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 
 using CommunityToolkit.HighPerformance.Buffers;
 
+using DSharpPlus.Voice.Protocol.Gateway;
+
 using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Voice.Transport;
@@ -127,8 +129,7 @@ public sealed class TransportService : ITransportService
     }
 
     /// <inheritdoc/>
-    public async Task SendTextAsync<T>(T payload) 
-        where T : class
+    public async Task SendTextAsync(VoiceGatewayMessage payload)
     {
         Utf8JsonWriter writer = new(this.sendWriter);
         JsonSerializer.Serialize(writer, payload);
@@ -151,7 +152,7 @@ public sealed class TransportService : ITransportService
     }
 
     /// <inheritdoc/>
-    public async Task<GatewayTransportFrame> ReceiveAsync()
+    public async Task<VoiceGatewayTransportFrame> ReceiveAsync()
     {
         ObjectDisposedException.ThrowIf(this.isDisposed, this);
 
@@ -182,9 +183,9 @@ public sealed class TransportService : ITransportService
 
             this.logger.LogTrace("Received binary event from the voice gateway: (opcode {opcode}, length {length})", opcode, this.receiveWriter.WrittenCount);
 
-            return new GatewayTransportFrame
+            return new VoiceGatewayTransportFrame
             {
-                Opcode = opcode,
+                Opcode = (VoiceGatewayOpcode)opcode,
                 IsBinary = true,
                 Payload = payload
             };
@@ -209,9 +210,9 @@ public sealed class TransportService : ITransportService
                 );
             }
 
-            return new GatewayTransportFrame
+            return new VoiceGatewayTransportFrame
             {
-                Opcode = opcode,
+                Opcode = (VoiceGatewayOpcode)opcode,
                 IsBinary = false,
                 Payload = payload
             };

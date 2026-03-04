@@ -10,6 +10,15 @@ namespace DSharpPlus.Voice.E2EE;
 public interface IE2EESession : IDisposable
 {
     /// <summary>
+    /// Initializes this MLS session.
+    /// </summary>
+    /// <param name="protocolVersion">The DAVE protocol version used by this connection, currently always 1.</param>
+    /// <param name="channelId">The snowflake identifier of the voice channel.</param>
+    /// <param name="userId">The snowflake identifier of the bot user.</param>
+    /// <param name="ssrc">The SSRC of the bot user.</param>
+    public void Initialize(ushort protocolVersion, ulong channelId, ulong userId, uint ssrc);
+
+    /// <summary>
     /// Decrypts the provided frame.
     /// </summary>
     /// <param name="userId">The snowflake identifier of the user who sent this payload.</param>
@@ -29,17 +38,17 @@ public interface IE2EESession : IDisposable
     /// <summary>
     /// Processes an otherwise unspecified commit.
     /// </summary>
-    public void ProcessCommit(byte[] payload);
+    public void ProcessCommit(ReadOnlySpan<byte> payload);
 
     /// <summary>
     /// Processes proposals and retuns a message with the E2EE client's response in turn.
     /// </summary>
-    public byte[] ProcessProposals(byte[] payload, ulong[] roster);
+    public byte[] ProcessProposals(ReadOnlySpan<byte> payload, ReadOnlySpan<ulong> roster);
 
     /// <summary>
     /// Welcomes a new user to the E2EE group.
     /// </summary>
-    public void ProcessWelcome(byte[] payload, ulong[] roster);
+    public void ProcessWelcome(ReadOnlySpan<byte> payload, ReadOnlySpan<ulong> roster);
 
     /// <summary>
     /// Reinitializes the E2EE session with a different DAVE protocol version.
@@ -49,7 +58,7 @@ public interface IE2EESession : IDisposable
     /// <summary>
     /// Sets the voice gateway as an external sender capable of adding members to the E2EE group.
     /// </summary>
-    public void SetExternalSender(byte[] payload);
+    public void SetExternalSender(ReadOnlySpan<byte> payload);
 
     /// <summary>
     /// Writes the client's key package to the writer.

@@ -12,20 +12,14 @@ namespace DSharpPlus.Voice.E2EE;
 /// </summary>
 public sealed class MlsSession : IE2EESession, IDisposable
 {
-    private readonly KoanaInterop koana;
-    private readonly Lock mlsLock;
+    private KoanaInterop koana;
+    private Lock mlsLock;
 
-    private readonly uint ssrc;
+    private uint ssrc;
     private ushort protocolVersion;
 
-    /// <summary>
-    /// Creates a new MLS session.
-    /// </summary>
-    /// <param name="protocolVersion">The DAVE protocol version used by this connection, currently always 1.</param>
-    /// <param name="channelId">The snowflake identifier of the voice channel.</param>
-    /// <param name="userId">The snowflake identifier of the bot user.</param>
-    /// <param name="ssrc">The SSRC of the bot user.</param>
-    public MlsSession(ushort protocolVersion, ulong channelId, ulong userId, uint ssrc)
+    /// <inheritdoc/>
+    public void Initialize(ushort protocolVersion, ulong channelId, ulong userId, uint ssrc)
     {
         this.koana = new(protocolVersion, channelId, userId);
         this.mlsLock = new();
@@ -49,7 +43,7 @@ public sealed class MlsSession : IE2EESession, IDisposable
     /// <summary>
     /// Sets the voice gateway as an external sender capable of adding members to the E2EE group.
     /// </summary>
-    public void SetExternalSender(byte[] payload)
+    public void SetExternalSender(ReadOnlySpan<byte> payload)
     {
         lock (this.mlsLock)
         {
@@ -60,7 +54,7 @@ public sealed class MlsSession : IE2EESession, IDisposable
     /// <summary>
     /// Processes proposals and retuns a message with the E2EE client's response in turn.
     /// </summary>
-    public byte[] ProcessProposals(byte[] payload, ulong[] roster)
+    public byte[] ProcessProposals(ReadOnlySpan<byte> payload, ReadOnlySpan<ulong> roster)
     {
         lock (this.mlsLock)
         {
@@ -71,7 +65,7 @@ public sealed class MlsSession : IE2EESession, IDisposable
     /// <summary>
     /// Processes an otherwise unspecified commit.
     /// </summary>
-    public void ProcessCommit(byte[] payload)
+    public void ProcessCommit(ReadOnlySpan<byte> payload)
     {
         lock (this.mlsLock)
         {
@@ -85,7 +79,7 @@ public sealed class MlsSession : IE2EESession, IDisposable
     /// <summary>
     /// Welcomes a new user to the E2EE group.
     /// </summary>
-    public void ProcessWelcome(byte[] payload, ulong[] roster)
+    public void ProcessWelcome(ReadOnlySpan<byte> payload, ReadOnlySpan<ulong> roster)
     {
         lock (this.mlsLock)
         {
