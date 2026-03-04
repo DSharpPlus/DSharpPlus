@@ -31,14 +31,6 @@ purely exist to allow us to iterate faster, implementing broader changes and ada
 Many newer Discord features will only be implemented in nightly versions. To use them, specify to your nuget client that
 you want to enable prereleases, either via CLI flag or a checkbox in your favourite IDE.
 
-#### Connecting to a voice channel with VoiceNext will either hang or throw an exception.
-To troubleshoot, please ensure that:
-* You are using the latest version of DSharpPlus.
-* You have properly enabled VoiceNext with your instance of @DSharpPlus.DiscordClient.
-* You are *not* using VoiceNext in an event handler.
-* You have [opus and libsodium][3] available in your target environment.
-
-
 #### Why am I getting *heartbeat skipped* messages in my console?
 Check your internet connection and ensure that the machine your bot is hosted on has a stable internet connection. If
 your local network has no issues, the problem could be with either Discord or Cloudflare, in which case, it is out of your
