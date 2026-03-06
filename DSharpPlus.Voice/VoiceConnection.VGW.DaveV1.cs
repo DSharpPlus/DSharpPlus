@@ -4,6 +4,7 @@ using System;
 using System.Buffers;
 using System.Buffers.Binary;
 using System.Diagnostics;
+using System.Net.WebSockets;
 using System.Threading.Tasks;
 
 using CommunityToolkit.HighPerformance;
@@ -13,6 +14,8 @@ using DSharpPlus.Voice.Protocol.Gateway;
 using DSharpPlus.Voice.Protocol.Gateway.Payloads.DaveV1.Clientbound;
 using DSharpPlus.Voice.Protocol.Gateway.Payloads.DaveV1.Serverbound;
 using DSharpPlus.Voice.Transport;
+
+using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Voice;
 
@@ -85,13 +88,14 @@ partial class VoiceConnection
 
             default:
 
-                throw new InvalidOperationException($"Opcode {message.Opcode} is not defined for DAVE v1.");
+                this.logger.LogWarning("Opcode {opcode} is not defined for DAVE v1.", message.Opcode);
+                break;
         }
     }
 
     private async Task HandleDaveV1BinaryPayloadsAsync(VoiceGatewayTransportFrame frame)
     {
-        Debug.Assert(frame.IsBinary);
+        Debug.Assert(frame.Type == WebSocketMessageType.Binary);
 
         // here, the sequence is guaranteed
         this.lastSequence = BinaryPrimitives.ReadUInt16BigEndian(frame.Payload);
@@ -108,7 +112,7 @@ partial class VoiceConnection
 
                 byte[] response = this.e2ee.ProcessProposals(frame.Payload.AsSpan(3), [.. this.connectedUsers]);
 
-                if (response is { Length: > 1 })
+                if (response is { Length: > 0 })
                 {
                     ArrayPoolBufferWriter<byte> writer = new();
 
@@ -126,7 +130,7 @@ partial class VoiceConnection
 
                 break;
 
-            case VoiceGatewayOpcode.MlsCommitWelcome:
+            case VoiceGatewayOpcode.MlsWelcome:
 
                 this.e2ee.ProcessWelcome(frame.Payload.AsSpan(3), [.. this.connectedUsers]);
 
@@ -134,7 +138,9 @@ partial class VoiceConnection
 
             default:
 
-                throw new InvalidOperationException($"Opcode {frame.Opcode} is not defined for DAVE v1.");
+                // we don't really need to reconnect here, discord tests in prod all the time
+                this.logger.LogWarning("Opcode {opcode} is not defined for DAVE v1.", frame.Opcode);
+                break;
         }
     }
 }

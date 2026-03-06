@@ -16,7 +16,7 @@ internal sealed record VoiceSpeakingPayload : IVoicePayload
     /// <summary>
     /// This should always be set to 0.
     /// </summary>
-    [JsonPropertyName("delay")]
+    [JsonPropertyName("delay"), JsonIgnore(Condition = JsonIgnoreCondition.WhenReading)]
     public int Delay { get; init; }
 
     /// <summary>
@@ -24,4 +24,10 @@ internal sealed record VoiceSpeakingPayload : IVoicePayload
     /// </summary>
     [JsonPropertyName("ssrc")]
     public uint SSRC { get; init; }
+
+    /// <summary>
+    /// The ID of the user who started speaking.
+    /// </summary>
+    [JsonPropertyName("user_id"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWriting)]
+    public ulong UserId { get; init; }
 }

@@ -1,9 +1,9 @@
 namespace DSharpPlus.Voice.Protocol.Gateway;
 
 /// <summary>
-/// Enumerates opcodes to the v1 DAVE voice gateway.
+/// Enumerates opcodes to the voice gateway.
 /// </summary>
-public enum VoiceGatewayOpcode : byte
+public enum VoiceGatewayOpcode
 {
     /// <summary>
     /// Serverbound. Begins a websocket connection to the voice gateway.

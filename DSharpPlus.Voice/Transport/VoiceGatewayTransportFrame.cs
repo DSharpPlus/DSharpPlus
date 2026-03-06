@@ -1,3 +1,5 @@
+using System.Net.WebSockets;
+
 using DSharpPlus.Voice.Protocol.Gateway;
 
 namespace DSharpPlus.Voice.Transport;
@@ -13,12 +15,17 @@ public readonly record struct VoiceGatewayTransportFrame
     public required VoiceGatewayOpcode Opcode { get; init; }
 
     /// <summary>
-    /// Indicates whether this is a binary (DAVE) payload or a text payload.
-    /// </summary>
-    public required bool IsBinary { get; init; }
-
-    /// <summary>
     /// The payload data.
     /// </summary>
     public required byte[] Payload { get; init; }
+
+    /// <summary>
+    /// The close code received instead of a payload.
+    /// </summary>
+    public VoiceGatewayCloseCode Error { get; init; }
+
+    /// <summary>
+    /// Indicates whether this is a binary (DAVE) payload or a text payload.
+    /// </summary>
+    public WebSocketMessageType Type { get; init; }
 }

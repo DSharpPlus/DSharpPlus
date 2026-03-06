@@ -26,6 +26,7 @@ internal sealed class AudioClient : IDisposable
     private readonly ChannelReader<AudioBufferLease> frameChannel;
     private readonly IAudioEncoder encoder;
     private readonly PeriodicTimer timer;
+    private readonly VoiceConnection connection;
     
     private readonly Task sendTask;
     private readonly Task receiveTask;
@@ -40,6 +41,7 @@ internal sealed class AudioClient : IDisposable
         IE2EESession e2ee,
         ChannelReader<AudioBufferLease> frameChannel,
         IAudioEncoder encoder,
+        VoiceConnection connection,
         uint ssrc
     )
     {
@@ -50,6 +52,7 @@ internal sealed class AudioClient : IDisposable
         this.frameChannel = frameChannel;
         this.encoder = encoder;
         this.timer = new(TimeSpan.FromMilliseconds(20));
+        this.connection = connection;
 
         this.ssrc = ssrc;
 
@@ -88,6 +91,11 @@ internal sealed class AudioClient : IDisposable
             // we are due to send the next frame
             if (framePrepared)
             {
+                if (!this.connection.IsSpeaking)
+                {
+                    await this.connection.StartSpeakingAsync();
+                }
+
                 silenceCounter = 0;
                 await this.mediaTransport.SendAsync(currentFrame.AsMemory()[..length]);
             }
@@ -99,6 +107,10 @@ internal sealed class AudioClient : IDisposable
                 {
                     silenceCounter++;
                     await SendSilenceFrame();
+                }
+                else if (silenceCounter == 5)
+                {
+                    await this.connection.StopSpeakingAsync();
                 }
             }
 

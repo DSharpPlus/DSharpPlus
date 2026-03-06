@@ -108,7 +108,12 @@ partial class VoiceConnection
         {
             VoiceGatewayTransportFrame frame = await this.voiceGateway.ReceiveAsync();
 
-            if (frame.Opcode == VoiceGatewayOpcode.Ready && !frame.IsBinary)
+            if (frame.Type == WebSocketMessageType.Close)
+            {
+                await HandleCloseCodeAsync(frame.Error);
+            }
+
+            if (frame.Opcode == VoiceGatewayOpcode.Ready && frame.Type == WebSocketMessageType.Text)
             {
                 readyReceived = true;
                 
@@ -122,7 +127,7 @@ partial class VoiceConnection
                 this.lastSequence = readyMessage.Sequence;
             }
 
-            if (frame.Opcode == VoiceGatewayOpcode.Hello && !frame.IsBinary)
+            if (frame.Opcode == VoiceGatewayOpcode.Hello && frame.Type == WebSocketMessageType.Text)
             {
                 helloReceived = true;
                 
@@ -157,14 +162,19 @@ partial class VoiceConnection
         {
             VoiceGatewayTransportFrame sessionDescriptionFrame = await this.voiceGateway.ReceiveAsync();
 
-            if (sessionDescriptionFrame.Opcode != VoiceGatewayOpcode.SessionDescription || sessionDescriptionFrame.IsBinary)
+            if (sessionDescriptionFrame.Type == WebSocketMessageType.Close)
+            {
+                await HandleCloseCodeAsync(sessionDescriptionFrame.Error);
+            }
+
+            if (sessionDescriptionFrame.Opcode != VoiceGatewayOpcode.SessionDescription || sessionDescriptionFrame.Type == WebSocketMessageType.Binary)
             {
                 // something silly happened
                 continue;
             }
 
             VoiceGatewayMessage sessionDescription = JsonSerializer.Deserialize<VoiceGatewayMessage>(sessionDescriptionFrame.Payload);
-            VoiceSessionDescriptionPayload sd  = (VoiceSessionDescriptionPayload)sessionDescription.Payload;
+            VoiceSessionDescriptionPayload sd = (VoiceSessionDescriptionPayload)sessionDescription.Payload;
 
             if (selectedEncryptionMode != sd.EncryptionMode)
             {
@@ -188,8 +198,46 @@ partial class VoiceConnection
             this.e2ee,
             this.sendingAudioChannel.Reader,
             this.encoder,
+            this,
             this.ssrc
         );
+    }
+
+    /// <summary>
+    /// Reconnects to the Discord voice gateway.
+    /// </summary>
+    public async Task<bool> ReconnectAsync()
+        => await ReconnectInternalAsync(true);
+
+    private async Task<bool> ReconnectInternalAsync(bool manual)
+    {
+        if (!manual && !this.options.AutoReconnect)
+        {
+            this.logger.LogDebug("Abandoning automatic reconnect because automatic reconnecting was disabled by the user.");
+            return false;
+        }
+
+        for (uint i = 0; i < this.options.MaxReconnects; i++)
+        {
+            try
+            {
+                await ReconnectCoreAsync();
+                return true;
+            }
+            catch (Exception e) when (e is ConnectingFailedException or InvalidOperationException)
+            {
+                this.logger.LogError(e, "Automatic reconnecting failed due to the following error, abandoning:");
+                return false;
+            }
+            catch (Exception e)
+            {
+                this.logger.LogTrace(e, "Automatic reconnecting failed due to the following error, retrying:");
+                continue;
+            }
+        }
+
+        this.logger.LogDebug("Abandoning automatic reconnect because the attempt limit was exceeded.");
+        return false;
     }
 
     /// <summary>
@@ -201,7 +249,7 @@ partial class VoiceConnection
 
         await SendSpeakingStatusAsync(VoiceSpeakingFlags.Microphone);
 
-        this.isSpeaking = true;
+        this.IsSpeaking = true;
     }
 
     /// <summary>
@@ -213,7 +261,7 @@ partial class VoiceConnection
 
         await SendSpeakingStatusAsync(VoiceSpeakingFlags.None);
 
-        this.isSpeaking = false;
+        this.IsSpeaking = false;
     }
 
     private async Task SendSpeakingStatusAsync(VoiceSpeakingFlags flags)
@@ -252,18 +300,17 @@ partial class VoiceConnection
 
                 this.logger.LogTrace("Heartbeat sent with sequence number {sequence}.", this.lastSequence);
 
-                this.lastSentHeartbeat = time;
                 this.pendingHeartbeats++;
 
                 if (this.pendingHeartbeats > 5)
                 {
-                    // [TODO] find a mechanism to expose this to the user, we zombied
+                    await ResumeAndReconnectAsync();
                 }
             }
             catch (WebSocketException e)
             {
                 this.logger.LogWarning("The connection died or entered an invalid state, reconnecting. Exception: {message}", e.Message);
-                // [TODO] reconnect
+                await ResumeAndReconnectAsync();
 
                 return;
             }
@@ -280,7 +327,7 @@ partial class VoiceConnection
         {
             VoiceGatewayTransportFrame frame = await this.voiceGateway.ReceiveAsync();
 
-            if (!frame.IsBinary)
+            if (frame.Type == WebSocketMessageType.Text)
             {
                 VoiceGatewayMessage message = JsonSerializer.Deserialize<VoiceGatewayMessage>(frame.Payload)!;
 
@@ -320,24 +367,94 @@ partial class VoiceConnection
                         await (this.daveVersion switch
                         {
                             1 => HandleDaveV1JsonPayloadsAsync(message),
-                            _ => throw new InvalidOperationException($"Invalid DAVE version {this.daveVersion}.")
+                            _ => LogErrorAndReconnectAsync("Invalid DAVE version {daveVersion}.", this.daveVersion)
                         });
 
                         break;
 
                     default:
 
-                        throw new InvalidOperationException($"Received invalid opcode {message.Opcode}.");
+                        // we don't really need to reconnect here, discord tests in prod all the time
+                        this.logger.LogWarning("Received invalid opcode {opcode}.", message.Opcode);
+                        break;
                 }
             }
-            else
+            else if (frame.Type == WebSocketMessageType.Binary)
             {
                 await (this.daveVersion switch
                 {
                     1 => HandleDaveV1BinaryPayloadsAsync(frame),
-                    _ => throw new InvalidOperationException($"Invalid DAVE version {this.daveVersion}.")
+                    _ => LogErrorAndReconnectAsync("Invalid DAVE version {daveVersion}.", this.daveVersion)
                 });
             }
+            else
+            {
+                await HandleCloseCodeAsync(frame.Error);
+            }
         }
+    }
+
+    // this exists so we can use it in switch statements. i understand that it reports CA2254, it's fine.
+#pragma warning disable CA2254
+    private async Task LogErrorAndReconnectAsync(string message, params object[] values)
+    {
+        this.logger.LogError(message, values);
+        await ReconnectInternalAsync(false);
+    }
+#pragma warning restore CA2254
+
+    private async Task ResumeAndReconnectAsync()
+    {
+        await this.voiceGateway.DisconnectAsync(WebSocketCloseStatus.NormalClosure);
+        await this.voiceGateway.ConnectAsync(this.endpoint, this.channelId);
+        this.vgwTask.Dispose();
+
+        await this.voiceGateway.SendTextAsync(new()
+        {
+            Opcode = VoiceGatewayOpcode.Resume,
+            Payload = new VoiceResumePayload
+            {
+                ServerId = this.guildId,
+                SessionId = this.sessionId,
+                Token = this.token,
+                LastAcknowledgedSequenceNumber = this.lastSequence
+            }
+        });
+
+        VoiceGatewayTransportFrame frame = await this.voiceGateway.ReceiveAsync();
+
+        if (frame.Opcode == VoiceGatewayOpcode.Resumed)
+        {
+            // resume successful, restart the receive loop 
+            this.vgwTask = ReceiveVoiceGatewayEventsAsync();
+            return;
+        }
+
+        // if we got here: resume unsuccessful, fully reconnect and log any error we got
+
+        if (frame.Type == WebSocketMessageType.Close)
+        {
+            this.logger.LogDebug("Failed to resume, reconnecting on close code {code}.", frame.Error);
+        }
+        else
+        {
+            this.logger.LogDebug("Received invalid opcode {opcode} from the voice gateway upon attempting to resume, reconnecting.", frame.Opcode);
+        }
+
+        await ReconnectInternalAsync(false);
+    }
+
+    private async Task ReconnectCoreAsync()
+    {
+        this.logger.LogDebug("Attempting to reconnect to the voice gateway.");
+
+        await this.voiceGateway.DisconnectAsync(WebSocketCloseStatus.NormalClosure);
+        await this.mediaTransport.DisconnectAsync();
+        this.vgwTask.Dispose();
+        this.heartbeatTask.Dispose();
+
+        await ConnectAsync();
+
+        this.logger.LogDebug("Successfully reconnected to the voice gateway.");
     }
 }

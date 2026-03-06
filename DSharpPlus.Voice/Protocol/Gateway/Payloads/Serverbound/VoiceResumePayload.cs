@@ -26,8 +26,8 @@ internal sealed record VoiceResumePayload : IVoicePayload
     public required string Token { get; init; }
 
     /// <summary>
-    /// The last sequence number acknowledged by the bpt-
+    /// The last sequence number acknowledged by the client.
     /// </summary>
     [JsonPropertyName("seq_ack")]
-    public required uint LastAcknowledgedSequenceNumber { get; init; }
+    public required int LastAcknowledgedSequenceNumber { get; init; }
 }

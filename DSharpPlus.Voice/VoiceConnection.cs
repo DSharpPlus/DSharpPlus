@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Concurrent;
+using System.Net.WebSockets;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
@@ -13,15 +13,16 @@ using DSharpPlus.Voice.Transport;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace DSharpPlus.Voice;
 
 /// <summary>
 /// Stores all state data related to voice connections to discord
 /// </summary>
-public sealed partial class VoiceConnection : IDisposable
+public sealed partial class VoiceConnection : IAsyncDisposable
 {
-    public VoiceConnection
+    internal VoiceConnection
     (
         IServiceScope scope,
         ulong userId,
@@ -43,6 +44,7 @@ public sealed partial class VoiceConnection : IDisposable
         this.cryptorFactory = provider.GetRequiredService<ICryptorFactory>();
         this.codec = provider.GetRequiredService<IAudioCodec>();
         this.e2ee = provider.GetRequiredService<IE2EESession>();
+        this.options = provider.GetRequiredService<IOptions<VoiceOptions>>().Value;
 
         this.encoder = this.codec.CreateEncoder(bitrate, type, isStreamingConnection);
         this.sendingAudioChannel = Channel.CreateUnbounded<AudioBufferLease>();
@@ -69,6 +71,7 @@ public sealed partial class VoiceConnection : IDisposable
     private readonly IE2EESession e2ee;
     private readonly SynchronizedList<ulong> connectedUsers;
     private readonly Channel<AudioBufferLease> sendingAudioChannel;
+    private readonly VoiceOptions options;
     private ICryptor cryptor;
     private ILogger logger;
     private AudioClient audioClient;
@@ -79,9 +82,8 @@ public sealed partial class VoiceConnection : IDisposable
     private TaskCompletionSource mlsReady;
     private Task heartbeatTask;
     private Task vgwTask;
-    private int lastSequence;
+    private int lastSequence = -1;
     private int daveVersion;
-    private DateTimeOffset lastSentHeartbeat;
     private int pendingHeartbeats;
     private uint pendingTransitionId;
     private int pendingTransitionProtocolVersion;
@@ -97,10 +99,15 @@ public sealed partial class VoiceConnection : IDisposable
     private uint ssrc;
 
     /// <summary>
-    /// Cleanup
+    /// Indicates whether we are currently sending audio.
     /// </summary>
-    public void Dispose()
+    public bool IsSpeaking { get; private set; }
+
+    public async ValueTask DisposeAsync()
     {
+        await this.voiceGateway.DisconnectAsync(WebSocketCloseStatus.NormalClosure);
+        await this.mediaTransport.DisconnectAsync();
+        
         this.serviceScope.Dispose();
         this.audioClient.Dispose();
 

@@ -66,7 +66,7 @@ public sealed class TransportService : ITransportService
         {
             this.logger.LogTrace
             (
-                "Attempting to disconnect from the Discord gateway, but there was no open connection. Ignoring."
+                "Attempting to disconnect from the voice gateway, but there was no open connection. Ignoring."
             );
 
             return;
@@ -186,11 +186,11 @@ public sealed class TransportService : ITransportService
             return new VoiceGatewayTransportFrame
             {
                 Opcode = (VoiceGatewayOpcode)opcode,
-                IsBinary = true,
+                Type = WebSocketMessageType.Binary,
                 Payload = payload
             };
         }
-        else
+        else if (receiveResult.MessageType == WebSocketMessageType.Text)
         {
             int index = this.receiveWriter.WrittenSpan.IndexOf("\"op\":"u8) + 5;
             int endIndex = this.receiveWriter.WrittenSpan[index..].IndexOfAny(" ,"u8);
@@ -213,8 +213,18 @@ public sealed class TransportService : ITransportService
             return new VoiceGatewayTransportFrame
             {
                 Opcode = (VoiceGatewayOpcode)opcode,
-                IsBinary = false,
+                Type = WebSocketMessageType.Text,
                 Payload = payload
+            };
+        }
+        else // WebSocketMessageType.Close
+        {
+            return new VoiceGatewayTransportFrame
+            {
+                Opcode = (VoiceGatewayOpcode)(-1),
+                Type = WebSocketMessageType.Close,
+                Payload = [],
+                Error = (VoiceGatewayCloseCode)(int)this.socket.CloseStatus!
             };
         }
     }
