@@ -33,6 +33,7 @@ partial class VoiceConnection
     {
         ulong channelId = this.channelId;
         ulong guildId = this.guildId;
+        this.mlsReady = new();
 
         this.logger = this.loggerFactory.CreateLogger($"DSharpPlus.Voice.VoiceConnection - Channel {channelId}");
         this.logger.LogDebug("Initiating connection to the voice gateway, DAVE version {daveVersion}", this.daveVersion);
@@ -189,6 +190,14 @@ partial class VoiceConnection
 
         this.e2ee.Initialize((ushort)this.daveVersion, channelId, this.userId, this.ssrc);
         this.vgwTask = ReceiveVoiceGatewayEventsAsync();
+
+        await (this.daveVersion switch
+        {
+            1 => DaveV1AnnounceKeyPackageAsync(),
+            _ => LogErrorAndReconnectAsync("Invalid DAVE version {daveVersion}.", this.daveVersion)
+        });
+
+        await this.mlsReady.Task;
 
         this.audioClient = new
         (

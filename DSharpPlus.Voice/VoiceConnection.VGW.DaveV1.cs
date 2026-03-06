@@ -57,7 +57,7 @@ partial class VoiceConnection
 
                 if (this.pendingTransitionId != executeTransition.TransitionId)
                 {
-                    // [TODO] something insane happened, reconnect?
+                    _ = ReconnectInternalAsync(false);
                 }
 
                 this.daveVersion = this.pendingTransitionProtocolVersion;
@@ -133,6 +133,7 @@ partial class VoiceConnection
             case VoiceGatewayOpcode.MlsWelcome:
 
                 this.e2ee.ProcessWelcome(frame.Payload.AsSpan(3), [.. this.connectedUsers]);
+                this.mlsReady?.SetResult();
 
                 break;
 
@@ -142,5 +143,15 @@ partial class VoiceConnection
                 this.logger.LogWarning("Opcode {opcode} is not defined for DAVE v1.", frame.Opcode);
                 break;
         }
+    }
+
+    private async Task DaveV1AnnounceKeyPackageAsync()
+    {
+        ArrayPoolBufferWriter<byte> writer = new();
+
+        writer.Write((byte)VoiceGatewayOpcode.MlsKeyPackage);
+        this.e2ee.WriteKeyPackage(writer);
+
+        await this.voiceGateway.SendBinaryAsync(writer.WrittenMemory);
     }
 }

@@ -42,7 +42,8 @@ public sealed class VoiceOptions
 
     /// <summary>
     /// Controls whether we will attempt to use AEAD AES-256 GCM encryption if the voice server and the local hardware support it.
-    /// Defaults to true.
+    /// Defaults to true. You should typically avoid setting this option at all, it is only needed in esoteric cases described in 
+    /// the remarks below.
     /// </summary>
     /// <remarks>
     /// The library will apply the correct default in virtually all cases, including disabling it if it is reported as unsupported
@@ -57,7 +58,9 @@ public sealed class VoiceOptions
     /// the BUILDING.md file and the documentation. <br/> <br/>
     /// While RISC-V CPUs are also prone to misrepresent their AEAD AES-256 GCM hardware support, they will currently not be picked
     /// up by DSharpPlus.Voice at all, and setting this option is currently superfluous. However, it may be wise to disable it for
-    /// future-proofing on RISC-V CPUs preceding the year 2022.
+    /// future-proofing on RISC-V CPUs preceding the year 2022. <br/> <br/>
+    /// If you do not control the host hardware your code will run on, it is inadvisable to set this option - cases where the
+    /// automatic detection doesn't work properly are esoteric, and chances are not a single one of your users will ever hit this.
     /// </remarks>
     public bool EnableAeadAes256GcmEncryption { get; set; } = true;
 }

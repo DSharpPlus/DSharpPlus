@@ -54,7 +54,7 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         this.channelId = channelId;
         this.guildId = guildId;
 
-        this.mlsReady = new();
+        this.mlsReady = null;
     }
 
     // services and stuff we receive from DI for customization purposes
@@ -79,7 +79,7 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     private AbstractAudioWriter activeWriter;
 
     // vgw tracking
-    private TaskCompletionSource mlsReady;
+    private TaskCompletionSource? mlsReady;
     private Task heartbeatTask;
     private Task vgwTask;
     private int lastSequence = -1;
