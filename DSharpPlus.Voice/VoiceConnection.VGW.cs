@@ -105,7 +105,7 @@ partial class VoiceConnection
         string selectedEncryptionMode = default;
         IPEndPoint remoteUdpEndpoint = default;
 
-        while (!helloReceived && !readyReceived)
+        while (!helloReceived || !readyReceived)
         {
             VoiceGatewayTransportFrame frame = await this.voiceGateway.ReceiveAsync();
 

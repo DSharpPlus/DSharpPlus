@@ -28,7 +28,7 @@ public sealed class TransportService : ITransportService
     /// <inheritdoc/>
     public ushort SequenceNumber { get; internal set; }
 
-    internal TransportService(ILoggerFactory loggerFactory)
+    public TransportService(ILoggerFactory loggerFactory)
     {
         this.receiveWriter = new();
         this.sendWriter = new();
@@ -131,6 +131,8 @@ public sealed class TransportService : ITransportService
     /// <inheritdoc/>
     public async Task SendTextAsync(VoiceGatewayMessage payload)
     {
+        this.sendWriter.Clear();
+
         Utf8JsonWriter writer = new(this.sendWriter);
         JsonSerializer.Serialize(writer, payload);
 
@@ -195,7 +197,7 @@ public sealed class TransportService : ITransportService
             int index = this.receiveWriter.WrittenSpan.IndexOf("\"op\":"u8) + 5;
             int endIndex = this.receiveWriter.WrittenSpan[index..].IndexOfAny(" ,"u8);
 
-            int opcode = int.Parse(this.receiveWriter.WrittenSpan[index..endIndex]);
+            int opcode = int.Parse(this.receiveWriter.WrittenSpan[index..(index + endIndex)]);
 
             byte[] payload = new byte[this.receiveWriter.WrittenCount];
             this.receiveWriter.WrittenSpan.CopyTo(payload);

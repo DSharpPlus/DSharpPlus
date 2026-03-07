@@ -58,10 +58,12 @@ internal class VoiceGatewayMessageConverter : JsonConverter<VoiceGatewayMessage>
 
     public override void Write(Utf8JsonWriter writer, VoiceGatewayMessage value, JsonSerializerOptions options)
     {
+        writer.WriteStartObject();
         writer.WritePropertyName("op");
         writer.WriteNumberValue((int)value.Opcode);
         writer.WritePropertyName("d");
         // writing as object prompts it to write out all properties without having us specify the type
         JsonSerializer.Serialize<object>(writer, value.Payload, options);
+        writer.WriteEndObject();
     }
 }
