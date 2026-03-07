@@ -1,7 +1,5 @@
 using System.Text.Json.Serialization;
 
-using DSharpPlus.Entities;
-
 namespace DSharpPlus.Voice.Protocol.Gateway.Payloads.Serverbound;
 
 /// <summary>
@@ -12,8 +10,8 @@ internal sealed record VoiceIdentifyPayload : IVoicePayload
     /// <summary>
     /// The snowflake identifier of the guild the voice channel lies in, if applicable.
     /// </summary>
-    [JsonPropertyName("server_id")]
-    public Optional<ulong> GuildId { get; init; }
+    [JsonPropertyName("server_id"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public ulong GuildId { get; init; }
 
     /// <summary>
     /// The snowflake identifier of the current user.

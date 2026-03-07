@@ -36,7 +36,7 @@ partial class VoiceConnection
         this.mlsReady = new();
 
         this.logger = this.loggerFactory.CreateLogger($"DSharpPlus.Voice.VoiceConnection - Channel {channelId}");
-        this.logger.LogDebug("Initiating connection to the voice gateway, DAVE version {daveVersion}", this.daveVersion);
+        this.logger.LogDebug("Initiating connection to the voice gateway, DAVE version {daveVersion}", MaxDaveVersion);
 
         this.logger.LogTrace("Retrieving voice server information from the main gateway.");
 
