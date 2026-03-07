@@ -24,8 +24,11 @@ public abstract class AbstractAudioWriter : PipeWriter
     /// <summary>
     /// Indicates the parent connection to this writer.
     /// </summary>
-    protected AbstractAudioWriter(VoiceConnection connection) 
-        => this.connection = connection;
+    protected AbstractAudioWriter(VoiceConnection connection, ChannelWriter<AudioBufferLease> writer)
+    {
+        this.connection = connection;
+        this.PacketWriter = writer;
+    }
 
     /// <summary>
     /// Signals that no more audio is being written, but we intend to resume writing audio soon.

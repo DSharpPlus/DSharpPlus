@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO.Pipelines;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
 using DSharpPlus.Voice.Codec;
@@ -20,8 +21,8 @@ internal sealed class S16LE44KHzStereoWriter : AbstractPcmAudioWriter
     private readonly ResampleHelper44KHz resampler;
     private OverflowBuffer3Bytes overflow;
 
-    internal S16LE44KHzStereoWriter(IAudioEncoder encoder, VoiceConnection connection)
-        : base(encoder, connection) 
+    internal S16LE44KHzStereoWriter(IAudioEncoder encoder, VoiceConnection connection, ChannelWriter<AudioBufferLease> writer)
+        : base(encoder, connection, writer) 
         => this.resampler = new(2);
 
     /// <inheritdoc/>

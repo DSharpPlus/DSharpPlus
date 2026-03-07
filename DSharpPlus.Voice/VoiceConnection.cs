@@ -4,6 +4,7 @@ using System.Threading.Channels;
 using System.Threading.Tasks;
 
 using DSharpPlus.Clients;
+using DSharpPlus.Voice.AudioWriters;
 using DSharpPlus.Voice.Codec;
 using DSharpPlus.Voice.Cryptors;
 using DSharpPlus.Voice.E2EE;
@@ -42,6 +43,7 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         this.dispatcher = provider.GetRequiredService<IEventDispatcher>();
         this.voiceGateway = provider.GetRequiredService<ITransportService>();
         this.cryptorFactory = provider.GetRequiredService<ICryptorFactory>();
+        this.audioWriterFactory = provider.GetRequiredService<IAudioWriterFactory>();
         this.codec = provider.GetRequiredService<IAudioCodec>();
         this.e2ee = provider.GetRequiredService<IE2EESession>();
         this.options = provider.GetRequiredService<IOptions<VoiceOptions>>().Value;
@@ -49,6 +51,7 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         this.encoder = this.codec.CreateEncoder(bitrate, type, isStreamingConnection);
         this.sendingAudioChannel = Channel.CreateUnbounded<AudioBufferLease>();
         this.connectedUsers = [];
+        this.Receiver = new(this.codec, AudioReceiveMode.Process);
 
         this.userId = userId;
         this.channelId = channelId;
@@ -69,14 +72,18 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     private readonly IAudioCodec codec;
     private readonly IAudioEncoder encoder;
     private readonly IE2EESession e2ee;
+    private readonly IAudioWriterFactory audioWriterFactory;
     private readonly SynchronizedList<ulong> connectedUsers;
     private readonly Channel<AudioBufferLease> sendingAudioChannel;
     private readonly VoiceOptions options;
     private ICryptor cryptor;
     private ILogger logger;
     private AudioClient audioClient;
-    private AudioReceiver receiver;
-    private AbstractAudioWriter activeWriter;
+    private AbstractAudioWriter? activeWriter;
+
+    // hooks
+    private Func<VoiceDisconnectReason, object?, Task>? disconnectHandler;
+    private object? disconnectHandlerState;
 
     // vgw tracking
     private TaskCompletionSource? mlsReady;
@@ -102,6 +109,32 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     /// Indicates whether we are currently sending audio.
     /// </summary>
     public bool IsSpeaking { get; private set; }
+
+    /// <summary>
+    /// Provides a mechanism for receiving audio from Discord.
+    /// </summary>
+    public AudioReceiver Receiver { get; }
+
+    /// <summary>
+    /// Creates a new audio writer to send audio through this connection.
+    /// </summary>
+    public AbstractAudioWriter CreateAudioWriter(AudioFormat format)
+    {
+        AbstractAudioWriter writer = this.audioWriterFactory.CreateAudioWriter(format, this, this.sendingAudioChannel.Writer);
+        this.activeWriter = writer;
+        return writer;
+    }
+
+    /// <summary>
+    /// Sets a handler for when the connection gets severed.
+    /// </summary>
+    /// <param name="handler">A handler function taking in the reason for disconnecting and the state parameter provided to this method.</param>
+    /// <param name="state">Arbitrary state you want to provide your handler.</param>
+    public void SetDisconnectHandler(Func<VoiceDisconnectReason, object?, Task> handler, object? state = null)
+    {
+        this.disconnectHandler = handler;
+        this.disconnectHandlerState = state;
+    }
 
     public async ValueTask DisposeAsync()
     {

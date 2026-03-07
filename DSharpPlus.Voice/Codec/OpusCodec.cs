@@ -1,3 +1,5 @@
+using System;
+
 using DSharpPlus.Voice.MemoryServices;
 
 namespace DSharpPlus.Voice.Codec;
@@ -5,6 +7,8 @@ namespace DSharpPlus.Voice.Codec;
 /// <inheritdoc cref="IAudioCodec"/>
 public sealed class OpusCodec : IAudioCodec
 {
+    private IAudioEncoder? encoder;
+
     /// <inheritdoc/>
     public IAudioEncoder CreateEncoder(int bitrate, AudioType type, bool isStreamingConnection)
     {
@@ -14,7 +18,19 @@ public sealed class OpusCodec : IAudioCodec
 
         IAudioEncoder encoder = new OpusEncoder(pool, bitrate, type);
 
+        this.encoder = encoder;
         return encoder;
+    }
+
+    /// <inheritdoc/>
+    public IAudioEncoder GetEncoder()
+    {
+        if (this.encoder is null)
+        {
+            throw new InvalidOperationException("This may only be called after a connection was established.");
+        }
+
+        return this.encoder;
     }
 
     /// <inheritdoc/>

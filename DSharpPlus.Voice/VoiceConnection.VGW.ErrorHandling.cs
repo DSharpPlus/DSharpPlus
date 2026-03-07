@@ -2,6 +2,8 @@
 
 using System.Threading.Tasks;
 
+using DSharpPlus.Voice.Exceptions;
+
 using DSharpPlus.Voice.Protocol.Gateway;
 
 using Microsoft.Extensions.Logging;
@@ -29,7 +31,7 @@ partial class VoiceConnection
             case VoiceGatewayCloseCode.InvalidPayloadData:
 
                 this.logger.LogCritical("A payload was sent with an incorrect or invalid message type. This is a library bug - please report to library developers.");
-                // [TODO] find a way to throw this up to the user
+                await DisconnectAndReportReasonAsync(VoiceDisconnectReason.LibraryIssue);
 
             break;
 
@@ -43,21 +45,21 @@ partial class VoiceConnection
             case VoiceGatewayCloseCode.EndpointUnavailable:
 
                 this.logger.LogError("The specified voice endpoint was unavailable.");
-                // [TODO] find a way to throw this up to the user
+                await DisconnectAndReportReasonAsync(VoiceDisconnectReason.VoiceEndpointUnavailable);
 
                 break;
 
             case VoiceGatewayCloseCode.MessageTooBig:
 
                 this.logger.LogCritical("A voice gateway payload we sent was too big. This is a library bug - please report to library developers.");
-                // [TODO] find a way to throw this up to the user
+                await DisconnectAndReportReasonAsync(VoiceDisconnectReason.LibraryIssue);
 
                 break;
 
             case VoiceGatewayCloseCode.UnknownOpcode:
 
                 this.logger.LogCritical("A payload was sent with an invalid opcode. This is a library bug - please report to library developers.");
-                // [TODO] find a way to throw this up to the user
+                await DisconnectAndReportReasonAsync(VoiceDisconnectReason.LibraryIssue);
 
                 break;
 
@@ -65,14 +67,14 @@ partial class VoiceConnection
             case VoiceGatewayCloseCode.AlreadyAuthenticated:
 
                 this.logger.LogCritical("An invalid IDENTIFY payload was sent. This is a library bug - please report to library developers.");
-                // [TODO] find a way to throw this up to the user
+                await DisconnectAndReportReasonAsync(VoiceDisconnectReason.LibraryIssue);
 
                 break;
 
             case VoiceGatewayCloseCode.NotAuthenticated:
 
                 this.logger.LogCritical("A payload was sent before IDENTIFY. This is a library bug - please report to library developers.");
-                // [TODO] find a way to throw this up to the user
+                await DisconnectAndReportReasonAsync(VoiceDisconnectReason.LibraryIssue);
 
                 break;
 
@@ -80,7 +82,7 @@ partial class VoiceConnection
             case VoiceGatewayCloseCode.ServerNotFound:
 
                 this.logger.LogError("The voice session has ceased to exist, disconnecting.");
-                // [TODO] find a way to throw this up to the user
+                await DisconnectAndReportReasonAsync(VoiceDisconnectReason.SessionInvalid);
 
                 break;
 
@@ -95,14 +97,14 @@ partial class VoiceConnection
             case VoiceGatewayCloseCode.UnknownProtocol:
 
                 this.logger.LogCritical("An invalid audio protocol was specified. This is a library bug - please report to library developers.");
-                // [TODO] find a way to throw this up to the user
+                await DisconnectAndReportReasonAsync(VoiceDisconnectReason.LibraryIssue);
 
                 break;
 
             case VoiceGatewayCloseCode.Disconnected:
 
                 this.logger.LogDebug("The bot was kicked from the voice channel, disconnecting.");
-                // [TODO] find a way to throw this up to the user
+                await DisconnectAndReportReasonAsync(VoiceDisconnectReason.Kicked);
 
                 break;
 
@@ -123,7 +125,7 @@ partial class VoiceConnection
             case VoiceGatewayCloseCode.E2EERequired:
 
                 this.logger.LogCritical("Failed to use end-to-end encryption. This is a library bug - please report to library developers.");
-                // [TODO] find a way to throw this up to the user
+                await DisconnectAndReportReasonAsync(VoiceDisconnectReason.LibraryIssue);
 
                 break;
 
@@ -134,19 +136,36 @@ partial class VoiceConnection
 
                 break;
 
-            case VoiceGatewayCloseCode.RateLimited:
+            case VoiceGatewayCloseCode.Ratelimited:
 
                 this.logger.LogError("Voice connection ratelimit encountered.");
-                // [TODO] find a way to throw this up to the user
+                await DisconnectAndReportReasonAsync(VoiceDisconnectReason.Ratelimited);
 
                 break;
 
             case VoiceGatewayCloseCode.CallTerminated:
 
                 this.logger.LogDebug("The call was forcibly terminated.");
-                // [TODO] find a way to throw this up to the user
+                await DisconnectAndReportReasonAsync(VoiceDisconnectReason.CallTerminated);
 
                 break;
         }
+    }
+
+    private async Task DisconnectAndReportReasonAsync(VoiceDisconnectReason reason)
+    {
+        if (this.disconnectHandler is not null)
+        {
+            await this.disconnectHandler(reason, this.disconnectHandlerState);
+        }
+        else
+        {
+            // if the handler is null, but the 'mlsReady' TCS isn't null, we're connecting. otherwise, don't throw (something something UnobservedTaskException)
+            // and let the log message suffice
+            this.mlsReady?.SetException(new ConnectingFailedException($"Our connection from the voice channel was severed for the following reason: {reason}. "
+                + "More information may have been logged by the extension."));
+        }
+
+        await DisposeAsync();
     }
 }

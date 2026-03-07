@@ -47,16 +47,20 @@ public sealed class AudioReceiver
 
     internal void IntroduceNewUser(VoiceUser user)
     {
-        AudioReceiveMode desiredReceiveMode = this.DefaultReceiveMode(user);
-
-        IUserAudioReceiver receiver = desiredReceiveMode switch
+        if (!this.ssrcs.ContainsKey(user.SSRC.Value))
         {
-            AudioReceiveMode.Discard => new NullAudioReceiver(),
-            AudioReceiveMode.Process => new RealtimeAudioReceiver(this.codec.CreateDecoder()),
-            _ => new RealtimeAudioReceiver(this.codec.CreateDecoder())
-        };
+            AudioReceiveMode desiredReceiveMode = this.DefaultReceiveMode(user);
 
-        this.ssrcs.AddOrUpdate(user.Ssrc.Value, user, (_, _) => user);
-        this.receivers.AddOrUpdate(user, receiver, (_, _) => receiver);
+            IUserAudioReceiver receiver = desiredReceiveMode switch
+            {
+                AudioReceiveMode.Discard => new NullAudioReceiver(),
+                AudioReceiveMode.Process => new RealtimeAudioReceiver(this.codec.CreateDecoder()),
+                _ => new RealtimeAudioReceiver(this.codec.CreateDecoder())
+            };
+            
+            this.receivers.AddOrUpdate(user, receiver, (_, _) => receiver);
+        }
+
+        this.ssrcs.AddOrUpdate(user.SSRC.Value, user, (_, _) => user);
     }
 }

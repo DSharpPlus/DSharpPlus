@@ -122,7 +122,7 @@ public enum VoiceGatewayCloseCode
     /// </summary>
     // unironically i did not know you could get ratelimited on connecting to voice channels, or whatever this ratelimit is actually for?
     // can't really be for the voice gateway considering that ought to be reconnectable, but the docs tell us not to reconnect here
-    RateLimited = 4021,
+    Ratelimited = 4021,
 
     /// <summary>
     /// The call was forcibly terminated - do not reconnect.

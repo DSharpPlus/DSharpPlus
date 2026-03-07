@@ -191,18 +191,20 @@ partial class VoiceConnection
         this.e2ee.Initialize((ushort)this.daveVersion, channelId, this.userId, this.ssrc);
         this.vgwTask = ReceiveVoiceGatewayEventsAsync();
 
+        // this is when we tell the gateway about our local encryption keys
         await (this.daveVersion switch
         {
             1 => DaveV1AnnounceKeyPackageAsync(),
             _ => LogErrorAndReconnectAsync("Invalid DAVE version {daveVersion}.", this.daveVersion)
         });
 
+        // ... and we await its response (which comes with the other users' keys, kind of important)
         await this.mlsReady.Task;
 
         this.audioClient = new
         (
             this.mediaTransport,
-            this.receiver,
+            this.Receiver,
             this.cryptor,
             this.e2ee,
             this.sendingAudioChannel.Reader,
@@ -211,6 +213,12 @@ partial class VoiceConnection
             this.ssrc
         );
     }
+
+    /// <summary>
+    /// Disconnects from the voice chat. It is not possible to reconnect again.
+    /// </summary>
+    public async Task DisconnectAsync() 
+        => await DisconnectAndReportReasonAsync(VoiceDisconnectReason.Disconnected);
 
     /// <summary>
     /// Reconnects to the Discord voice gateway.
@@ -366,6 +374,19 @@ partial class VoiceConnection
                         VoiceClientDisconnectedPayload clientDisconnected = (VoiceClientDisconnectedPayload)message.Payload;
 
                         this.connectedUsers.Remove(clientDisconnected.UserId);
+
+                        break;
+
+                    case VoiceGatewayOpcode.Speaking:
+
+                        VoiceSpeakingPayload speaking = (VoiceSpeakingPayload)message.Payload;
+
+                        this.Receiver.IntroduceNewUser(new()
+                        {
+                            UserId = speaking.UserId,
+                            SSRC = speaking.SSRC,
+                            IsSpeaking = speaking.SpeakingMode.HasFlag(VoiceSpeakingFlags.Microphone)
+                        });
 
                         break;
 

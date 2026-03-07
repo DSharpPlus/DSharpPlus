@@ -16,6 +16,11 @@ public interface IAudioCodec
     public IAudioEncoder CreateEncoder(int bitrate, AudioType type, bool isStreamingConnection);
 
     /// <summary>
+    /// Gets the created encoder for this connection.
+    /// </summary>
+    public IAudioEncoder GetEncoder();
+
+    /// <summary>
     /// Creates a new decoder for a connection.
     /// </summary>
     public IAudioDecoder CreateDecoder();

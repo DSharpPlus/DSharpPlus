@@ -3,6 +3,7 @@ using System.Buffers;
 using System.IO.Pipelines;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
 using DSharpPlus.Voice.Codec;
@@ -18,8 +19,8 @@ public sealed class S16LE48KHzStereoWriter : AbstractPcmAudioWriter
 {
     private OverflowBuffer3Bytes overflow;
 
-    internal S16LE48KHzStereoWriter(IAudioEncoder encoder, VoiceConnection connection)
-        : base(encoder, connection)
+    internal S16LE48KHzStereoWriter(IAudioEncoder encoder, VoiceConnection connection, ChannelWriter<AudioBufferLease> writer)
+        : base(encoder, connection, writer)
     {
 
     }
