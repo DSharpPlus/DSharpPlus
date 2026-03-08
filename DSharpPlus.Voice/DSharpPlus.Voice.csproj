@@ -16,6 +16,7 @@
     <PackageReference Include="DSharpPlus.Natives.Sodium" />
     <PackageReference Include="DSharpPlus.Natives.Speex" />
     <PackageReference Include="Microsoft.Extensions.ObjectPool" />
+    <PackageReference Include="TerraFX.Interop.Mimalloc" />
   </ItemGroup>
 
   <ItemGroup>

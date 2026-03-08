@@ -3,16 +3,18 @@ using System;
 namespace DSharpPlus.Voice.MemoryServices;
 
 /// <summary>
-/// Represents a leased array from an <see cref="AudioBufferPool"/>.
+/// Represents a leased array from an <see cref="AudioBufferManager"/>.
 /// </summary>
-public record struct AudioBufferLease : IDisposable
+public unsafe struct AudioBufferLease : IDisposable
 {
-    private readonly AudioBufferPool pool;
+    private readonly AudioBufferManager pool;
+    private readonly void* backing;
+    private readonly int allocatedLength;
 
     /// <summary>
     /// The buffer represented by this lease.
     /// </summary>
-    public readonly byte[] Buffer { get; }
+    public readonly Span<byte> Buffer => new(this.backing, this.allocatedLength);
 
     /// <summary>
     /// The actually utilized length within the leased buffer.
@@ -27,15 +29,16 @@ public record struct AudioBufferLease : IDisposable
     /// <summary>
     /// Creates a new lease, noting the pool it must return to.
     /// </summary>
-    internal AudioBufferLease(AudioBufferPool pool, byte[] buffer)
+    internal AudioBufferLease(AudioBufferManager pool, void* backing, int allocatedLength)
     {
         this.pool = pool;
-        this.Buffer = buffer;
+        this.backing = backing;
+        this.allocatedLength = allocatedLength;
     }
 
     /// <summary>
     /// Disposes of this lease and returns it to the pool.
     /// </summary>
     public readonly void Dispose() 
-        => this.pool.Return(this.Buffer);
+        => this.pool.Return(this.backing);
 }

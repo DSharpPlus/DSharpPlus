@@ -70,7 +70,7 @@ internal sealed class AudioClient : IDisposable
         uint timestamp = (uint)Random.Shared.NextInt64();
 
         AudioBufferLease lease = await this.frameChannel.ReadAsync();
-        int length = WriteAndEncryptFrame(lease.Buffer.AsSpan()[..lease.Length], currentFrame, timestamp, sequence);
+        int length = WriteAndEncryptFrame(lease.Buffer, currentFrame, timestamp, sequence);
 
         // return this lease to the pool as soon as we can
         lease.Dispose();
@@ -124,14 +124,14 @@ internal sealed class AudioClient : IDisposable
             }
 
             counter = lease.FrameCount;
-            length = WriteAndEncryptFrame(lease.Buffer.AsSpan()[..lease.Length], currentFrame, timestamp, sequence);
+            length = WriteAndEncryptFrame(lease.Buffer, currentFrame, timestamp, sequence);
             lease.Dispose();
         }
 
         async Task SendSilenceFrame()
         {
             lease = this.encoder.WriteSilenceFrame();
-            length = WriteAndEncryptFrame(lease.Buffer.AsSpan()[..lease.Length], currentFrame, timestamp, sequence);
+            length = WriteAndEncryptFrame(lease.Buffer, currentFrame, timestamp, sequence);
             lease.Dispose();
 
             await this.mediaTransport.SendAsync(currentFrame.AsMemory()[..length]);

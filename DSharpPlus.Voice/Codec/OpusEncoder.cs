@@ -13,18 +13,18 @@ namespace DSharpPlus.Voice.Codec;
 /// </summary>
 public sealed class OpusEncoder : IAudioEncoder
 {
-    private readonly AudioBufferPool pool;
     private readonly OpusEncoderHandle encoder;
     private readonly OpusRepacketizerHandle repacketizer;
+    private readonly byte[] buffer120ms = new byte[5760];
+    private readonly byte[] buffer20ms = new byte[960];
 
     private AudioType type;
 
     /// <inheritdoc/>
     public int SamplesPerPacket => this.type == AudioType.Voice ? 960 : 5760;
 
-    public OpusEncoder(AudioBufferPool pool, int bitrate, AudioType type)
+    public OpusEncoder(int bitrate, AudioType type)
     {
-        this.pool = pool;
         this.encoder = new(AudioType.Voice, bitrate);
         this.repacketizer = new();
 
@@ -85,12 +85,7 @@ public sealed class OpusEncoder : IAudioEncoder
     /// <inheritdoc/>
     public AudioBufferLease WriteSilenceFrame()
     {
-        AudioBufferLease lease = AudioBufferPool.OpusSilenceFrames.Rent();
-
-        // an opus silence frame.
-        lease.Buffer[12] = 0xF8;
-        lease.Buffer[13] = 0xFF;
-        lease.Buffer[14] = 0xFE;
+        AudioBufferLease lease = AudioBufferManager.OpusSilenceFrames.Rent(3);
 
         lease.Length = 15;
         lease.FrameCount = 1;
@@ -106,18 +101,18 @@ public sealed class OpusEncoder : IAudioEncoder
         // 0.02s of two-channel 48khz stereo is 960 samples, or 1920 elements
         ArgumentOutOfRangeException.ThrowIfGreaterThan(pcm.Length, 1920, nameof(pcm));
 
-        AudioBufferLease lease = this.pool.Rent();
-
         int written = pcm[0] switch
         {
-            short => this.encoder.EncodeFrame(Unsafe.As<ReadOnlySpan<T>, ReadOnlySpan<short>>(ref pcm), lease.Buffer.AsSpan()[12..]),
-            int => this.encoder.EncodeFrame(Unsafe.As<ReadOnlySpan<T>, ReadOnlySpan<int>>(ref pcm), lease.Buffer.AsSpan()[12..]),
-            float => this.encoder.EncodeFrame(Unsafe.As<ReadOnlySpan<T>, ReadOnlySpan<float>>(ref pcm), lease.Buffer.AsSpan()[12..]),
+            short => this.encoder.EncodeFrame(Unsafe.As<ReadOnlySpan<T>, ReadOnlySpan<short>>(ref pcm), this.buffer20ms),
+            int => this.encoder.EncodeFrame(Unsafe.As<ReadOnlySpan<T>, ReadOnlySpan<int>>(ref pcm), this.buffer20ms),
+            float => this.encoder.EncodeFrame(Unsafe.As<ReadOnlySpan<T>, ReadOnlySpan<float>>(ref pcm), this.buffer20ms),
             _ => throw new InvalidOperationException($"The generic parameter {typeof(T)} is not valid")
         };
 
-        // 12 for the rtp header
-        lease.Length = written + 12;
+        AudioBufferLease lease = AudioBufferManager.Shared.Rent(written);
+
+        this.buffer20ms.AsSpan()[..written].CopyTo(lease.Buffer);
+        lease.Length = written;
         lease.FrameCount = 1;
 
         return lease;
@@ -128,7 +123,6 @@ public sealed class OpusEncoder : IAudioEncoder
         // 0.02s of two-channel 48khz stereo is 960 samples, or 1920 elements
         ArgumentOutOfRangeException.ThrowIfGreaterThan(pcm.Length, 11520, nameof(pcm));
 
-        AudioBufferLease lease = this.pool.Rent();
         byte[] frame = ArrayPool<byte>.Shared.Rent(960);
 
         int written;
@@ -152,7 +146,11 @@ public sealed class OpusEncoder : IAudioEncoder
             read = nextTarget;
         }
 
-        written = this.repacketizer.Extract(lease.Buffer.AsSpan()[12..]);
+        written = this.repacketizer.Extract(this.buffer120ms);
+
+        AudioBufferLease lease = AudioBufferManager.Shared.Rent(written);
+
+        this.buffer120ms.AsSpan()[..written].CopyTo(lease.Buffer);
 
         lease.Length = written + 12;
         lease.FrameCount = 6;
