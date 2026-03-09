@@ -14,5 +14,6 @@ internal sealed record VoiceClientsConnectedPayload : IVoicePayload
     /// all users already present in the channel.
     /// </summary>
     [JsonPropertyName("user_ids")]
+    [JsonConverter(typeof(SnowflakeArrayConverter))]
     public required IReadOnlyList<ulong> UserIds { get; init; }
 }

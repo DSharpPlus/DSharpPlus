@@ -3,14 +3,14 @@ using System.Text.Json.Serialization;
 namespace DSharpPlus.Voice.Protocol;
 
 /// <summary>
-/// Represents the inner payload of <see cref="VoiceServerUpdateEvent"/> 
+/// Represents the inner payload of <see cref="VoiceStateUpdateEvent"/> 
 /// </summary>
-internal sealed record VoiceServerUpdateData
+internal sealed record VoiceStateUpdateData
 {
-    [JsonPropertyName("channel_id")]
+    [JsonPropertyName("channel_id"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public required ulong ChannelId { get; init; }
 
-    [JsonPropertyName("guild_id")]
+    [JsonPropertyName("guild_id"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public required ulong GuildId { get; init; }
 
     [JsonPropertyName("self_mute")]

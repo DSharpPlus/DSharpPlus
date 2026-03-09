@@ -11,5 +11,6 @@ internal sealed record VoiceClientDisconnectedPayload : IVoicePayload
     /// The snowflake identifier of the user who disconnected.
     /// </summary>
     [JsonPropertyName("user_id")]
+    [JsonConverter(typeof(SnowflakeConverter))]
     public ulong UserId { get; init; }
 }

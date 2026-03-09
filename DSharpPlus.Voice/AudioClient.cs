@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
@@ -161,6 +162,8 @@ internal sealed class AudioClient : IDisposable
             ArrayPoolBufferWriter<byte> decryptedWriter = new();
 
             await this.mediaTransport.ReceiveAsync(receiveWriter);
+
+            Console.WriteLine($"Received UDP packet {string.Join(" ", receiveWriter.WrittenSpan.ToArray().Select(x => x.ToString("x2")))}");
 
             this.cryptor.Decrypt(receiveWriter.WrittenSpan, decryptedWriter, out RtpFrameInfo frameInfo);
             

@@ -11,6 +11,7 @@ internal sealed record VoiceResumePayload : IVoicePayload
     /// The snowflake identifier of the guild the bot was connected to.
     /// </summary>
     [JsonPropertyName("server_id")]
+    [JsonConverter(typeof(SnowflakeConverter))]
     public required ulong ServerId { get; init; }
 
     /// <summary>

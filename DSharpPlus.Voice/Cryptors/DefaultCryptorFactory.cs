@@ -4,7 +4,6 @@ using System.Linq;
 
 using DSharpPlus.Voice.Interop.Sodium;
 
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace DSharpPlus.Voice.Cryptors;
@@ -16,15 +15,13 @@ public sealed class DefaultCryptorFactory : ICryptorFactory
 {
     private readonly bool enableAeadAes256Gcm;
 
-    public DefaultCryptorFactory(IOptions<VoiceOptions> options, ILogger<ICryptorFactory> logger)
-    {
-        this.enableAeadAes256Gcm = SodiumInterop.IsAeadAes256GcmAvailable() && options.Value.EnableAeadAes256GcmEncryption;
-        logger.LogInformation("AEAD AES-256 GCM encryption support {status}.", this.enableAeadAes256Gcm ? "enabled" : "disabled");
-    }
+    public DefaultCryptorFactory(IOptions<VoiceOptions> options) 
+        => this.enableAeadAes256Gcm = SodiumInterop.IsAeadAes256GcmAvailable() && options.Value.EnableAeadAes256GcmEncryption;
 
     /// <inheritdoc/>
     public IReadOnlyList<string> SupportedEncryptionModes => ["aead_aes256_gcm_rtpsize", "aead_xchacha20_poly1305_rtpsize"];
 
+    /// <inheritdoc/>
     public string SelectPreferredEncryptionMode(params IEnumerable<string> supportedEncryptionModes)
     {
         if (supportedEncryptionModes.Contains("aead_aes256_gcm_rtpsize") && this.enableAeadAes256Gcm)

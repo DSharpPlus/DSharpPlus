@@ -4,6 +4,7 @@ using System.Threading.Channels;
 using System.Threading.Tasks;
 
 using DSharpPlus.Clients;
+using DSharpPlus.Net;
 using DSharpPlus.Voice.AudioWriters;
 using DSharpPlus.Voice.Codec;
 using DSharpPlus.Voice.Cryptors;
@@ -47,6 +48,9 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         this.codec = provider.GetRequiredService<IAudioCodec>();
         this.e2ee = provider.GetRequiredService<IE2EESession>();
         this.options = provider.GetRequiredService<IOptions<VoiceOptions>>().Value;
+        
+        DiscordRestApiClientFactory apiClientFactory = provider.GetRequiredService<DiscordRestApiClientFactory>();
+        this.apiClient = apiClientFactory.GetCurrentApplicationClient();
 
         this.encoder = this.codec.CreateEncoder(bitrate, type, isStreamingConnection);
         this.sendingAudioChannel = Channel.CreateUnbounded<AudioBufferLease>();
@@ -67,6 +71,7 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     private readonly IMediaTransportService mediaTransport;
     private readonly IShardOrchestrator shardOrchestrator;
     private readonly IEventDispatcher dispatcher;
+    private readonly DiscordRestApiClient apiClient;
     private readonly ITransportService voiceGateway;
     private readonly ICryptorFactory cryptorFactory;
     private readonly IAudioCodec codec;
@@ -140,6 +145,8 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     {
         await this.voiceGateway.DisconnectAsync(WebSocketCloseStatus.NormalClosure);
         await this.mediaTransport.DisconnectAsync();
+
+        await this.apiClient.ModifyGuildMemberAsync(this.guildId, this.userId, voiceChannelId: null);
         
         this.serviceScope.Dispose();
         this.audioClient.Dispose();

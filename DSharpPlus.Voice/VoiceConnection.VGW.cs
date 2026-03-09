@@ -53,7 +53,7 @@ partial class VoiceConnection
             TimeSpan.FromSeconds(15)
         ).Task;
 
-        VoiceServerUpdateEvent update = new()
+        VoiceStateUpdateEvent update = new()
         {
             // [TODO] do we want to allow passing mute/deafen here?
             Data = new()
@@ -344,83 +344,106 @@ partial class VoiceConnection
         {
             VoiceGatewayTransportFrame frame = await this.voiceGateway.ReceiveAsync();
 
-            if (frame.Type == WebSocketMessageType.Text)
+            try
             {
-                VoiceGatewayMessage message = JsonSerializer.Deserialize<VoiceGatewayMessage>(frame.Payload)!;
-
-                if (message.Sequence != -1)
-                {
-                    this.lastSequence = message.Sequence;
-                }
-
-                switch (frame.Opcode)
-                {
-                    case VoiceGatewayOpcode.HeartbeatAck:
-
-                        this.pendingHeartbeats = 0;
-
-                        break;
-
-                    case VoiceGatewayOpcode.ClientsConnected:
-
-                        VoiceClientsConnectedPayload clientsConnected = (VoiceClientsConnectedPayload)message.Payload;
-                        
-                        this.connectedUsers.AddRange(clientsConnected.UserIds);
-
-                        break;
-
-                    case VoiceGatewayOpcode.ClientDisconnected:
-
-                        VoiceClientDisconnectedPayload clientDisconnected = (VoiceClientDisconnectedPayload)message.Payload;
-
-                        this.connectedUsers.Remove(clientDisconnected.UserId);
-
-                        break;
-
-                    case VoiceGatewayOpcode.Speaking:
-
-                        VoiceSpeakingPayload speaking = (VoiceSpeakingPayload)message.Payload;
-
-                        this.Receiver.IntroduceNewUser(new()
-                        {
-                            UserId = speaking.UserId,
-                            SSRC = speaking.SSRC,
-                            IsSpeaking = speaking.SpeakingMode.HasFlag(VoiceSpeakingFlags.Microphone)
-                        });
-
-                        break;
-
-                    case VoiceGatewayOpcode.PrepareTransition:
-                    case VoiceGatewayOpcode.ExecuteTransition:
-                    case VoiceGatewayOpcode.PrepareEpoch:
-
-                        await (this.daveVersion switch
-                        {
-                            1 => HandleDaveV1JsonPayloadsAsync(message),
-                            _ => LogErrorAndReconnectAsync("Invalid DAVE version {daveVersion}.", this.daveVersion)
-                        });
-
-                        break;
-
-                    default:
-
-                        // we don't really need to reconnect here, discord tests in prod all the time
-                        this.logger.LogWarning("Received invalid opcode {opcode}.", message.Opcode);
-                        break;
-                }
+                await HandleReceivedEventAsync(frame);
             }
-            else if (frame.Type == WebSocketMessageType.Binary)
+            catch (Exception e)
             {
-                await (this.daveVersion switch
-                {
-                    1 => HandleDaveV1BinaryPayloadsAsync(frame),
-                    _ => LogErrorAndReconnectAsync("Invalid DAVE version {daveVersion}.", this.daveVersion)
-                });
+                this.logger.LogError(e, "Encountered an error while handling a voice gateway event.");
             }
-            else
+        }
+    }
+
+    private async Task HandleReceivedEventAsync(VoiceGatewayTransportFrame frame)
+    {
+        if (frame.Type == WebSocketMessageType.Text)
+        {
+            VoiceGatewayMessage message = JsonSerializer.Deserialize<VoiceGatewayMessage>(frame.Payload)!;
+
+            if (message.Sequence != -1)
             {
-                await HandleCloseCodeAsync(frame.Error);
+                this.lastSequence = message.Sequence;
             }
+
+            switch (frame.Opcode)
+            {
+                case VoiceGatewayOpcode.HeartbeatAck:
+
+                    this.pendingHeartbeats = 0;
+
+                    break;
+
+                case VoiceGatewayOpcode.ClientsConnected:
+
+                    VoiceClientsConnectedPayload clientsConnected = (VoiceClientsConnectedPayload)message.Payload;
+                    
+                    this.connectedUsers.AddRange(clientsConnected.UserIds);
+
+                    break;
+
+                case VoiceGatewayOpcode.ClientDisconnected:
+
+                    VoiceClientDisconnectedPayload clientDisconnected = (VoiceClientDisconnectedPayload)message.Payload;
+
+                    this.connectedUsers.Remove(clientDisconnected.UserId);
+
+                    break;
+
+                case VoiceGatewayOpcode.Speaking:
+
+                    VoiceSpeakingPayload speaking = (VoiceSpeakingPayload)message.Payload;
+
+                    this.Receiver.IntroduceNewUser(new()
+                    {
+                        UserId = speaking.UserId,
+                        SSRC = speaking.SSRC,
+                        IsSpeaking = speaking.SpeakingMode.HasFlag(VoiceSpeakingFlags.Microphone)
+                    });
+
+                    break;
+
+                case VoiceGatewayOpcode.PrepareTransition:
+                case VoiceGatewayOpcode.ExecuteTransition:
+                case VoiceGatewayOpcode.PrepareEpoch:
+
+                    await (this.daveVersion switch
+                    {
+                        1 => HandleDaveV1JsonPayloadsAsync(message),
+                        _ => LogErrorAndReconnectAsync("Invalid DAVE version {daveVersion}.", this.daveVersion)
+                    });
+
+                    break;
+
+                case (VoiceGatewayOpcode)10:
+                case (VoiceGatewayOpcode)15:
+                case (VoiceGatewayOpcode)16:
+                case (VoiceGatewayOpcode)17:
+                case (VoiceGatewayOpcode)18:
+                case (VoiceGatewayOpcode)19:
+                case (VoiceGatewayOpcode)20:
+
+                    // undocumented opcodes that will be sent around
+                    break;
+
+                default:
+
+                    // we don't really need to reconnect here, discord tests in prod all the time
+                    this.logger.LogWarning("Received invalid opcode {opcode}.", message.Opcode);
+                    break;
+            }
+        }
+        else if (frame.Type == WebSocketMessageType.Binary)
+        {
+            await (this.daveVersion switch
+            {
+                1 => HandleDaveV1BinaryPayloadsAsync(frame),
+                _ => LogErrorAndReconnectAsync("Invalid DAVE version {daveVersion}.", this.daveVersion)
+            });
+        }
+        else
+        {
+            await HandleCloseCodeAsync(frame.Error);
         }
     }
 

@@ -11,12 +11,14 @@ internal sealed record VoiceIdentifyPayload : IVoicePayload
     /// The snowflake identifier of the guild the voice channel lies in, if applicable.
     /// </summary>
     [JsonPropertyName("server_id"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonConverter(typeof(SnowflakeConverter))]
     public ulong GuildId { get; init; }
 
     /// <summary>
     /// The snowflake identifier of the current user.
     /// </summary>
     [JsonPropertyName("user_id")]
+    [JsonConverter(typeof(SnowflakeConverter))]
     public required ulong UserId { get; init; }
 
     /// <summary>

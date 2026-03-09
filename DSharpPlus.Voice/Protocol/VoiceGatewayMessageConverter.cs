@@ -51,7 +51,7 @@ internal class VoiceGatewayMessageConverter : JsonConverter<VoiceGatewayMessage>
                 VoiceGatewayOpcode.TransitionReady => JsonSerializer.Deserialize<DaveTransitionReadyPayload>(payload, options),
                 VoiceGatewayOpcode.PrepareEpoch => JsonSerializer.Deserialize<DavePrepareEpochPayload>(payload, options),
                 VoiceGatewayOpcode.MlsInvalidCommitWelcome => JsonSerializer.Deserialize<MlsInvalidCommitWelcomePayload>(payload, options),
-                _ => throw new JsonException($"Unknown voice gateway opcode {opcode}.")
+                _ => null
             }
         };
     }
