@@ -8,6 +8,8 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
+using CommunityToolkit.HighPerformance.Buffers;
+
 using DSharpPlus.Clients;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Voice.Exceptions;
@@ -16,6 +18,8 @@ using DSharpPlus.Voice.Protocol.Gateway;
 using DSharpPlus.Voice.Protocol.Gateway.Payloads.Bidirectional;
 using DSharpPlus.Voice.Protocol.Gateway.Payloads.Clientbound;
 using DSharpPlus.Voice.Protocol.Gateway.Payloads.Serverbound;
+using DSharpPlus.Voice.Protocol.RTCP;
+using DSharpPlus.Voice.Protocol.RTCP.Payloads;
 using DSharpPlus.Voice.Transport;
 
 using Microsoft.Extensions.Logging;
@@ -135,7 +139,7 @@ partial class VoiceConnection
                 VoiceGatewayMessage helloMessage = JsonSerializer.Deserialize<VoiceGatewayMessage>(frame.Payload)!;
                 VoiceHelloPayload hello = (VoiceHelloPayload)helloMessage.Payload;
 
-                this.heartbeatTask = HeartbeatAsync(hello.HeartbeatInterval);
+                _ = HeartbeatAsync(hello.HeartbeatInterval, this.heartbeatCancellation.Token);
             }
         }
 
@@ -189,7 +193,7 @@ partial class VoiceConnection
         }
 
         this.e2ee.Initialize((ushort)this.daveVersion, channelId, this.userId, this.ssrc);
-        this.vgwTask = ReceiveVoiceGatewayEventsAsync();
+        _ = ReceiveVoiceGatewayEventsAsync(this.vgwCancellation.Token);
 
         // this is when we tell the gateway about our local encryption keys
         await (this.daveVersion switch
@@ -201,17 +205,46 @@ partial class VoiceConnection
         // ... and we await its response (which comes with the other users' keys, kind of important)
         await this.mlsReady.Task;
 
-        this.audioClient = new
-        (
-            this.mediaTransport,
-            this.Receiver,
-            this.cryptor,
-            this.e2ee,
-            this.sendingAudioChannel.Reader,
-            this.encoder,
-            this,
-            this.ssrc
-        );
+        // make ourselves known across RTCP. we must send a receiver report first thing, and we can just
+        // concatenate that with a description packet
+        RTCPReceiverReportPacket initial = new()
+        {
+            SSRC = this.ssrc,
+            ReceptionReports = []
+        };
+
+        RTCPSourceDescriptionPacket description = new()
+        {
+            SourceDescriptions = [new()
+            {
+                SSRC = this.ssrc,
+                DescriptionItems = 
+                [
+                    new()
+                    {
+                        Type = SourceDescriptionItemType.CanonicalName,
+                        Value = this.userId.ToString()
+                    },
+                    new()
+                    {
+                        Type = SourceDescriptionItemType.ApplicationName,
+                        Value = $"DSharpPlus.Voice v{Utilities.Version}"
+                    }
+                ]
+            }]
+        };
+
+        ArrayPoolBufferWriter<byte> serializedRTCPPackets = new();
+        
+        RTCPSerializer.Serialize(initial, serializedRTCPPackets);
+        RTCPSerializer.Serialize(description, serializedRTCPPackets);
+
+        await this.mediaTransport.SendAsync(serializedRTCPPackets.WrittenMemory);
+
+        // only start these loops the first time
+        this.receiveAudioTask ??= ReceiveAudioAsync(this.audioCancellation.Token);
+        this.audioKeepaliveTask ??= AudioKeepaliveAsync(this.audioCancellation.Token);
+        this.sendAudioTask ??= SendAudioAsync(this.audioCancellation.Token);
     }
 
     /// <summary>
@@ -295,11 +328,11 @@ partial class VoiceConnection
         });
     }
 
-    private async Task HeartbeatAsync(int heartbeatInterval)
+    private async Task HeartbeatAsync(int heartbeatInterval, CancellationToken ct)
     {
         using PeriodicTimer timer = new(TimeSpan.FromMilliseconds(heartbeatInterval));
 
-        while (await timer.WaitForNextTickAsync())
+        while (await timer.WaitForNextTickAsync(ct))
         {
             try
             {
@@ -338,9 +371,9 @@ partial class VoiceConnection
         }
     }
 
-    private async Task ReceiveVoiceGatewayEventsAsync()
+    private async Task ReceiveVoiceGatewayEventsAsync(CancellationToken ct)
     {
-        while (true)
+        while (!ct.IsCancellationRequested)
         {
             VoiceGatewayTransportFrame frame = await this.voiceGateway.ReceiveAsync();
 
@@ -458,9 +491,10 @@ partial class VoiceConnection
 
     private async Task ResumeAndReconnectAsync()
     {
+        this.vgwCancellation.Cancel();
         await this.voiceGateway.DisconnectAsync(WebSocketCloseStatus.NormalClosure);
         await this.voiceGateway.ConnectAsync(this.endpoint, this.channelId);
-        this.vgwTask.Dispose();
+        this.vgwCancellation = new();
 
         await this.voiceGateway.SendTextAsync(new()
         {
@@ -479,7 +513,7 @@ partial class VoiceConnection
         if (frame.Opcode == VoiceGatewayOpcode.Resumed)
         {
             // resume successful, restart the receive loop 
-            this.vgwTask = ReceiveVoiceGatewayEventsAsync();
+            _ = ReceiveVoiceGatewayEventsAsync(this.vgwCancellation.Token);
             return;
         }
 
@@ -501,10 +535,13 @@ partial class VoiceConnection
     {
         this.logger.LogDebug("Attempting to reconnect to the voice gateway.");
 
+        this.vgwCancellation.Cancel();
+        this.heartbeatCancellation.Cancel();
+
         await this.voiceGateway.DisconnectAsync(WebSocketCloseStatus.NormalClosure);
-        await this.mediaTransport.DisconnectAsync();
-        this.vgwTask.Dispose();
-        this.heartbeatTask.Dispose();
+
+        this.vgwCancellation = new();
+        this.heartbeatCancellation = new();
 
         await ConnectAsync();
 

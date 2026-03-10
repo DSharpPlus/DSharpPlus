@@ -7,7 +7,7 @@ using System.Threading;
 using CommunityToolkit.HighPerformance.Buffers;
 
 using DSharpPlus.Voice.Interop.Sodium;
-using DSharpPlus.Voice.Protocol.Rtp;
+using DSharpPlus.Voice.Protocol.RTP;
 
 namespace DSharpPlus.Voice.Cryptors;
 
@@ -29,7 +29,7 @@ public sealed class AeadXChaCha20Poly1305Cryptor : ICryptor
     public string EncryptionMode => "aead_xchacha20_poly1305_rtpsize";
 
     /// <inheritdoc/>
-    public void Decrypt(ReadOnlySpan<byte> encryptedFrame, ArrayPoolBufferWriter<byte> decrypted, out RtpFrameInfo frameInfo)
+    public void Decrypt(ReadOnlySpan<byte> encryptedFrame, ArrayPoolBufferWriter<byte> decrypted, out RTPFrameInfo frameInfo)
     {
         frameInfo = FrameParser.ParseRtpsizeSuffixedNonce(encryptedFrame, 4);
 

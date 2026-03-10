@@ -1,3 +1,5 @@
+#pragma warning disable IDE0040
+
 using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
@@ -9,14 +11,11 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 using DSharpPlus.Voice.Protocol.RTCP.Payloads;
 
-namespace DSharpPlus.Voice.Protocol.RTCP.Serialization;
+namespace DSharpPlus.Voice.Protocol.RTCP;
 
-/// <summary>
-/// Provides a mechanism to serialize and deserialize <see cref="RTCPGoodbyePacket"/>s. 
-/// </summary>
-internal static class GoodbyeSerializer
+partial class RTCPSerializer
 {
-    public static void Serialize(RTCPGoodbyePacket packet, ArrayPoolBufferWriter<byte> writer)
+    private static void SerializeGoodbye(RTCPGoodbyePacket packet, ArrayPoolBufferWriter<byte> writer)
     {
         ArgumentOutOfRangeException.ThrowIfGreaterThan(packet.SSRCs.Count, 31, "RTCPGoodbyePacket.SSRCs.Count");
         ArgumentOutOfRangeException.ThrowIfEqual(packet.SSRCs.Count, 0, "RTCPGoodbyePacket.SSRCs.Count");
@@ -69,7 +68,7 @@ internal static class GoodbyeSerializer
         }
     }
 
-    public static RTCPGoodbyePacket Deserialize(ReadOnlySpan<byte> packet, out int consumed)
+    private static RTCPGoodbyePacket DeserializeGoodbye(ReadOnlySpan<byte> packet, out int consumed)
     {
         Debug.Assert(packet[1] == (byte)RTCPPacketType.Goodbye);
         ArgumentOutOfRangeException.ThrowIfNotEqual(packet[0] & 0b11000000, 0b10000000, "RTCP packet version");

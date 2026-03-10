@@ -8,7 +8,7 @@ public sealed class OpusCodec : IAudioCodec
     private IAudioEncoder? encoder;
 
     /// <inheritdoc/>
-    public IAudioEncoder CreateEncoder(int bitrate, AudioType type, bool isStreamingConnection)
+    public IAudioEncoder CreateEncoder(int bitrate, AudioType type)
     {
         IAudioEncoder encoder = new OpusEncoder(bitrate, type);
 

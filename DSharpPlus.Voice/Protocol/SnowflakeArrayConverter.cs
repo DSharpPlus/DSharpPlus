@@ -9,12 +9,8 @@ internal sealed class SnowflakeArrayConverter : JsonConverter<IReadOnlyList<ulon
 {
     public override IReadOnlyList<ulong>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        // throw out the first read, it'll be reading StartArray
-        reader.Read();
-
         List<ulong> snowflakes = [];
 
-        // the second one will be evaluated by our while
         reader.Read();
 
         while (reader.TokenType != JsonTokenType.EndArray)

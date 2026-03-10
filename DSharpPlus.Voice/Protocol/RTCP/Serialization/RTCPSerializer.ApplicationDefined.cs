@@ -1,3 +1,5 @@
+#pragma warning disable IDE0040
+
 using System;
 using System.Buffers.Binary;
 using System.Diagnostics;
@@ -8,14 +10,11 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 using DSharpPlus.Voice.Protocol.RTCP.Payloads;
 
-namespace DSharpPlus.Voice.Protocol.RTCP.Serialization;
+namespace DSharpPlus.Voice.Protocol.RTCP;
 
-/// <summary>
-/// Provides a mechanism to serialize and deserialize <see cref="RTCPApplicationDefinedPacket"/>s. 
-/// </summary>
-internal static class ApplicationDefinedSerializer
+partial class RTCPSerializer
 {
-    public static void Serialize(RTCPApplicationDefinedPacket packet, ArrayPoolBufferWriter<byte> writer)
+    private static void SerializeApplicationDefinedPacket(RTCPApplicationDefinedPacket packet, ArrayPoolBufferWriter<byte> writer)
     {
         ArgumentOutOfRangeException.ThrowIfGreaterThan(packet.Subtype, 31, "RTCPApplicationDefinedPacket.Subtype");
         ArgumentOutOfRangeException.ThrowIfLessThan(packet.Subtype, 0, "RTCPApplicationDefinedPacket.Subtype");
@@ -43,7 +42,7 @@ internal static class ApplicationDefinedSerializer
         }
     }
 
-    public static RTCPApplicationDefinedPacket Deserialize(ReadOnlySpan<byte> packet, out int consumed)
+    private static RTCPApplicationDefinedPacket DeserializeApplicationDefinedPacket(ReadOnlySpan<byte> packet, out int consumed)
     {
         Debug.Assert(packet[1] == (byte)RTCPPacketType.ApplicationDefined);
         ArgumentOutOfRangeException.ThrowIfNotEqual(packet[0] & 0b11000000, 0b10000000, "RTCP packet version");

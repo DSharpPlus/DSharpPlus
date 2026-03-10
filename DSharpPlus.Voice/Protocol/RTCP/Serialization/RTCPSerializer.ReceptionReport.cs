@@ -1,15 +1,18 @@
+#pragma warning disable IDE0040
+
 using System;
 using System.Buffers.Binary;
 
 using CommunityToolkit.HighPerformance.Buffers;
 
 using DSharpPlus.Voice.Protocol.RTCP.Payloads;
+using DSharpPlus.Voice.Protocol.RTCP.Serialization;
 
-namespace DSharpPlus.Voice.Protocol.RTCP.Serialization;
+namespace DSharpPlus.Voice.Protocol.RTCP;
 
-internal static class ReceptionReportSerializer
+partial class RTCPSerializer
 {
-    public static void Serialize(ReceptionReport report, ArrayPoolBufferWriter<byte> writer)
+    private static void SerializeReceptionReport(ReceptionReport report, ArrayPoolBufferWriter<byte> writer)
     {
         // this word is laid out as such: 8 bits packet loss, 24 bits cumulative packets lost, big endian
         uint packetLossWord = (report.CumulativePacketsLost & 0x00FFFFFF) | (uint)((byte)(report.PacketLoss * 256) << 24);
@@ -29,7 +32,7 @@ internal static class ReceptionReportSerializer
         writer.Advance(24);
     }
 
-    public static ReceptionReport Deserialize(ReadOnlySpan<byte> buffer, out int consumed)
+    private static ReceptionReport DeserializeReceptionReport(ReadOnlySpan<byte> buffer, out int consumed)
     {
         uint sourceSSRC = BinaryPrimitives.ReadUInt32BigEndian(buffer);
         uint packetLossWord = BinaryPrimitives.ReadUInt32BigEndian(buffer[4..]);

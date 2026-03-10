@@ -1,7 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Net.WebSockets;
+using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+
+using CommunityToolkit.HighPerformance.Buffers;
 
 using DSharpPlus.Clients;
 using DSharpPlus.Net;
@@ -11,6 +15,8 @@ using DSharpPlus.Voice.Cryptors;
 using DSharpPlus.Voice.E2EE;
 using DSharpPlus.Voice.MemoryServices;
 using DSharpPlus.Voice.MemoryServices.Collections;
+using DSharpPlus.Voice.Protocol.RTCP;
+using DSharpPlus.Voice.Protocol.RTCP.Payloads;
 using DSharpPlus.Voice.Transport;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -32,7 +38,7 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         ulong guildId,
         int bitrate,
         AudioType type,
-        bool isStreamingConnection
+        IEnumerable<ulong> usersInCall
     )
     {
         this.serviceScope = scope;
@@ -52,9 +58,9 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         DiscordRestApiClientFactory apiClientFactory = provider.GetRequiredService<DiscordRestApiClientFactory>();
         this.apiClient = apiClientFactory.GetCurrentApplicationClient();
 
-        this.encoder = this.codec.CreateEncoder(bitrate, type, isStreamingConnection);
+        this.encoder = this.codec.CreateEncoder(bitrate, type);
         this.sendingAudioChannel = Channel.CreateUnbounded<AudioBufferLease>();
-        this.connectedUsers = [];
+        this.connectedUsers = [..usersInCall];
         this.Receiver = new(this.codec, AudioReceiveMode.Process);
 
         this.userId = userId;
@@ -62,6 +68,10 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         this.guildId = guildId;
 
         this.mlsReady = null;
+
+        this.vgwCancellation = new();
+        this.heartbeatCancellation = new();
+        this.audioCancellation = new();
     }
 
     // services and stuff we receive from DI for customization purposes
@@ -83,7 +93,6 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     private readonly VoiceOptions options;
     private ICryptor cryptor;
     private ILogger logger;
-    private AudioClient audioClient;
     private AbstractAudioWriter? activeWriter;
 
     // hooks
@@ -91,14 +100,20 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     private object? disconnectHandlerState;
 
     // vgw tracking
+    private CancellationTokenSource vgwCancellation;
+    private CancellationTokenSource heartbeatCancellation;
     private TaskCompletionSource? mlsReady;
-    private Task heartbeatTask;
-    private Task vgwTask;
     private int lastSequence = -1;
     private int daveVersion;
     private int pendingHeartbeats;
     private uint pendingTransitionId;
     private int pendingTransitionProtocolVersion;
+
+    // audio session tracking
+    private readonly CancellationTokenSource audioCancellation;
+    private Task? receiveAudioTask;
+    private Task? audioKeepaliveTask;
+    private Task? sendAudioTask;
 
     // general connection info
     private string sessionId;
@@ -107,13 +122,18 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     private readonly ulong userId;
     private readonly ulong channelId;
     private readonly ulong guildId;
-
     private uint ssrc;
 
     /// <summary>
     /// Indicates whether we are currently sending audio.
     /// </summary>
     public bool IsSpeaking { get; private set; }
+
+    /// <summary>
+    /// Indicates the latency between the client and the voice server. For latency between this client and other clients, please refer to
+    /// the connection metrics.
+    /// </summary>
+    public TimeSpan AudioConnectionLatency { get; private set; }
 
     /// <summary>
     /// Provides a mechanism for receiving audio from Discord.
@@ -143,15 +163,25 @@ public sealed partial class VoiceConnection : IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
+        RTCPGoodbyePacket goodbye = new()
+        {
+            SSRCs = [this.ssrc],
+            Reason = "Disconnecting"
+        };
+
+        ArrayPoolBufferWriter<byte> writer = new();
+        RTCPSerializer.Serialize(goodbye, writer);
+
+        await this.mediaTransport.SendAsync(writer.WrittenMemory);
+
+        this.vgwCancellation.Cancel();
+        this.heartbeatCancellation.Cancel();
+
         await this.voiceGateway.DisconnectAsync(WebSocketCloseStatus.NormalClosure);
         await this.mediaTransport.DisconnectAsync();
 
         await this.apiClient.ModifyGuildMemberAsync(this.guildId, this.userId, voiceChannelId: null);
         
         this.serviceScope.Dispose();
-        this.audioClient.Dispose();
-
-        this.heartbeatTask.Dispose();
-        this.vgwTask.Dispose();
     }
 }

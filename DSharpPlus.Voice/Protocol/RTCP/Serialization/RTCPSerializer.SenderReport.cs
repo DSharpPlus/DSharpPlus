@@ -1,3 +1,5 @@
+#pragma warning disable IDE0040
+
 using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
@@ -6,15 +8,13 @@ using System.Diagnostics;
 using CommunityToolkit.HighPerformance.Buffers;
 
 using DSharpPlus.Voice.Protocol.RTCP.Payloads;
+using DSharpPlus.Voice.Protocol.RTCP.Serialization;
 
-namespace DSharpPlus.Voice.Protocol.RTCP.Serialization;
+namespace DSharpPlus.Voice.Protocol.RTCP;
 
-/// <summary>
-/// Provides a mechanism to serialize and deserialize <see cref="RTCPSenderReportPacket"/>s. 
-/// </summary>
-internal static class SenderReportSerializer
+partial class RTCPSerializer
 {
-    public static void Serialize(RTCPSenderReportPacket packet, ArrayPoolBufferWriter<byte> writer)
+    private static void SerializeSenderReport(RTCPSenderReportPacket packet, ArrayPoolBufferWriter<byte> writer)
     {
         ArgumentOutOfRangeException.ThrowIfGreaterThan(packet.ReceptionReports.Count, 31, "RTCPSenderReportPacket.ReceptionReports.Count");
 
@@ -42,11 +42,11 @@ internal static class SenderReportSerializer
 
         foreach (ReceptionReport report in packet.ReceptionReports)
         {
-            ReceptionReportSerializer.Serialize(report, writer);
+            SerializeReceptionReport(report, writer);
         }
     }
 
-    public static RTCPSenderReportPacket Deserialize(ReadOnlySpan<byte> packet, out int consumed)
+    private static RTCPSenderReportPacket DeserializeSenderReport(ReadOnlySpan<byte> packet, out int consumed)
     {
         Debug.Assert(packet[1] == (byte)RTCPPacketType.SenderReport);
         ArgumentOutOfRangeException.ThrowIfNotEqual(packet[0] & 0b11000000, 0b10000000, "RTCP packet version");
@@ -83,7 +83,7 @@ internal static class SenderReportSerializer
 
         for (int i = 0; i < receptionReports; i++)
         {
-            ReceptionReport report = ReceptionReportSerializer.Deserialize(packet, out int reportConsumed);
+            ReceptionReport report = DeserializeReceptionReport(packet, out int reportConsumed);
 
             consumed += reportConsumed;
             packet = packet[reportConsumed..];

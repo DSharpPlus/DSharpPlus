@@ -7,7 +7,7 @@ using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
 using DSharpPlus.Voice.Interop.Sodium;
-using DSharpPlus.Voice.Protocol.Rtp;
+using DSharpPlus.Voice.Protocol.RTP;
 
 namespace DSharpPlus.Voice.Cryptors;
 
@@ -29,7 +29,7 @@ public sealed class AeadAes256GcmCryptor : ICryptor
     public string EncryptionMode => "aead_aes256_gcm_rtpsize";
 
     /// <inheritdoc/>
-    public void Decrypt(ReadOnlySpan<byte> encryptedFrame, ArrayPoolBufferWriter<byte> decrypted, out RtpFrameInfo frameInfo)
+    public void Decrypt(ReadOnlySpan<byte> encryptedFrame, ArrayPoolBufferWriter<byte> decrypted, out RTPFrameInfo frameInfo)
     {
         frameInfo = FrameParser.ParseRtpsizeSuffixedNonce(encryptedFrame, 4);
 

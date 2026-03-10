@@ -1,3 +1,5 @@
+#pragma warning disable IDE0040
+
 using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
@@ -9,14 +11,11 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 using DSharpPlus.Voice.Protocol.RTCP.Payloads;
 
-namespace DSharpPlus.Voice.Protocol.RTCP.Serialization;
+namespace DSharpPlus.Voice.Protocol.RTCP;
 
-/// <summary>
-/// Provides a mechanism to serialize and deserialize <see cref="RTCPSourceDescriptionPacket"/>s. 
-/// </summary>
-internal static class SourceDescriptionSerializer
+partial class RTCPSerializer
 {
-    public static void Serialize(RTCPSourceDescriptionPacket packet, ArrayPoolBufferWriter<byte> writer)
+    private static void SerializeSourceDescription(RTCPSourceDescriptionPacket packet, ArrayPoolBufferWriter<byte> writer)
     {
         ArgumentOutOfRangeException.ThrowIfGreaterThan(packet.SourceDescriptions.Count, 31, "RTCPSenderReportPacket.SourceDescriptions.Count");
 
@@ -81,7 +80,7 @@ internal static class SourceDescriptionSerializer
         }
     }
 
-    public static RTCPSourceDescriptionPacket Deserialize(ReadOnlySpan<byte> packet, out int consumed)
+    private static RTCPSourceDescriptionPacket DeserializeSourceDescription(ReadOnlySpan<byte> packet, out int consumed)
     {
         Debug.Assert(packet[1] == (byte)RTCPPacketType.SourceDescription);
         ArgumentOutOfRangeException.ThrowIfNotEqual(packet[0] & 0b11000000, 0b10000000, "RTCP packet version");

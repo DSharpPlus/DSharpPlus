@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
@@ -15,7 +16,7 @@ public static class ConnectionExtensions
 {
     extension(DiscordChannel channel)
     {
-        public async Task<VoiceConnection> ConnectAsync(AudioType type = AudioType.Auto, bool isStreamingConnection = true)
+        public async Task<VoiceConnection> ConnectAsync(AudioType type = AudioType.Auto)
         {
             if (channel.IsPrivate)
             {
@@ -36,7 +37,7 @@ public static class ConnectionExtensions
             IServiceScope scope = client.ServiceProvider.CreateAsyncScope();
             ulong userId = client.CurrentUser.Id;
 
-            return await channel.ConnectAsync(scope, userId, type, isStreamingConnection);
+            return await channel.ConnectAsync(scope, userId, type);
         }
 
         public async Task<VoiceConnection> ConnectAsync
@@ -47,7 +48,16 @@ public static class ConnectionExtensions
             bool isStreamingConnection = true
         )
         {
-            VoiceConnection connection = new(scope, currentUserId, channel.Id, channel.GuildId.Value, channel.Bitrate.Value, type, isStreamingConnection);
+            VoiceConnection connection = new
+            (
+                scope,
+                currentUserId,
+                channel.Id,
+                channel.GuildId.Value,
+                channel.Bitrate.Value,
+                type,
+                channel.Guild.VoiceStates.Where(x => x.Value.ChannelId == channel.Id).Select(x => x.Value.UserId)
+            );
 
             await connection.ConnectAsync();
 

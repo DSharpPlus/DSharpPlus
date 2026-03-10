@@ -2,7 +2,7 @@ using System;
 
 using CommunityToolkit.HighPerformance.Buffers;
 
-using DSharpPlus.Voice.Protocol.Rtp;
+using DSharpPlus.Voice.Protocol.RTP;
 
 namespace DSharpPlus.Voice.Cryptors;
 
@@ -19,7 +19,7 @@ public interface ICryptor
     /// <summary>
     /// Decrypts the given frame into the buffer writer.
     /// </summary>
-    public void Decrypt(ReadOnlySpan<byte> encryptedFrame, ArrayPoolBufferWriter<byte> decrypted, out RtpFrameInfo frameInfo);
+    public void Decrypt(ReadOnlySpan<byte> encryptedFrame, ArrayPoolBufferWriter<byte> decrypted, out RTPFrameInfo frameInfo);
 
     /// <summary>
     /// Gets the encryption mode supported by this cryptor.
