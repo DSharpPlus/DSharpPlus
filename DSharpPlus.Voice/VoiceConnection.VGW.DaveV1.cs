@@ -126,13 +126,13 @@ partial class VoiceConnection
 
             case VoiceGatewayOpcode.MlsAnnounceCommitTransition:
 
-                this.e2ee.ProcessCommit(frame.Payload.AsSpan(3));
+                this.e2ee.ProcessCommit(frame.Payload.AsSpan(5));
 
                 break;
 
             case VoiceGatewayOpcode.MlsWelcome:
 
-                this.e2ee.ProcessWelcome(frame.Payload.AsSpan(3), [.. this.connectedUsers]);
+                this.e2ee.ProcessWelcome(frame.Payload.AsSpan(5), [.. this.connectedUsers]);
                 this.mlsReady?.SetResult();
 
                 break;
