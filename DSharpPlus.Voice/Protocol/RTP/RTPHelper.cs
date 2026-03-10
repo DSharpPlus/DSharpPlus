@@ -5,7 +5,7 @@ namespace DSharpPlus.Voice.Protocol.RTP;
 
 internal static class RTPHelper
 {
-    public static void WriteRtpHeader(Span<byte> target, ushort sequence, uint timestamp, uint ssrc)
+    public static void WriteRTPHeader(Span<byte> target, ushort sequence, uint timestamp, uint ssrc)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(target.Length, 12);
 

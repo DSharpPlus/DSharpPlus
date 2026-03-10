@@ -196,7 +196,7 @@ partial class VoiceConnection
 
         this.e2ee.EncryptFrame(unencrypted, e2eeWriter);
 
-        RTPHelper.WriteRtpHeader(encryptedWriter.GetSpan(12), sequence, timestamp, this.ssrc);
+        RTPHelper.WriteRTPHeader(encryptedWriter.GetSpan(12), sequence, timestamp, this.ssrc);
         encryptedWriter.Advance(12);
 
         this.cryptor.Encrypt(e2eeWriter.WrittenSpan, encryptedWriter);

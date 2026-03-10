@@ -57,7 +57,7 @@ public sealed partial class VoiceConnection : IAsyncDisposable
 
         this.encoder = this.codec.CreateEncoder(bitrate, type);
         this.sendingAudioChannel = Channel.CreateUnbounded<AudioBufferLease>();
-        this.connectedUsers = [..usersInCall];
+        this.connectedUsers = [..usersInCall, userId];
         this.Receiver = new(this.codec, AudioReceiveMode.Process);
 
         this.userId = userId;
