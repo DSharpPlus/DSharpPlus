@@ -22,8 +22,16 @@ partial class VoiceConnection
             case VoiceGatewayCloseCode.Empty:
             case VoiceGatewayCloseCode.InternalServerError:
             
-                this.logger.LogDebug("The voice gateway connection was closed by the remote server, reconnecting.");
-                _ = ResumeAndReconnectAsync();
+                // we get one tick of NormalClosure when we disconnect, don't auto-reconnect on that
+                if (!this.isDisconnecting)
+                {
+                    this.logger.LogDebug("The voice gateway connection was closed by the remote server, reconnecting.");
+                    _ = ResumeAndReconnectAsync();
+                }
+                else
+                {
+                    this.logger.LogDebug("Disconnecting from the voice gateway.");
+                }
 
                 break;
 
@@ -154,6 +162,8 @@ partial class VoiceConnection
 
     private async Task DisconnectAndReportReasonAsync(VoiceDisconnectReason reason)
     {
+        this.isDisconnecting = true;
+
         if (this.disconnectHandler is not null)
         {
             await this.disconnectHandler(reason, this.disconnectHandlerState);
@@ -162,7 +172,7 @@ partial class VoiceConnection
         {
             // if the handler is null, but the 'mlsReady' TCS isn't null, we're connecting. otherwise, don't throw (something something UnobservedTaskException)
             // and let the log message suffice
-            this.mlsReady?.SetException(new ConnectingFailedException($"Our connection from the voice channel was severed for the following reason: {reason}. "
+            this.mlsReady?.TrySetException(new ConnectingFailedException($"Our connection from the voice channel was severed for the following reason: {reason}. "
                 + "More information may have been logged by the extension."));
         }
 

@@ -48,8 +48,8 @@ partial class RTCPSerializer
                 int valueByteCount = Encoding.UTF8.GetByteCount(item.Value);
                 int nameByteCount = Encoding.UTF8.GetByteCount(item.Name);
 
-                ArgumentOutOfRangeException.ThrowIfGreaterThan(255, valueByteCount, "SourceDescriptionItem.Value.Length");
-                ArgumentOutOfRangeException.ThrowIfGreaterThan(255, nameByteCount, "SourceDescriptionItem.Name.Length");
+                ArgumentOutOfRangeException.ThrowIfGreaterThan(valueByteCount, 255, "SourceDescriptionItem.Value.Length");
+                ArgumentOutOfRangeException.ThrowIfGreaterThan(nameByteCount, 255, "SourceDescriptionItem.Name.Length");
                 
                 writer.Write((byte)item.Type);
                 writer.Write((byte)item.Value.Length);

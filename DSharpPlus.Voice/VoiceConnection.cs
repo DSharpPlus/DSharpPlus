@@ -5,8 +5,6 @@ using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
-using CommunityToolkit.HighPerformance.Buffers;
-
 using DSharpPlus.Clients;
 using DSharpPlus.Net;
 using DSharpPlus.Voice.AudioWriters;
@@ -15,7 +13,6 @@ using DSharpPlus.Voice.Cryptors;
 using DSharpPlus.Voice.E2EE;
 using DSharpPlus.Voice.MemoryServices;
 using DSharpPlus.Voice.MemoryServices.Collections;
-using DSharpPlus.Voice.Protocol.RTCP;
 using DSharpPlus.Voice.Protocol.RTCP.Payloads;
 using DSharpPlus.Voice.Transport;
 
@@ -123,6 +120,7 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     private readonly ulong channelId;
     private readonly ulong guildId;
     private uint ssrc;
+    private bool isDisconnecting;
 
     /// <summary>
     /// Indicates whether we are currently sending audio.
@@ -169,10 +167,7 @@ public sealed partial class VoiceConnection : IAsyncDisposable
             Reason = "Disconnecting"
         };
 
-        ArrayPoolBufferWriter<byte> writer = new();
-        RTCPSerializer.Serialize(goodbye, writer);
-
-        await this.mediaTransport.SendAsync(writer.WrittenMemory);
+        await SendRTCPPacketsAsync([goodbye]);
 
         this.vgwCancellation.Cancel();
         this.heartbeatCancellation.Cancel();

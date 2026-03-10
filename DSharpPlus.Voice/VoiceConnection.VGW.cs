@@ -8,8 +8,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-using CommunityToolkit.HighPerformance.Buffers;
-
 using DSharpPlus.Clients;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Voice.Exceptions;
@@ -18,7 +16,6 @@ using DSharpPlus.Voice.Protocol.Gateway;
 using DSharpPlus.Voice.Protocol.Gateway.Payloads.Bidirectional;
 using DSharpPlus.Voice.Protocol.Gateway.Payloads.Clientbound;
 using DSharpPlus.Voice.Protocol.Gateway.Payloads.Serverbound;
-using DSharpPlus.Voice.Protocol.RTCP;
 using DSharpPlus.Voice.Protocol.RTCP.Payloads;
 using DSharpPlus.Voice.Transport;
 
@@ -234,12 +231,7 @@ partial class VoiceConnection
             }]
         };
 
-        ArrayPoolBufferWriter<byte> serializedRTCPPackets = new();
-        
-        RTCPSerializer.Serialize(initial, serializedRTCPPackets);
-        RTCPSerializer.Serialize(description, serializedRTCPPackets);
-
-        await this.mediaTransport.SendAsync(serializedRTCPPackets.WrittenMemory);
+        await SendRTCPPacketsAsync([initial, description]);
 
         // only start these loops the first time
         this.receiveAudioTask ??= ReceiveAudioAsync(this.audioCancellation.Token);
@@ -250,8 +242,12 @@ partial class VoiceConnection
     /// <summary>
     /// Disconnects from the voice chat. It is not possible to reconnect again.
     /// </summary>
-    public async Task DisconnectAsync() 
-        => await DisconnectAndReportReasonAsync(VoiceDisconnectReason.Disconnected);
+    public async Task DisconnectAsync()
+    {
+        this.isDisconnecting = true;
+        await DisconnectAndReportReasonAsync(VoiceDisconnectReason.Disconnected);
+    }
+
 
     /// <summary>
     /// Reconnects to the Discord voice gateway.
@@ -264,6 +260,12 @@ partial class VoiceConnection
         if (!manual && !this.options.AutoReconnect)
         {
             this.logger.LogDebug("Abandoning automatic reconnect because automatic reconnecting was disabled by the user.");
+            return false;
+        }
+
+        // we're already disconnecting, leave it
+        if (this.isDisconnecting)
+        {
             return false;
         }
 
@@ -491,6 +493,12 @@ partial class VoiceConnection
 
     private async Task ResumeAndReconnectAsync()
     {
+        // a disconnect was explicitly requested
+        if (this.isDisconnecting)
+        {
+            return;
+        }
+
         this.vgwCancellation.Cancel();
         await this.voiceGateway.DisconnectAsync(WebSocketCloseStatus.NormalClosure);
         await this.voiceGateway.ConnectAsync(this.endpoint, this.channelId);

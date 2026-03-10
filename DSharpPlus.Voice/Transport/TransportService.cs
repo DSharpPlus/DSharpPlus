@@ -206,7 +206,7 @@ public sealed class TransportService : ITransportService
             {
                 this.logger.LogTrace
                 (
-                    "Received event from the voice gateway (length: {length}):\n{event}",
+                    "Received event from the voice gateway (length: {length}): {event}",
                     this.receiveWriter.WrittenCount,
                     Encoding.UTF8.GetString(this.receiveWriter.WrittenSpan)
                 );

@@ -37,6 +37,11 @@ partial class VoiceConnection
 
                 this.AudioConnectionLatency = delay;
 
+                if (delay > TimeSpan.FromSeconds(5))
+                {
+                    this.logger.LogWarning("The latency of the audio connection exceeds five seconds.");
+                }
+
                 continue;
             }
             else if (RTCPSerializer.IsValidRTCPPacket(receiveWriter.WrittenSpan))
@@ -162,6 +167,26 @@ partial class VoiceConnection
 
             await this.mediaTransport.SendAsync(currentFrame.AsMemory()[..length]);
         }
+    }
+
+    private async Task SendRTCPPacketsAsync(IReadOnlyList<IRTCPPacket> packets)
+    {
+        if (this.logger.IsEnabled(LogLevel.Trace))
+        {
+            foreach (IRTCPPacket packet in packets)
+            {
+                this.logger.LogTrace("Sending RTCP packet: {packet}", packet);
+            }
+        }
+
+        ArrayPoolBufferWriter<byte> writer = new();
+
+        foreach (IRTCPPacket packet in packets)
+        {
+            RTCPSerializer.Serialize(packet, writer);
+        }
+
+        await this.mediaTransport.SendAsync(writer.WrittenMemory);
     }
     
     private int WriteAndEncryptFrame(ReadOnlySpan<byte> unencrypted, Span<byte> target, uint timestamp, ushort sequence)
