@@ -1,4 +1,5 @@
 using System;
+using System.Buffers.Binary;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
@@ -179,11 +180,18 @@ public sealed class TransportService : ITransportService
 
         if (receiveResult.MessageType == WebSocketMessageType.Binary)
         {
+            ushort sequence = BinaryPrimitives.ReadUInt16BigEndian(this.receiveWriter.WrittenSpan);
             int opcode = this.receiveWriter.WrittenSpan[2];
             byte[] payload = new byte[this.receiveWriter.WrittenCount];
             this.receiveWriter.WrittenSpan.CopyTo(payload);
 
-            this.logger.LogTrace("Received binary event from the voice gateway: (opcode {opcode}, length {length})", opcode, this.receiveWriter.WrittenCount);
+            this.logger.LogTrace
+            (
+                "Received binary event from the voice gateway: (opcode {opcode}, sequence {sequence}, length {length})",
+                opcode,
+                sequence,
+                this.receiveWriter.WrittenCount
+            );
 
             return new VoiceGatewayTransportFrame
             {

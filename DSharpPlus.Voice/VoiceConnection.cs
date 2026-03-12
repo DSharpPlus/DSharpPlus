@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Channels;
@@ -95,6 +97,8 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     // hooks
     private Func<VoiceDisconnectReason, object?, Task>? disconnectHandler;
     private object? disconnectHandlerState;
+    private Func<VoiceUser, object?, Task>? userJoinedHandler;
+    private object? userJoinedHandlerState;
 
     // vgw tracking
     private CancellationTokenSource vgwCancellation;
@@ -105,12 +109,14 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     private int pendingHeartbeats;
     private uint pendingTransitionId;
     private int pendingTransitionProtocolVersion;
+    private IPEndPoint? localEndpoint;
 
     // audio session tracking
     private readonly CancellationTokenSource audioCancellation;
     private Task? receiveAudioTask;
     private Task? audioKeepaliveTask;
     private Task? sendAudioTask;
+    private readonly ConcurrentDictionary<uint, VoiceUser> users;
 
     // general connection info
     private string sessionId;
@@ -121,6 +127,7 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     private readonly ulong guildId;
     private uint ssrc;
     private bool isDisconnecting;
+    private bool isDisposed;
 
     /// <summary>
     /// Indicates whether we are currently sending audio.
@@ -159,8 +166,36 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         this.disconnectHandlerState = state;
     }
 
+    /// <summary>
+    /// Sets a handler for when a new user joins the call and starts speaking for the first time.
+    /// </summary>
+    /// <param name="handler">A handler function taking in the user and the state parameter provided to this method.</param>
+    /// <param name="state">Arbitrary state you want to provide your handler.</param>
+    public void SetUserJoinHandler(Func<VoiceUser, object?, Task> handler, object? state = null)
+    {
+        this.userJoinedHandler = handler;
+        this.userJoinedHandlerState = state;
+    }
+
+    private async Task RegisterSpeakingStatusAsync(uint ssrc, VoiceUser user)
+    {
+        this.users.AddOrUpdate(ssrc, user, (_, _) => user);
+
+        if (!this.users.ContainsKey(ssrc))
+        {
+            await this.userJoinedHandler?.Invoke(user, this.userJoinedHandlerState);
+        }
+    }
+
     public async ValueTask DisposeAsync()
     {
+        if (this.isDisposed)
+        {
+            return;
+        }
+
+        this.isDisposed = true;
+
         RTCPGoodbyePacket goodbye = new()
         {
             SSRCs = [this.ssrc],

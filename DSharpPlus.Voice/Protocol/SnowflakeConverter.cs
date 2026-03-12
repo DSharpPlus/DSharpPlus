@@ -8,8 +8,6 @@ internal sealed class SnowflakeConverter : JsonConverter<ulong>
 {
     public override ulong Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        reader.Read();
-
         if (reader.TokenType == JsonTokenType.Number)
         {
             return reader.GetUInt64();

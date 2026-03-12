@@ -133,7 +133,7 @@ partial class VoiceConnection
             case VoiceGatewayOpcode.MlsWelcome:
 
                 this.e2ee.ProcessWelcome(frame.Payload.AsSpan(5), [.. this.connectedUsers]);
-                this.mlsReady?.SetResult();
+                this.mlsReady?.TrySetResult();
 
                 break;
 

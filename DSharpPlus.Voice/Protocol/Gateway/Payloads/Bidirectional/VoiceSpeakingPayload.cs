@@ -29,5 +29,6 @@ internal sealed record VoiceSpeakingPayload : IVoicePayload
     /// The ID of the user who started speaking.
     /// </summary>
     [JsonPropertyName("user_id"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWriting)]
+    [JsonConverter(typeof(SnowflakeConverter))]
     public ulong UserId { get; init; }
 }

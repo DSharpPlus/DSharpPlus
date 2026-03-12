@@ -142,7 +142,7 @@ partial class VoiceConnection
 
         // we have now received every bit of information necessary to connect to UDP...
         await this.mediaTransport.ConnectAsync(remoteUdpEndpoint);
-        IPEndPoint localEndpoint = await PerformIPDiscoveryAsync(this.ssrc);
+        this.localEndpoint ??= await PerformIPDiscoveryAsync(this.ssrc);
 
         // ... and to select the protocol we want
         await this.voiceGateway.SendTextAsync(new()
@@ -153,8 +153,8 @@ partial class VoiceConnection
                 Protocol = "udp",
                 Data = new()
                 {
-                    IPAddress = localEndpoint.Address.ToString(),
-                    Port = localEndpoint.Port,
+                    IPAddress = this.localEndpoint.Address.ToString(),
+                    Port = this.localEndpoint.Port,
                     EncryptionMode = selectedEncryptionMode
                 }
             }
@@ -200,7 +200,11 @@ partial class VoiceConnection
         });
 
         // ... and we await its response (which comes with the other users' keys, kind of important)
-        await this.mlsReady.Task;
+        // but only if there is a response to be awaited
+        if (this.connectedUsers.Count != 1)
+        {
+            await this.mlsReady.Task;
+        }
 
         // make ourselves known across RTCP. we must send a receiver report first thing, and we can just
         // concatenate that with a description packet
@@ -429,12 +433,14 @@ partial class VoiceConnection
 
                     VoiceSpeakingPayload speaking = (VoiceSpeakingPayload)message.Payload;
 
-                    this.Receiver.IntroduceNewUser(new()
+                    VoiceUser user = new()
                     {
                         UserId = speaking.UserId,
                         SSRC = speaking.SSRC,
                         IsSpeaking = speaking.SpeakingMode.HasFlag(VoiceSpeakingFlags.Microphone)
-                    });
+                    };
+
+                    await RegisterSpeakingStatusAsync(speaking.SSRC, user);
 
                     break;
 
@@ -499,7 +505,7 @@ partial class VoiceConnection
             return;
         }
 
-        this.vgwCancellation.Cancel();
+        await this.vgwCancellation.CancelAsync();
         await this.voiceGateway.DisconnectAsync(WebSocketCloseStatus.NormalClosure);
         await this.voiceGateway.ConnectAsync(this.endpoint, this.channelId);
         this.vgwCancellation = new();
@@ -543,8 +549,8 @@ partial class VoiceConnection
     {
         this.logger.LogDebug("Attempting to reconnect to the voice gateway.");
 
-        this.vgwCancellation.Cancel();
-        this.heartbeatCancellation.Cancel();
+        await this.vgwCancellation.CancelAsync();
+        await this.heartbeatCancellation.CancelAsync();
 
         await this.voiceGateway.DisconnectAsync(WebSocketCloseStatus.NormalClosure);
 

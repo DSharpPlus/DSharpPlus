@@ -16,7 +16,7 @@ public sealed record VoiceUser
     public bool IsSpeaking { get; internal set; }
 
     /// <summary>
-    /// The SSRC of this user, if one has been specified.
+    /// The SSRC of this user.
     /// </summary>
-    public uint? SSRC { get; internal set; }
+    public uint SSRC { get; internal set; }
 }
