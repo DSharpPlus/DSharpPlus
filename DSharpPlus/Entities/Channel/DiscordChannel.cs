@@ -767,14 +767,16 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <param name="targetType">The target type of the invite, for stream and embedded application invites.</param>
     /// <param name="targetUserId">The ID of the target user.</param>
     /// <param name="targetApplicationId">The ID of the target application.</param>
+    /// <param name="roleIds">The role IDs for roles given to the user when accepting the invite.</param>
     /// <returns></returns>
     /// <exception cref="UnauthorizedException">Thrown when the client does not have the 
-    /// <see cref="DiscordPermission.CreateInvite"/> permission.</exception>
+    /// <see cref="DiscordPermission.CreateInvite"/> permission or in case if roleIds are used and the client does not have the
+    /// <see cref="DiscordPermission.ManageRoles"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<DiscordInvite> CreateInviteAsync(int max_age = 86400, int max_uses = 0, bool temporary = false, bool unique = false, string reason = null, DiscordInviteTargetType? targetType = null, ulong? targetUserId = null, ulong? targetApplicationId = null)
-        => await this.Discord.ApiClient.CreateChannelInviteAsync(this.Id, max_age, max_uses, temporary, unique, reason, targetType, targetUserId, targetApplicationId);
+    public async Task<DiscordInvite> CreateInviteAsync(int max_age = 86400, int max_uses = 0, bool temporary = false, bool unique = false, string reason = null, DiscordInviteTargetType? targetType = null, ulong? targetUserId = null, ulong? targetApplicationId = null, IEnumerable<ulong> roleIds = null)
+        => await this.Discord.ApiClient.CreateChannelInviteAsync(this.Id, max_age, max_uses, temporary, unique, reason, targetType, targetUserId, targetApplicationId, roleIds);
 
     /// <summary>
     /// Adds a channel permission overwrite for specified member.
