@@ -123,7 +123,8 @@ public class DiscordInvite
     /// The roles given to the user when accepting the invite.
     /// </summary>
     [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
-    public IEnumerable<DiscordInviteRole>? Roles { get; internal set; }
+    public IReadOnlyList<DiscordInviteRole>? Roles { get; internal set; }
+
     internal DiscordInvite() { }
 
     /// <summary>
