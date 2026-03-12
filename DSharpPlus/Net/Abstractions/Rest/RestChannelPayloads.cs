@@ -270,6 +270,8 @@ internal sealed class RestChannelInviteCreatePayload
 
     [JsonProperty("target_application_id", NullValueHandling = NullValueHandling.Ignore)]
     public ulong? TargetApplicationId { get; set; }
+    [JsonProperty("role_ids", NullValueHandling = NullValueHandling.Ignore)]
+    public IEnumerable<ulong>? RoleIds { get; set; }
 }
 
 internal sealed class RestChannelPermissionEditPayload

@@ -2695,7 +2695,8 @@ public sealed class DiscordRestApiClient
         string reason,
         DiscordInviteTargetType? targetType = null,
         ulong? targetUserId = null,
-        ulong? targetApplicationId = null
+        ulong? targetApplicationId = null,
+        IEnumerable<ulong>? roleIds = null
     )
     {
         RestChannelInviteCreatePayload pld = new()
@@ -2706,7 +2707,8 @@ public sealed class DiscordRestApiClient
             Unique = unique,
             TargetType = targetType,
             TargetUserId = targetUserId,
-            TargetApplicationId = targetApplicationId
+            TargetApplicationId = targetApplicationId,
+            RoleIds = roleIds
         };
 
         Dictionary<string, string> headers = [];

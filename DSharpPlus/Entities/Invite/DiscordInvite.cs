@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -116,6 +117,12 @@ public class DiscordInvite
     /// </summary>
     [JsonProperty("stage_instance")]
     public DiscordStageInvite StageInstance { get; internal set; }
+
+    /// <summary>
+    /// The roles given to the user when accepting the invite.
+    /// </summary>
+    [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
+    public IReadOnlyList<DiscordRole>? Roles { get; internal set; }
 
     internal DiscordInvite() { }
 
