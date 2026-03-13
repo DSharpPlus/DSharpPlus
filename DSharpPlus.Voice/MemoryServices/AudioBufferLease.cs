@@ -17,11 +17,6 @@ public unsafe struct AudioBufferLease : IDisposable
     public readonly Span<byte> Buffer => new(this.backing, this.allocatedLength);
 
     /// <summary>
-    /// The actually utilized length within the leased buffer.
-    /// </summary>
-    public int Length { get; set; }
-
-    /// <summary>
     /// The amount of 20ms opus frames contained within this buffer.
     /// </summary>
     public int FrameCount { get; set; }

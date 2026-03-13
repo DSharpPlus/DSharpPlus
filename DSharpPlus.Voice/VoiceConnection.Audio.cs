@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.HighPerformance.Buffers;
 
 using DSharpPlus.Voice.MemoryServices;
-
+using DSharpPlus.Voice.MemoryServices.Channels;
 using DSharpPlus.Voice.Protocol.RTCP;
 using DSharpPlus.Voice.Protocol.RTCP.Payloads;
 using DSharpPlus.Voice.Protocol.RTP;
@@ -56,6 +56,8 @@ partial class VoiceConnection
                     }
                 }
 
+                // [TODO] handle
+
                 continue;
             }
 
@@ -72,7 +74,8 @@ partial class VoiceConnection
             byte[] audio = new byte[decryptedWriter.WrittenCount];
             this.e2ee.DecryptFrame(voiceUser.UserId, decryptedWriter.WrittenSpan, audio);
 
-            this.Receiver.IngestAudio(frameInfo.SSRC, frameInfo.Timestamp, frameInfo.Sequence, audio);
+            // [TODO] handle overflows before passing the timestamp and sequence to users, also, pass the user id
+            await this.Receiver.ProcessAudioAsync(frameInfo.SSRC, frameInfo.Timestamp, frameInfo.Sequence, audio);
         }
     }
 
@@ -100,71 +103,99 @@ partial class VoiceConnection
         uint timestamp = (uint)Random.Shared.NextInt64();
         PeriodicTimer timer = new(TimeSpan.FromMilliseconds(20));
 
-        AudioBufferLease lease = await this.sendingAudioChannel.Reader.ReadAsync();
-        int length = WriteAndEncryptFrame(lease.Buffer, currentFrame, timestamp, sequence);
+        AudioBufferLease lease;
+        int length;
 
-        // return this lease to the pool as soon as we can
-        lease.Dispose();
-
-        while (await timer.WaitForNextTickAsync(ct))
+        while (!ct.IsCancellationRequested)
         {
-            unchecked { timestamp += 20; }
+            await this.sendingAudioChannel.Reader.WaitToReadAsync(ct);
 
-            // we were processing a long frame and haven't yet waited long enough, just wait until the next tick
-            if (--counter > 0)
+            AudioChannelReadResult readResult = await this.sendingAudioChannel.Reader.ReadAsync(ct);
+
+            if (readResult.State == AudioChannelState.Terminated)
             {
-                continue;
+                break;
             }
 
-            // increment this after the early return, unlike timestamp
-            unchecked { sequence++; }
-
-            // we are due to send the next frame
-            if (framePrepared)
-            {
-                if (!this.IsSpeaking)
-                {
-                    await StartSpeakingAsync();
-                }
-
-                silenceCounter = 0;
-                await this.mediaTransport.SendAsync(currentFrame.AsMemory()[..length]);
-            }
-            else
-            {
-                // only send up to five silence frames, after that we're interpreted to have shut up and don't need
-                // to send any more silence
-                if (silenceCounter < 5)
-                {
-                    silenceCounter++;
-                    await SendSilenceFrame();
-                }
-                else if (silenceCounter == 5)
-                {
-                    await StopSpeakingAsync();
-                }
-            }
-
-            // prepare and encrypt the next frame
-            
-            // if we don't have audio waiting, send silence
-            if (!this.sendingAudioChannel.Reader.TryRead(out lease))
-            {
-                framePrepared = false;
-                continue;
-            }
-
-            counter = lease.FrameCount;
+            lease = readResult.Buffer.Value;
             length = WriteAndEncryptFrame(lease.Buffer, currentFrame, timestamp, sequence);
             lease.Dispose();
+
+            // we have audio available, start sending it
+            while (await timer.WaitForNextTickAsync(ct))
+            {
+                unchecked { timestamp += 20; }
+
+                // we were processing a long frame and haven't yet waited long enough, just wait until the next tick
+                if (--counter > 0)
+                {
+                    continue;
+                }
+
+                // this must be incremented after the early return, otherwise we produce wrong sequences here
+                unchecked { sequence++; }
+
+                if (framePrepared)
+                {
+                    if (!this.IsSpeaking)
+                    {
+                        this.logger.LogTrace("Commencing audio transmission to the remote server.");
+                        await StartSpeakingAsync();
+                    }
+
+                    silenceCounter = 0;
+                    await this.mediaTransport.SendAsync(currentFrame.AsMemory()[..length]);
+                }
+                else
+                {
+                    silenceCounter++;
+                }
+
+                // if the silence counter has exceeded the configured maximum, fall silent and pause
+                if (silenceCounter >= this.options.SilenceTicksBeforePausingConnection)
+                {
+                    await SendFiveSilenceFramesAsync();
+                    break;
+                }
+
+                // otherwise, let's go and encrypt the next bit of audio
+                readResult = this.sendingAudioChannel.Reader.TryRead();
+
+                if (!readResult.IsAvailable)
+                {
+                    framePrepared = false;
+
+                    // if we're told to not expect any audio soon, just shut up
+                    if (readResult.State is AudioChannelState.Paused or AudioChannelState.Terminated)
+                    {
+                        await SendFiveSilenceFramesAsync();
+                        break;
+                    }
+                    
+                    continue;
+                }
+
+                lease = readResult.Buffer.Value;
+
+                counter = lease.FrameCount;
+                length = WriteAndEncryptFrame(lease.Buffer, currentFrame, timestamp, sequence);
+                lease.Dispose();
+            }
         }
 
-        async Task SendSilenceFrame()
+        async Task SendFiveSilenceFramesAsync()
         {
+            this.logger.LogTrace("Pausing audio transmission to the remote server.");
+            await StopSpeakingAsync();
+
             lease = this.encoder.WriteSilenceFrame();
             length = WriteAndEncryptFrame(lease.Buffer, currentFrame, timestamp, sequence);
             lease.Dispose();
 
+            await this.mediaTransport.SendAsync(currentFrame.AsMemory()[..length]);
+            await this.mediaTransport.SendAsync(currentFrame.AsMemory()[..length]);
+            await this.mediaTransport.SendAsync(currentFrame.AsMemory()[..length]);
+            await this.mediaTransport.SendAsync(currentFrame.AsMemory()[..length]);
             await this.mediaTransport.SendAsync(currentFrame.AsMemory()[..length]);
         }
     }

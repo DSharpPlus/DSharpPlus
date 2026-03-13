@@ -2,10 +2,9 @@ using System;
 using System.ComponentModel;
 using System.IO.Pipelines;
 using System.Runtime.ExceptionServices;
-using System.Threading.Channels;
 using System.Threading.Tasks;
 
-using DSharpPlus.Voice.MemoryServices;
+using DSharpPlus.Voice.MemoryServices.Channels;
 
 namespace DSharpPlus.Voice;
 
@@ -14,32 +13,28 @@ namespace DSharpPlus.Voice;
 /// </summary>
 public abstract class AbstractAudioWriter : PipeWriter
 {
-    private readonly VoiceConnection connection;
-
     /// <summary>
     /// The destination for encoded and prepared packets.
     /// </summary>
-    protected ChannelWriter<AudioBufferLease> PacketWriter { get; }
+    protected AudioChannelWriter PacketWriter { get; }
 
     /// <summary>
     /// Indicates the parent connection to this writer.
     /// </summary>
-    protected AbstractAudioWriter(VoiceConnection connection, ChannelWriter<AudioBufferLease> writer)
-    {
-        this.connection = connection;
-        this.PacketWriter = writer;
-    }
+    protected AbstractAudioWriter(AudioChannelWriter writer) 
+        => this.PacketWriter = writer;
 
     /// <summary>
     /// Signals that no more audio is being written, but we intend to resume writing audio soon.
     /// </summary>
-    public abstract void SignalSilence();
+    public virtual void SignalSilence()
+        => this.PacketWriter.TryPause();
 
     /// <summary>
     /// Signals that this writer will not be used further. It is possible to re-request a writer of any given audio format.
     /// </summary>
     public virtual void SignalCompletion()
-        => SignalSilence();
+        => this.PacketWriter.Terminate();
 
     /// <inheritdoc/>
     [EditorBrowsable(EditorBrowsableState.Never)]

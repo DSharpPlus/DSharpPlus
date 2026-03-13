@@ -3,11 +3,11 @@ using System.Buffers;
 using System.IO.Pipelines;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Channels;
 using System.Threading.Tasks;
 
 using DSharpPlus.Voice.Codec;
 using DSharpPlus.Voice.MemoryServices;
+using DSharpPlus.Voice.MemoryServices.Channels;
 using DSharpPlus.Voice.MemoryServices.Collections;
 
 namespace DSharpPlus.Voice.AudioWriters;
@@ -18,8 +18,8 @@ internal sealed class S24LE48KHzStereoWriter : AbstractPcmAudioWriter
     private readonly int[] overflowBuffer;
     private int overflowSamples;
 
-    internal S24LE48KHzStereoWriter(IAudioEncoder encoder, VoiceConnection connection, ChannelWriter<AudioBufferLease> writer)
-        : base(encoder, connection, writer) 
+    internal S24LE48KHzStereoWriter(IAudioEncoder encoder, AudioChannelWriter writer)
+        : base(encoder, writer) 
         => this.overflowBuffer = new int[11520];
 
     /// <inheritdoc/>

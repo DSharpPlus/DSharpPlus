@@ -87,7 +87,6 @@ public sealed class OpusEncoder : IAudioEncoder
     {
         AudioBufferLease lease = AudioBufferManager.OpusSilenceFrames.Rent(3);
 
-        lease.Length = 15;
         lease.FrameCount = 1;
         return lease;
     }
@@ -112,7 +111,6 @@ public sealed class OpusEncoder : IAudioEncoder
         AudioBufferLease lease = AudioBufferManager.Shared.Rent(written);
 
         this.buffer20ms.AsSpan()[..written].CopyTo(lease.Buffer);
-        lease.Length = written;
         lease.FrameCount = 1;
 
         return lease;
@@ -151,8 +149,6 @@ public sealed class OpusEncoder : IAudioEncoder
         AudioBufferLease lease = AudioBufferManager.Shared.Rent(written);
 
         this.buffer120ms.AsSpan()[..written].CopyTo(lease.Buffer);
-
-        lease.Length = written + 12;
         lease.FrameCount = 6;
 
         return lease;

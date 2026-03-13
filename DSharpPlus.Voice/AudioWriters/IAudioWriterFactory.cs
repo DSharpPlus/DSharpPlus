@@ -1,6 +1,4 @@
-using System.Threading.Channels;
-
-using DSharpPlus.Voice.MemoryServices;
+using DSharpPlus.Voice.MemoryServices.Channels;
 
 namespace DSharpPlus.Voice.AudioWriters;
 
@@ -13,8 +11,7 @@ public interface IAudioWriterFactory
     /// Creates an audio writer of the desired format.
     /// </summary>
     /// <param name="format">The format to create an audio writer for.</param>
-    /// <param name="connection">The main connection object.</param>
     /// <param name="writer">The sink for encoded packets.</param>
     /// <returns>The newly created audio writer.</returns>
-    public AbstractAudioWriter CreateAudioWriter(AudioFormat format, VoiceConnection connection, ChannelWriter<AudioBufferLease> writer);
+    public AbstractAudioWriter CreateAudioWriter(AudioFormat format, AudioChannelWriter writer);
 }

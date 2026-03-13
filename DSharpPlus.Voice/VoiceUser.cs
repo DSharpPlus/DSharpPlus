@@ -3,7 +3,7 @@ namespace DSharpPlus.Voice;
 /// <summary>
 /// Represents the known data of a user in a voice connection.
 /// </summary>
-public sealed record VoiceUser
+internal sealed record VoiceUser
 {
     /// <summary>
     /// The snowflake ID of this user.

@@ -4,11 +4,11 @@ using System.IO;
 using System.IO.Pipelines;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Channels;
 using System.Threading.Tasks;
 
 using DSharpPlus.Voice.Codec;
 using DSharpPlus.Voice.MemoryServices;
+using DSharpPlus.Voice.MemoryServices.Channels;
 
 namespace DSharpPlus.Voice;
 
@@ -23,8 +23,8 @@ public abstract class AbstractPcmAudioWriter : AbstractAudioWriter
 
     private int overflowSamples;
 
-    protected AbstractPcmAudioWriter(IAudioEncoder encoder, VoiceConnection connection, ChannelWriter<AudioBufferLease> writer)
-        : base(connection, writer)
+    protected AbstractPcmAudioWriter(IAudioEncoder encoder, AudioChannelWriter writer)
+        : base(writer)
     {
         this.rentedBuffer = null;
         this.overflowBuffer = new short[11520];

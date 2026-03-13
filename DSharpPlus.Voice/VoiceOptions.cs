@@ -63,4 +63,15 @@ public sealed class VoiceOptions
     /// automatic detection doesn't work properly are esoteric, and chances are not a single one of your users will ever hit this.
     /// </remarks>
     public bool EnableAeadAes256GcmEncryption { get; set; } = true;
+
+    /// <summary>
+    /// Specifies the amount of send ticks where silence may pass before DSharpPlus.Voice assumes audio transmission has paused and
+    /// indicates so to Discord. Defaults to five.
+    /// </summary>
+    /// <remarks>
+    /// Five frames of silence is how many frames opus requires before guaranteeing that the next received audio won't be interpolated
+    /// with the last, and it is also what Discord requires as a signal before we fall silent. It is, therefore, recommended to keep
+    /// this at five ticks, which is the most natural value, unless there is a specific motivating scenario to change this value.
+    /// </remarks>
+    public int SilenceTicksBeforePausingConnection { get; set; } = 5;
 }

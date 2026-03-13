@@ -189,6 +189,8 @@ partial class VoiceConnection
             break;
         }
 
+        await this.Receiver.Initialize([..this.connectedUsers]);
+
         this.e2ee.Initialize((ushort)this.daveVersion, channelId, this.userId, this.ssrc);
         _ = ReceiveVoiceGatewayEventsAsync(this.vgwCancellation.Token);
 
@@ -277,6 +279,7 @@ partial class VoiceConnection
         {
             try
             {
+                await Task.Delay(this.options.GetReconnectionDelay(i));
                 await ReconnectCoreAsync();
                 return true;
             }
@@ -419,6 +422,11 @@ partial class VoiceConnection
                     
                     this.connectedUsers.AddRange(clientsConnected.UserIds);
 
+                    foreach (ulong userId in clientsConnected.UserIds)
+                    {
+                        await this.Receiver.ProcessUserJoinedAsync(userId);
+                    }
+
                     break;
 
                 case VoiceGatewayOpcode.ClientDisconnected:
@@ -426,6 +434,7 @@ partial class VoiceConnection
                     VoiceClientDisconnectedPayload clientDisconnected = (VoiceClientDisconnectedPayload)message.Payload;
 
                     this.connectedUsers.Remove(clientDisconnected.UserId);
+                    await this.Receiver.ProcessUserLeftAsync(clientDisconnected.UserId);
 
                     break;
 

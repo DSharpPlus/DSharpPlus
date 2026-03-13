@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.WebSockets;
 using System.Threading;
-using System.Threading.Channels;
 using System.Threading.Tasks;
 
 using DSharpPlus.Clients;
@@ -13,9 +12,10 @@ using DSharpPlus.Voice.AudioWriters;
 using DSharpPlus.Voice.Codec;
 using DSharpPlus.Voice.Cryptors;
 using DSharpPlus.Voice.E2EE;
-using DSharpPlus.Voice.MemoryServices;
+using DSharpPlus.Voice.MemoryServices.Channels;
 using DSharpPlus.Voice.MemoryServices.Collections;
 using DSharpPlus.Voice.Protocol.RTCP.Payloads;
+using DSharpPlus.Voice.Receivers;
 using DSharpPlus.Voice.Transport;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -37,9 +37,15 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         ulong guildId,
         int bitrate,
         AudioType type,
-        IEnumerable<ulong> usersInCall
+        IEnumerable<ulong> usersInCall,
+        Type receiverType
     )
     {
+        if (!receiverType.IsAssignableTo(typeof(IAudioReceiver)))
+        {
+            throw new InvalidOperationException("An audio receiver must implement DSharpPlus.Voice.Receivers.IAudioReceiver.");
+        }
+
         this.serviceScope = scope;
         IServiceProvider provider = scope.ServiceProvider;
 
@@ -53,14 +59,15 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         this.codec = provider.GetRequiredService<IAudioCodec>();
         this.e2ee = provider.GetRequiredService<IE2EESession>();
         this.options = provider.GetRequiredService<IOptions<VoiceOptions>>().Value;
+        this.Receiver = (IAudioReceiver)provider.GetRequiredService(receiverType);
         
         DiscordRestApiClientFactory apiClientFactory = provider.GetRequiredService<DiscordRestApiClientFactory>();
         this.apiClient = apiClientFactory.GetCurrentApplicationClient();
 
         this.encoder = this.codec.CreateEncoder(bitrate, type);
-        this.sendingAudioChannel = Channel.CreateUnbounded<AudioBufferLease>();
+        this.sendingAudioChannel = new();
         this.connectedUsers = [..usersInCall, userId];
-        this.Receiver = new(this.codec, AudioReceiveMode.Process);
+        this.users = [];
 
         this.userId = userId;
         this.channelId = channelId;
@@ -88,7 +95,7 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     private readonly IE2EESession e2ee;
     private readonly IAudioWriterFactory audioWriterFactory;
     private readonly SynchronizedList<ulong> connectedUsers;
-    private readonly Channel<AudioBufferLease> sendingAudioChannel;
+    private readonly AudioChannel sendingAudioChannel;
     private readonly VoiceOptions options;
     private ICryptor cryptor;
     private ILogger logger;
@@ -97,8 +104,6 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     // hooks
     private Func<VoiceDisconnectReason, object?, Task>? disconnectHandler;
     private object? disconnectHandlerState;
-    private Func<VoiceUser, object?, Task>? userJoinedHandler;
-    private object? userJoinedHandlerState;
 
     // vgw tracking
     private CancellationTokenSource vgwCancellation;
@@ -143,14 +148,14 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     /// <summary>
     /// Provides a mechanism for receiving audio from Discord.
     /// </summary>
-    public AudioReceiver Receiver { get; }
+    public IAudioReceiver Receiver { get; }
 
     /// <summary>
     /// Creates a new audio writer to send audio through this connection.
     /// </summary>
     public AbstractAudioWriter CreateAudioWriter(AudioFormat format)
     {
-        AbstractAudioWriter writer = this.audioWriterFactory.CreateAudioWriter(format, this, this.sendingAudioChannel.Writer);
+        AbstractAudioWriter writer = this.audioWriterFactory.CreateAudioWriter(format, this.sendingAudioChannel.Writer);
         this.activeWriter = writer;
         return writer;
     }
@@ -166,24 +171,13 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         this.disconnectHandlerState = state;
     }
 
-    /// <summary>
-    /// Sets a handler for when a new user joins the call and starts speaking for the first time.
-    /// </summary>
-    /// <param name="handler">A handler function taking in the user and the state parameter provided to this method.</param>
-    /// <param name="state">Arbitrary state you want to provide your handler.</param>
-    public void SetUserJoinHandler(Func<VoiceUser, object?, Task> handler, object? state = null)
-    {
-        this.userJoinedHandler = handler;
-        this.userJoinedHandlerState = state;
-    }
-
     private async Task RegisterSpeakingStatusAsync(uint ssrc, VoiceUser user)
     {
         this.users.AddOrUpdate(ssrc, user, (_, _) => user);
 
         if (!this.users.ContainsKey(ssrc))
         {
-            await this.userJoinedHandler?.Invoke(user, this.userJoinedHandlerState);
+            // await this.userJoinedHandler?.Invoke(user, this.userJoinedHandlerState);
         }
     }
 
