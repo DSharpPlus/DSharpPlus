@@ -107,8 +107,8 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <summary>
     /// Files to send on this webhook request.
     /// </summary>
-    public IReadOnlyList<DiscordMessageFile> Files => this.files;
-    internal List<DiscordMessageFile> files = [];
+    public IReadOnlyList<DiscordFile> Files => this.files;
+    internal List<DiscordFile> files = [];
 
     /// <summary>
     /// Mentions to send on this webhook request.
@@ -476,7 +476,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
 
         stream = ResolveStream(stream, fileOptions);
         long? resetPosition = fileOptions.HasFlag(AddFileOptions.ResetStream) ? stream.Position : null;
-        this.files.Add(new DiscordMessageFile(fileName, stream, resetPosition, fileOptions: fileOptions));
+        this.files.Add(new DiscordFile(fileName, stream, resetPosition, fileOptions: fileOptions, streamDisposedByBuilder: true));
 
         return (T)this;
     }
@@ -511,13 +511,13 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
 
             Stream stream = ResolveStream(file.Value, fileOptions);
             long? resetPosition = fileOptions.HasFlag(AddFileOptions.ResetStream) ? stream.Position : null;
-            this.files.Add(new DiscordMessageFile(file.Key, stream, resetPosition, fileOptions: fileOptions));
+            this.files.Add(new DiscordFile(file.Key, stream, resetPosition, fileOptions: fileOptions, streamDisposedByBuilder: true));
         }
 
         return (T)this;
     }
 
-    public T AddFiles(IEnumerable<DiscordMessageFile> files)
+    public T AddFiles(IEnumerable<DiscordFile> files)
     {
         this.files.AddRange(files);
         return (T)this;
@@ -569,7 +569,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
         // We don't bother to fully implement the dispose pattern
         // since deriving from this type outside this assembly is unusual.
 
-        foreach (DiscordMessageFile file in this.files)
+        foreach (DiscordFile file in this.files)
         {
             if (file.FileOptions.HasFlag(AddFileOptions.CloseStream))
             {
@@ -590,7 +590,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <inheritdoc/>
     public async ValueTask DisposeAsync()
     {
-        foreach (DiscordMessageFile file in this.files)
+        foreach (DiscordFile file in this.files)
         {
             if (file.FileOptions.HasFlag(AddFileOptions.CloseStream))
             {
@@ -606,20 +606,6 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
         }
 
         GC.SuppressFinalize(this);
-    }
-
-    /// <summary>
-    /// Helper method to reset stream positions used several times by the API client.
-    /// </summary>
-    internal void ResetFileStreamPositions()
-    {
-        foreach (DiscordMessageFile file in this.files)
-        {
-            if (file.ResetPositionTo is long pos)
-            {
-                file.Stream.Seek(pos, SeekOrigin.Begin);
-            }
-        }
     }
 
     /// <summary>
@@ -748,7 +734,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     IDiscordMessageBuilder IDiscordMessageBuilder.AddFile(string fileName, Stream stream, bool resetStream) => AddFile(fileName, stream, resetStream);
     IDiscordMessageBuilder IDiscordMessageBuilder.AddFile(FileStream stream, bool resetStream) => AddFile(stream, resetStream);
     IDiscordMessageBuilder IDiscordMessageBuilder.AddFiles(IDictionary<string, Stream> files, bool resetStreams) => AddFiles(files, resetStreams);
-    IDiscordMessageBuilder IDiscordMessageBuilder.AddFiles(IEnumerable<DiscordMessageFile> files) => AddFiles(files);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddFiles(IEnumerable<DiscordFile> files) => AddFiles(files);
     IDiscordMessageBuilder IDiscordMessageBuilder.AddFile(string fileName, Stream stream, AddFileOptions fileOptions) => AddFile(fileName, stream, fileOptions);
     IDiscordMessageBuilder IDiscordMessageBuilder.AddFile(FileStream stream, AddFileOptions fileOptions) => AddFile(stream, fileOptions);
     IDiscordMessageBuilder IDiscordMessageBuilder.AddFiles(IDictionary<string, Stream> files, AddFileOptions fileOptions) => AddFiles(files, fileOptions);
@@ -757,7 +743,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
 }
 
 /// <summary>
-/// Additional flags for files added to a message builder.
+/// Additional flags for file handling
 /// </summary>
 [Flags]
 public enum AddFileOptions
@@ -773,10 +759,10 @@ public enum AddFileOptions
     ResetStream = 0x1,
 
     /// <summary>
-    /// Closes the stream upon disposal of the message builder.
+    /// Closes the stream upon disposal of the message builder or upon sending if not used in a message builder.
     /// </summary>
     /// <remarks>
-    /// Streams will not be disposed upon sending. Disposal of the message builder is necessary.
+    /// Streams will not be disposed upon sending if the file is used in a message builder. Disposal of the message builder is necessary.
     /// </remarks>
     CloseStream = 0x2,
 
@@ -822,7 +808,7 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// <summary>
     /// All files on this message.
     /// </summary>
-    public IReadOnlyList<DiscordMessageFile> Files { get; }
+    public IReadOnlyList<DiscordFile> Files { get; }
 
     /// <summary>
     /// All components on this message.
@@ -1011,7 +997,7 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// </summary>
     /// <param name="files">Previously attached files to reattach</param>
     /// <returns></returns>
-    public IDiscordMessageBuilder AddFiles(IEnumerable<DiscordMessageFile> files);
+    public IDiscordMessageBuilder AddFiles(IEnumerable<DiscordFile> files);
 
     /// <summary>
     /// Adds an allowed mention to this message.

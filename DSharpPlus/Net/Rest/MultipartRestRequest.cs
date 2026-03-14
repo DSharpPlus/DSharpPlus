@@ -62,7 +62,7 @@ internal readonly record struct MultipartRestRequest : IRestRequest
     /// <summary>
     /// Gets the dictionary of files attached to this request.
     /// </summary>
-    public IReadOnlyList<DiscordMessageFile> Files { get; init; }
+    public IReadOnlyList<DiscordFile> Files { get; init; }
 
     /// <inheritdoc/>
     public bool IsExemptFromAllLimits { get; init; }
@@ -102,7 +102,7 @@ internal readonly record struct MultipartRestRequest : IRestRequest
         {
             for (int i = 0; i < this.Files.Count; i++)
             {
-                DiscordMessageFile current = this.Files[i];
+                DiscordFile current = this.Files[i];
 
                 ArrayPoolBufferWriter<byte> writer;
 
@@ -124,7 +124,9 @@ internal readonly record struct MultipartRestRequest : IRestRequest
                 ByteArrayContent file = new(writer.WrittenSpan.ToArray());
 
                 writer.Dispose();
-                
+
+                HandleAddFileOptions(current);
+
                 if (current.ContentType is not null)
                 {
                     file.Headers.ContentType = MediaTypeHeaderValue.Parse(current.ContentType);
@@ -150,5 +152,23 @@ internal readonly record struct MultipartRestRequest : IRestRequest
         request.Content = content;
 
         return request;
+    }
+
+    private static void HandleAddFileOptions(DiscordFile file)
+    {
+        if (file.FileOptions.HasFlag(AddFileOptions.CloseStream) && !file.StreamDisposedByBuilder)
+        {
+            if (file.Stream is RequestStreamWrapper wrapper)
+            {
+                wrapper.UnderlyingStream.Dispose();
+            }
+            else
+            {
+                file.Stream.Dispose();
+            }
+        } else if (file.ResetPositionTo.HasValue)
+        {
+            file.Stream.Seek(file.ResetPositionTo!.Value, System.IO.SeekOrigin.Begin);
+        }
     }
 }

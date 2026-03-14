@@ -2292,7 +2292,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             extension = "json";
         }
 
-        return await this.Discord.ApiClient.CreateGuildStickerAsync(this.Id, name, description ?? string.Empty, tags, new DiscordMessageFile(null, imageContents, null, extension, contentType), reason);
+        return await this.Discord.ApiClient.CreateGuildStickerAsync(this.Id, name, description ?? string.Empty, tags, new DiscordFile(null, imageContents, null, extension, contentType), reason);
     }
 
     /// <summary>
