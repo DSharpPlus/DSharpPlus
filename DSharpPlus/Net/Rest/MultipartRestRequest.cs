@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using CommunityToolkit.HighPerformance.Buffers;
@@ -125,7 +126,7 @@ internal readonly record struct MultipartRestRequest : IRestRequest
 
                 writer.Dispose();
 
-                HandleAddFileOptions(current);
+                PostprocessAddedFiles(current);
 
                 if (current.ContentType is not null)
                 {
@@ -154,7 +155,7 @@ internal readonly record struct MultipartRestRequest : IRestRequest
         return request;
     }
 
-    private static void HandleAddFileOptions(DiscordFile file)
+    private static void PostprocessAddedFiles(DiscordFile file)
     {
         if (file.FileOptions.HasFlag(AddFileOptions.CloseStream))
         {
@@ -166,9 +167,10 @@ internal readonly record struct MultipartRestRequest : IRestRequest
             {
                 file.Stream.Dispose();
             }
-        } else if (file.ResetPositionTo.HasValue)
+        } 
+        else if (file.ResetPositionTo.HasValue)
         {
-            file.Stream.Seek(file.ResetPositionTo!.Value, System.IO.SeekOrigin.Begin);
+            file.Stream.Seek(file.ResetPositionTo!.Value, SeekOrigin.Begin);
         }
     }
 }

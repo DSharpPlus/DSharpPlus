@@ -3,7 +3,7 @@ using System;
 namespace DSharpPlus.Entities;
 
 /// <summary>
-/// Additional flags for file handling
+/// Additional flags for handling file upload streams.
 /// </summary>
 [Flags]
 public enum AddFileOptions
@@ -19,7 +19,7 @@ public enum AddFileOptions
     ResetStream = 0x1,
 
     /// <summary>
-    /// Closes the stream upon upon sending.
+    /// Closes the stream upon sending.
     /// </summary>
     CloseStream = 0x2,
 
