@@ -156,7 +156,7 @@ internal readonly record struct MultipartRestRequest : IRestRequest
 
     private static void HandleAddFileOptions(DiscordFile file)
     {
-        if (file.FileOptions.HasFlag(AddFileOptions.CloseStream) && !file.StreamDisposedByBuilder)
+        if (file.FileOptions.HasFlag(AddFileOptions.CloseStream))
         {
             if (file.Stream is RequestStreamWrapper wrapper)
             {

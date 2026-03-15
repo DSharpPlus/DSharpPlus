@@ -14,8 +14,7 @@ public record struct DiscordFile
         long? resetPositionTo = null,
         string? fileType = null,
         string? contentType = null,
-        AddFileOptions fileOptions = AddFileOptions.None,
-        bool streamDisposedByBuilder = false
+        AddFileOptions fileOptions = AddFileOptions.None
     )
     {
         this.FileName = fileName ?? "file";
@@ -24,7 +23,6 @@ public record struct DiscordFile
         this.FileOptions = fileOptions;
         this.Stream = stream;
         this.ResetPositionTo = resetPositionTo;
-        this.StreamDisposedByBuilder = streamDisposedByBuilder;
     }
 
     /// <summary>
@@ -46,9 +44,4 @@ public record struct DiscordFile
     /// </summary>
     internal long? ResetPositionTo { get; set; }
     internal AddFileOptions FileOptions { get; set; }
-    /// <summary>
-    /// Indicates if the stream should be disposed when used in a request or if a builder handles the disposal
-    /// </summary>
-    /// <remarks>This has only any effect if <see cref="AddFileOptions.CloseStream"/> is present</remarks>
-    internal bool StreamDisposedByBuilder { get; set; }
 }

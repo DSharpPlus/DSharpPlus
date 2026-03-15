@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using DSharpPlus.Net;
 
 namespace DSharpPlus.Entities;
@@ -476,7 +475,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
 
         stream = ResolveStream(stream, fileOptions);
         long? resetPosition = fileOptions.HasFlag(AddFileOptions.ResetStream) ? stream.Position : null;
-        this.files.Add(new DiscordFile(fileName, stream, resetPosition, fileOptions: fileOptions, streamDisposedByBuilder: true));
+        this.files.Add(new DiscordFile(fileName, stream, resetPosition, fileOptions: fileOptions));
 
         return (T)this;
     }
@@ -511,7 +510,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
 
             Stream stream = ResolveStream(file.Value, fileOptions);
             long? resetPosition = fileOptions.HasFlag(AddFileOptions.ResetStream) ? stream.Position : null;
-            this.files.Add(new DiscordFile(file.Key, stream, resetPosition, fileOptions: fileOptions, streamDisposedByBuilder: true));
+            this.files.Add(new DiscordFile(file.Key, stream, resetPosition, fileOptions: fileOptions));
         }
 
         return (T)this;
@@ -561,51 +560,6 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
         this.files.Clear();
         this.components.Clear();
         this.Flags = default;
-    }
-
-    /// <inheritdoc/>
-    public void Dispose()
-    {
-        // We don't bother to fully implement the dispose pattern
-        // since deriving from this type outside this assembly is unusual.
-
-        foreach (DiscordFile file in this.files)
-        {
-            if (file.FileOptions.HasFlag(AddFileOptions.CloseStream))
-            {
-                if (file.Stream is RequestStreamWrapper wrapper)
-                {
-                    wrapper.UnderlyingStream.Dispose();
-                }
-                else
-                {
-                    file.Stream.Dispose();
-                }
-            }
-        }
-
-        GC.SuppressFinalize(this);
-    }
-
-    /// <inheritdoc/>
-    public async ValueTask DisposeAsync()
-    {
-        foreach (DiscordFile file in this.files)
-        {
-            if (file.FileOptions.HasFlag(AddFileOptions.CloseStream))
-            {
-                if (file.Stream is RequestStreamWrapper wrapper)
-                {
-                    await wrapper.UnderlyingStream.DisposeAsync();
-                }
-                else
-                {
-                    await file.Stream.DisposeAsync();
-                }
-            }
-        }
-
-        GC.SuppressFinalize(this);
     }
 
     /// <summary>
@@ -745,7 +699,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
 /// <summary>
 /// Base interface for any discord message builder.
 /// </summary>
-public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
+public interface IDiscordMessageBuilder
 {
     /// <summary>
     /// Getter / setter for message content.

@@ -19,11 +19,8 @@ public enum AddFileOptions
     ResetStream = 0x1,
 
     /// <summary>
-    /// Closes the stream upon disposal of the message builder or upon sending if not used in a message builder.
+    /// Closes the stream upon upon sending.
     /// </summary>
-    /// <remarks>
-    /// Streams will not be disposed upon sending if the file is used in a message builder. Disposal of the message builder is necessary.
-    /// </remarks>
     CloseStream = 0x2,
 
     /// <summary>
