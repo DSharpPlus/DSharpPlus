@@ -481,7 +481,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets the vanity URL code for this guild, when applicable.
     /// </summary>
     [JsonProperty("vanity_url_code")]
-    public string VanityUrlCode { get; internal set; }
+    public string? VanityUrlCode { get; internal set; }
 
     /// <summary>
     /// Gets the guild description, when applicable.
