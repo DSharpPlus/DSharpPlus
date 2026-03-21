@@ -9,7 +9,7 @@ using DSharpPlus.Voice.MemoryServices;
 
 namespace DSharpPlus.Voice.Receivers;
 
-internal sealed class RealtimeAudioReceiver : IUserAudioReceiver
+internal sealed class RealtimeUserAudioReceiver : IUserAudioReceiver
 {
     private static readonly byte[] silentFrame = new byte[3840];
     private static readonly byte[] silentMillisecond = new byte[192];
@@ -25,7 +25,7 @@ internal sealed class RealtimeAudioReceiver : IUserAudioReceiver
     private ushort highestReceivedSequence;
     private ushort lastWrittenSequence;
 
-    public RealtimeAudioReceiver(IAudioDecoder decoder)
+    public RealtimeUserAudioReceiver(IAudioDecoder decoder)
     {
         this.pipe = new();
         this.queuedPackets = [];

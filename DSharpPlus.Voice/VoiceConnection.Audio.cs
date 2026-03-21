@@ -3,6 +3,7 @@
 using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -63,19 +64,28 @@ partial class VoiceConnection
 
             this.cryptor.Decrypt(receiveWriter.WrittenSpan, decryptedWriter, out RTPFrameInfo frameInfo);
             
-            if (!this.Receiver.Ssrcs.TryGetValue(frameInfo.SSRC, out VoiceUser? voiceUser))
+            if (!this.ssrcs.TryGetValue(frameInfo.SSRC, out ulong userId))
             {
                 // race condition: we're still waiting on their ssrc but they already started speaking
                 // [TODO] consider buffering such received packets?
                 continue;
             }
 
+            if (!this.voiceUsers.TryGetValue(userId, out VoiceUser? voiceUser))
+            {
+                // something insane has happened. this is probably? impossible
+                throw new UnreachableException();
+            }
+
             // the transport cryptor already is supposed to only decrypt the audio data (the header counts as additional data)
             byte[] audio = new byte[decryptedWriter.WrittenCount];
-            this.e2ee.DecryptFrame(voiceUser.UserId, decryptedWriter.WrittenSpan, audio);
+            this.e2ee.DecryptFrame(userId, decryptedWriter.WrittenSpan, audio);
+
+            TimeSpan duration = this.codec.CalculatePacketLength(audio);
+            (uint normalizedSequence, ulong normalizedTimestamp) = voiceUser.UpdateTimestampAndSequence(frameInfo.Sequence, frameInfo.Timestamp);
 
             // [TODO] handle overflows before passing the timestamp and sequence to users, also, pass the user id
-            await this.Receiver.ProcessAudioAsync(frameInfo.SSRC, frameInfo.Timestamp, frameInfo.Sequence, audio);
+            await this.Receiver.ProcessAudioAsync(frameInfo.SSRC, normalizedSequence, new(normalizedTimestamp), duration, audio);
         }
     }
 
@@ -188,15 +198,14 @@ partial class VoiceConnection
             this.logger.LogTrace("Pausing audio transmission to the remote server.");
             await StopSpeakingAsync();
 
-            lease = this.encoder.WriteSilenceFrame();
-            length = WriteAndEncryptFrame(lease.Buffer, currentFrame, timestamp, sequence);
-            lease.Dispose();
+            for (int i = 0; i < 5; i++)
+            {
+                lease = this.encoder.WriteSilenceFrame();
+                length = WriteAndEncryptFrame(lease.Buffer, currentFrame, timestamp, sequence);
+                lease.Dispose();
 
-            await this.mediaTransport.SendAsync(currentFrame.AsMemory()[..length]);
-            await this.mediaTransport.SendAsync(currentFrame.AsMemory()[..length]);
-            await this.mediaTransport.SendAsync(currentFrame.AsMemory()[..length]);
-            await this.mediaTransport.SendAsync(currentFrame.AsMemory()[..length]);
-            await this.mediaTransport.SendAsync(currentFrame.AsMemory()[..length]);
+                await this.mediaTransport.SendAsync(currentFrame.AsMemory()[..length]);
+            }
         }
     }
 

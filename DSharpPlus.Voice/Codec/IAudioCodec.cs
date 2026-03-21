@@ -1,3 +1,5 @@
+using System;
+
 namespace DSharpPlus.Voice.Codec;
 
 /// <summary>
@@ -21,4 +23,9 @@ public interface IAudioCodec
     /// Creates a new decoder for a connection.
     /// </summary>
     public IAudioDecoder CreateDecoder();
+
+    /// <summary>
+    /// Calculates the length a packet will run for.
+    /// </summary>
+    public TimeSpan CalculatePacketLength(ReadOnlySpan<byte> packet);
 }

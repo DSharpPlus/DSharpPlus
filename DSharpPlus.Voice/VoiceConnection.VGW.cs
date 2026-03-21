@@ -442,14 +442,7 @@ partial class VoiceConnection
 
                     VoiceSpeakingPayload speaking = (VoiceSpeakingPayload)message.Payload;
 
-                    VoiceUser user = new()
-                    {
-                        UserId = speaking.UserId,
-                        SSRC = speaking.SSRC,
-                        IsSpeaking = speaking.SpeakingMode.HasFlag(VoiceSpeakingFlags.Microphone)
-                    };
-
-                    await RegisterSpeakingStatusAsync(speaking.SSRC, user);
+                    await RegisterSpeakingStatusAsync(speaking.SSRC, speaking.UserId, speaking.SpeakingMode.HasFlag(VoiceSpeakingFlags.Microphone));
 
                     break;
 

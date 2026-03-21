@@ -67,7 +67,8 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         this.encoder = this.codec.CreateEncoder(bitrate, type);
         this.sendingAudioChannel = new();
         this.connectedUsers = [..usersInCall, userId];
-        this.users = [];
+        this.ssrcs = [];
+        this.voiceUsers = [];
 
         this.userId = userId;
         this.channelId = channelId;
@@ -121,7 +122,8 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     private Task? receiveAudioTask;
     private Task? audioKeepaliveTask;
     private Task? sendAudioTask;
-    private readonly ConcurrentDictionary<uint, VoiceUser> users;
+    private readonly ConcurrentDictionary<uint, ulong> ssrcs;
+    private readonly ConcurrentDictionary<ulong, VoiceUser> voiceUsers;
 
     // general connection info
     private string sessionId;
@@ -171,13 +173,31 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         this.disconnectHandlerState = state;
     }
 
-    private async Task RegisterSpeakingStatusAsync(uint ssrc, VoiceUser user)
+    private async Task RegisterSpeakingStatusAsync(uint ssrc, ulong userId, bool isSpeaking)
     {
-        this.users.AddOrUpdate(ssrc, user, (_, _) => user);
+        this.ssrcs.TryAdd(ssrc, userId);
 
-        if (!this.users.ContainsKey(ssrc))
+        if (this.voiceUsers.TryGetValue(userId, out VoiceUser? user))
         {
-            // await this.userJoinedHandler?.Invoke(user, this.userJoinedHandlerState);
+            user.IsSpeaking = isSpeaking;
+        }
+        else
+        {
+            this.voiceUsers.TryAdd(userId, new()
+            {
+                SSRC = ssrc,
+                UserId = userId,
+                IsSpeaking = isSpeaking
+            });
+        }
+
+        if (isSpeaking)
+        {
+            await this.Receiver.ProcessUserStartedSpeakingAsync(userId);
+        }
+        else
+        {
+            await this.Receiver.ProcessUserStoppedSpeakingAsync(userId);
         }
     }
 
