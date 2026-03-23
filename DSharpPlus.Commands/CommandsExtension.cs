@@ -322,7 +322,7 @@ public sealed class CommandsExtension
     {
         foreach (Type t in assembly.GetTypes())
         {
-            if (t.GetInterface("DSharpPlus.Commands.ContextChecks.IContextCheck`1") is not null)
+            if (t.GetInterfaces().Any(i => i.Namespace == "DSharpPlus.Commands.ContextChecks" && i.Name == "IContextCheck`1"))
             {
                 AddCheck(t);
             }
