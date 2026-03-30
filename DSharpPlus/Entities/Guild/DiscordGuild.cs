@@ -536,6 +536,16 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
     internal ConcurrentDictionary<ulong, DiscordStageInstance> stageInstances;
 
+    /// <summary>
+    /// Gets the soundboard sounds in this guild.
+    /// </summary>
+    [JsonIgnore]
+    public IReadOnlyDictionary<ulong, DiscordSoundboardSound> SoundboardSounds => this.soundboardSounds;
+
+    [JsonProperty("soundboard_sounds", NullValueHandling = NullValueHandling.Ignore)]
+    [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
+    internal ConcurrentDictionary<ulong, DiscordSoundboardSound> soundboardSounds;
+
     // Failed attempts so far: 8
     // Velvet got it working in one attempt. I'm not mad, why would I be mad. - Lunar
     /// <summary>
