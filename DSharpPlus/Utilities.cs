@@ -304,6 +304,26 @@ public static partial class Utilities
         long diff = dateTimeOffset.ToUnixTimeMilliseconds() - DiscordClient.discordEpoch.ToUnixTimeMilliseconds();
         return (ulong)diff << 22;
     }
+    /// <summary>
+    /// Creates a stream containing a single column csv file of user IDs.
+    /// </summary>
+    /// <param name="userIds">A list of user IDs to put into the csv file.</param>
+    /// <returns>A stream containing the csv file.</returns>
+    public static MemoryStream CreateTargetUserCsvStream(IEnumerable<ulong> userIds)
+    {
+        string csvContent = "user_id\r\n" + string.Join("\r\n", userIds);
+        return new MemoryStream(Encoding.UTF8.GetBytes(csvContent));
+    }
+    /// <summary>
+    /// Parses a csv file containing a single column of user IDs and returns the user IDs.
+    /// </summary>
+    /// <param name="content">The content of the csv file to parse.</param>
+    /// <returns>A list containg all user IDs of the csv file.</returns>
+    public static IReadOnlyList<ulong> ReadTargetUserCsv(string content)
+    {
+        string[] csvLines = content.Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
+        return csvLines[1..].Select(ulong.Parse).ToList().AsReadOnly();
+    }
 
     [GeneratedRegex("<@(\\d+)>", RegexOptions.ECMAScript)]
     private static partial Regex UserMentionRegex();

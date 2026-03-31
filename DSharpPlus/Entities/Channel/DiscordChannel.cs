@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Exceptions;
@@ -768,6 +769,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <param name="targetUserId">The ID of the target user.</param>
     /// <param name="targetApplicationId">The ID of the target application.</param>
     /// <param name="roleIds">The role IDs for roles given to the user when accepting the invite.</param>
+    /// <param name="targetUserIds">The user IDs of those who are able to accept this invite.</param>
     /// <returns></returns>
     /// <exception cref="UnauthorizedException">Thrown when the client does not have the 
     /// <see cref="DiscordPermission.CreateInvite"/> permission or in case if roleIds are used and the client does not have the
@@ -775,8 +777,28 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<DiscordInvite> CreateInviteAsync(int max_age = 86400, int max_uses = 0, bool temporary = false, bool unique = false, string reason = null, DiscordInviteTargetType? targetType = null, ulong? targetUserId = null, ulong? targetApplicationId = null, IEnumerable<ulong> roleIds = null)
-        => await this.Discord.ApiClient.CreateChannelInviteAsync(this.Id, max_age, max_uses, temporary, unique, reason, targetType, targetUserId, targetApplicationId, roleIds);
+    public async Task<DiscordInvite> CreateInviteAsync
+    (
+        int max_age = 86400,
+        int max_uses = 0,
+        bool temporary = false,
+        bool unique = false,
+        string reason = null,
+        DiscordInviteTargetType? targetType = null,
+        ulong? targetUserId = null,
+        ulong? targetApplicationId = null,
+        IEnumerable<ulong> roleIds = null,
+        IEnumerable<ulong> targetUserIds = null
+    )
+    {
+        DiscordFile? csvFile = null;
+        if (targetUserIds is not null)
+        {
+            csvFile = new DiscordFile("file", Utilities.CreateTargetUserCsvStream(targetUserIds), null, "csv", "text/csv", AddFileOptions.CloseStream);
+        }
+
+        return await this.Discord.ApiClient.CreateChannelInviteAsync(this.Id, max_age, max_uses, temporary, unique, reason, targetType, targetUserId, targetApplicationId, roleIds, csvFile);
+    }
 
     /// <summary>
     /// Adds a channel permission overwrite for specified member.

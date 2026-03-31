@@ -137,6 +137,36 @@ public class DiscordInvite
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordInvite> DeleteAsync(string reason = null)
         => await this.Discord.ApiClient.DeleteInviteAsync(this.Code, reason);
+    /// <summary>
+    /// Gets the users allowed to accept this invite.
+    /// </summary>
+    /// <returns>A list of user IDs allowed to accept the invite.</returns>
+    /// <exception cref="Exceptions.NotFoundException">Thrown when no target users are set for the invite.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client is not the inviter and does not have <see cref="DiscordPermission.ManageGuild"/> permission or the <see cref="DiscordPermission.ViewAuditLog"/> permission.</exception>
+    public async Task<IReadOnlyList<ulong>> GetTargetUsersAsync()
+        => await this.Discord.ApiClient.GetInviteTargetUsersAsync(this.Code);
+
+    /// <summary>
+    /// Updates the users allowed to accept this invite.
+    /// </summary>
+    /// <param name="targetUsers">A list of user IDs alllowed to accept the invite.</param>
+    /// <returns></returns>
+    /// <exception cref="Exceptions.BadRequestException">Thrown when the csv file contains invalid user IDs.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client is not the creator of the invite and does not have the <see cref="DiscordPermission.ManageGuild"/> permission.</exception>
+    public async Task UpdateTargetUsersAsync(IEnumerable<ulong> targetUsers)
+    {
+        DiscordFile csvFile = new(null, Utilities.CreateTargetUserCsvStream(targetUsers), null, "csv", "text/csv", AddFileOptions.CloseStream);
+
+        await this.Discord.ApiClient.UpdateInviteTargetUsersAsync(this.Code, csvFile);
+    }
+    /// <summary>
+    /// Gets the status of the job processing the change of target users asynchronously.
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="Exceptions.NotFoundException">Thrown when there is no job found for the invite.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client is not the inviter and does not have <see cref="DiscordPermission.ManageGuild"/> permission or the <see cref="DiscordPermission.ViewAuditLog"/> permission.</exception>
+    public async Task<DiscordTargetUsersJobStatus> GetTargetUsersJobStatusAsync()
+        => await this.Discord.ApiClient.GetInviteTargetUserJobStatusAsync(this.Code);
 
     /*
      * Disabled due to API restrictions.
