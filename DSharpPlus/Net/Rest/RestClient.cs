@@ -174,27 +174,27 @@ public sealed partial class RestClient : IDisposable
                 case HttpStatusCode.BadRequest or HttpStatusCode.MethodNotAllowed:
 
                     this.metrics.RegisterBadRequest();
-                    throw new BadRequestException(response.RequestMessage!, response, content);
+                    throw new BadRequestException(request.Build(), response, content);
 
                 case HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden:
 
                     this.metrics.RegisterForbidden();
-                    throw new UnauthorizedException(response.RequestMessage!, response, content);
+                    throw new UnauthorizedException(request.Build(), response, content);
 
                 case HttpStatusCode.NotFound:
 
                     this.metrics.RegisterNotFound();
-                    throw new NotFoundException(response.RequestMessage!, response, content);
+                    throw new NotFoundException(request.Build(), response, content);
 
                 case HttpStatusCode.RequestEntityTooLarge:
 
                     this.metrics.RegisterRequestTooLarge();
-                    throw new RequestSizeException(response.RequestMessage!, response, content);
+                    throw new RequestSizeException(request.Build(), response, content);
 
                 case HttpStatusCode.TooManyRequests:
 
                     this.metrics.RegisterRatelimitHit(response.Headers);
-                    throw new RateLimitException(response.RequestMessage!, response, content);
+                    throw new RateLimitException(request.Build(), response, content);
 
                 case HttpStatusCode.InternalServerError
                     or HttpStatusCode.BadGateway
@@ -202,7 +202,7 @@ public sealed partial class RestClient : IDisposable
                     or HttpStatusCode.GatewayTimeout:
 
                     this.metrics.RegisterServerError();
-                    throw new ServerErrorException(response.RequestMessage!, response, content);
+                    throw new ServerErrorException(request.Build(), response, content);
 
                 default:
 
@@ -246,6 +246,13 @@ public sealed partial class RestClient : IDisposable
             }
 
             throw;
+        } 
+        finally
+        {
+            if (request is MultipartRestRequest multipartRequest)
+            {
+                multipartRequest.PostprocessAddedFiles();
+            }
         }
     }
 
