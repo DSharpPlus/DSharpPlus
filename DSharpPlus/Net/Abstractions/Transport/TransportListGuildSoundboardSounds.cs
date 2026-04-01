@@ -7,5 +7,5 @@ namespace DSharpPlus.Net.Abstractions;
 internal class TransportListGuildSoundboardSounds
 {
     [JsonProperty("items")]
-    public IReadOnlyList<TransportSoundboardSound> Items { get; set; }
+    public IReadOnlyList<DiscordSoundboardSound> Items { get; set; }
 }

@@ -3222,8 +3222,8 @@ public sealed partial class DiscordClient
     private async Task OnGuildSoundboardSoundCreateAsync(ulong guildId, JObject dat)
     {
         DiscordGuild? guild = InternalGetCachedGuild(guildId);
-        TransportSoundboardSound transport = dat.ToDiscordObject<TransportSoundboardSound>();
-        DiscordSoundboardSound sound = new(transport, this);
+        DiscordSoundboardSound sound = dat.ToDiscordObject<DiscordSoundboardSound>();
+        sound.Discord = this;
 
         guild?.soundboardSounds[sound.Id] = sound;
 
@@ -3237,8 +3237,8 @@ public sealed partial class DiscordClient
     private async Task OnGuildSoundboardSoundUpdateAsync(ulong guildId, JObject dat)
     {
         DiscordGuild guild = InternalGetCachedGuild(guildId);
-        TransportSoundboardSound transport = dat.ToDiscordObject<TransportSoundboardSound>();
-        DiscordSoundboardSound sound = new(transport, this);
+        DiscordSoundboardSound sound = dat.ToDiscordObject<DiscordSoundboardSound>();
+        sound.Discord = this;
 
         guild.soundboardSounds.TryGetValue(sound.Id, out DiscordSoundboardSound? oldSound);
         guild.soundboardSounds[sound.Id] = sound;
@@ -3270,8 +3270,8 @@ public sealed partial class DiscordClient
 
         foreach (JToken rawSound in rawSounds)
         {
-            TransportSoundboardSound transport = rawSound.ToDiscordObject<TransportSoundboardSound>();
-            DiscordSoundboardSound sound = new(transport, this);
+            DiscordSoundboardSound sound = rawSound.ToDiscordObject<DiscordSoundboardSound>();
+            sound.Discord = this;
             sounds.Add(sound);
             guild.soundboardSounds[sound.Id] = sound;
         }
@@ -3289,8 +3289,8 @@ public sealed partial class DiscordClient
 
         foreach (JToken rawSound in rawSounds)
         {
-            TransportSoundboardSound transport = rawSound.ToDiscordObject<TransportSoundboardSound>();
-            DiscordSoundboardSound sound = new(transport, this);
+            DiscordSoundboardSound sound = rawSound.ToDiscordObject<DiscordSoundboardSound>();
+            sound.Discord = this;
             sounds.Add(sound);
         }
 

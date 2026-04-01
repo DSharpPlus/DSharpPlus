@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using DSharpPlus.Exceptions;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
 
@@ -15,44 +16,47 @@ public class DiscordSoundboardSound : SnowflakeObject
 {
     internal DiscordSoundboardSound() { }
 
-    internal DiscordSoundboardSound(TransportSoundboardSound transportSoundboardSound, BaseDiscordClient client)
-    {
-        this.Id = transportSoundboardSound.Id;
-        this.Name = transportSoundboardSound.Name;
-        this.GuildId = transportSoundboardSound.GuildId;
-        this.UserId = transportSoundboardSound.User?.Id;
-        this.Volume = transportSoundboardSound.Volume;
-        this.Discord = client;
-
-        if ((transportSoundboardSound.EmojiId is not null &&
-             DiscordEmoji.TryFromGuildEmote(client, transportSoundboardSound.EmojiId.Value, out DiscordEmoji emoji,
-                 this.GuildId))
-            || (!string.IsNullOrWhiteSpace(transportSoundboardSound.EmojiName) &&
-                DiscordEmoji.TryFromUnicode(client, transportSoundboardSound.EmojiName, out emoji)))
-        {
-            this.Emoji = emoji;
-        }
-    }
+    // We overwrite the id property because of the different json key
+    /// <summary>
+    /// Gets the ID of this object.
+    /// </summary>
+    [JsonProperty("sound_id", NullValueHandling = NullValueHandling.Ignore)]
+    public new ulong Id { get; internal set; }
 
     /// <summary>
     /// The name of the sound.
     /// </summary>
+    [JsonProperty("name")]
     public string Name { get; internal set; }
 
     /// <summary>
     /// The id of the guild the sound belongs to. This is null if the sound is a default sound.
     /// </summary>
+    [JsonProperty("guild_id")]
     public ulong? GuildId { get; internal set; }
 
     /// <summary>
     /// Volume of the sound between 1 and 0.
     /// </summary>
+    [JsonProperty("volume")]
     public double Volume { get; internal set; }
 
     /// <summary>
-    /// The emoji associated with the sound.
+    /// The id of the emoji associated with the sound.
     /// </summary>
-    public DiscordEmoji? Emoji { get; internal set; }
+    [JsonProperty("emoji_id")]
+    public ulong? EmojiId { get; internal set; }
+    
+    /// <summary>
+    /// The name of the emoji associated with the sound.
+    /// </summary>
+    [JsonProperty("emoji_name")]
+    public string? EmojiName { get; internal set; }
+    
+    [JsonProperty("user")]
+    internal TransportUser User {
+        set => this.UserId = value.Id;
+    }
 
     /// <summary>
     /// The id of the user who created the soundboard.
@@ -174,5 +178,5 @@ public class DiscordSoundboardSound : SnowflakeObject
     }
 
     /// <inheritdoc />
-    public override string ToString() => $"{this.Name} ({this.Id}) - Volume: {this.Volume}, Emoji: {this.Emoji?.Name ?? "None"}";
+    public override string ToString() => $"{this.Name} ({this.Id}) - Volume: {this.Volume}, Emoji: {this.EmojiName ?? this.EmojiId?.ToString() ?? "None"}";
 }

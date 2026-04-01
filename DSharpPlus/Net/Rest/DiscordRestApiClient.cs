@@ -7140,9 +7140,8 @@ public sealed class DiscordRestApiClient
         };
 
         RestResponse res = await this.rest.ExecuteRequestAsync(request);
-        TransportSoundboardSound transportSoundboardSound = JsonConvert.DeserializeObject<TransportSoundboardSound>(res.Response!)!;
-
-        DiscordSoundboardSound sound = new(transportSoundboardSound, this.discord!);
+        DiscordSoundboardSound sound = JsonConvert.DeserializeObject<DiscordSoundboardSound>(res.Response!)!;
+        sound.Discord = this.discord!;
         
         return sound;
     }
@@ -7167,14 +7166,13 @@ public sealed class DiscordRestApiClient
         TransportListGuildSoundboardSounds transportSoundboardSounds =
             JsonConvert.DeserializeObject<TransportListGuildSoundboardSounds>(res.Response!)!;
 
-        List<DiscordSoundboardSound> sounds = new(transportSoundboardSounds.Items.Count);
-        foreach (TransportSoundboardSound transportSoundboardSound in transportSoundboardSounds.Items)
+        
+        foreach (DiscordSoundboardSound sound in transportSoundboardSounds.Items)
         {
-            DiscordSoundboardSound sound = new(transportSoundboardSound, this.discord!);
-            sounds.Add(sound);
+            sound.Discord = this.discord!;
         }
 
-        return sounds;
+        return transportSoundboardSounds.Items;
     }
 
     /// <summary>
@@ -7191,14 +7189,12 @@ public sealed class DiscordRestApiClient
         RestRequest request = new() {Route = route, Url = url, Method = HttpMethod.Get,};
 
         RestResponse res = await this.rest.ExecuteRequestAsync(request);
-        IReadOnlyList<TransportSoundboardSound> transportSoundboardSounds =
-            JsonConvert.DeserializeObject<IReadOnlyList<TransportSoundboardSound>>(res.Response!)!;
-
-        List<DiscordSoundboardSound> sounds = new(transportSoundboardSounds.Count);
-        foreach (TransportSoundboardSound transportSoundboardSound in transportSoundboardSounds)
+        IReadOnlyList<DiscordSoundboardSound> sounds =
+            JsonConvert.DeserializeObject<IReadOnlyList<DiscordSoundboardSound>>(res.Response!)!;
+        
+        foreach (DiscordSoundboardSound sound in sounds)
         {
-            DiscordSoundboardSound sound = new(transportSoundboardSound, this.discord!);
-            sounds.Add(sound);
+            sound.Discord = this.discord!;
         }
 
         return sounds;
@@ -7258,10 +7254,9 @@ public sealed class DiscordRestApiClient
         };
 
         RestResponse res = await this.rest.ExecuteRequestAsync(request);
-        TransportSoundboardSound transportSoundboardSound =
-            JsonConvert.DeserializeObject<TransportSoundboardSound>(res.Response!)!;
-
-        DiscordSoundboardSound sound = new(transportSoundboardSound, this.discord!);
+        DiscordSoundboardSound sound =
+            JsonConvert.DeserializeObject<DiscordSoundboardSound>(res.Response!)!;
+        sound.Discord = this.discord!;
 
         return sound;
     }
@@ -7319,10 +7314,9 @@ public sealed class DiscordRestApiClient
         };
 
         RestResponse res = await this.rest.ExecuteRequestAsync(request);
-        TransportSoundboardSound transportSoundboardSound =
-            JsonConvert.DeserializeObject<TransportSoundboardSound>(res.Response!)!;
-
-        DiscordSoundboardSound sound = new(transportSoundboardSound, this.discord!);
+        DiscordSoundboardSound sound =
+            JsonConvert.DeserializeObject<DiscordSoundboardSound>(res.Response!)!;
+        sound.Discord = this.discord!;
 
         return sound;
     }
