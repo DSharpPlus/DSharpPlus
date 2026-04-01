@@ -1208,12 +1208,12 @@ public sealed partial class DiscordClient : BaseDiscordClient
 
         foreach (DiscordEmoji newEmoji in newGuild.emojis.Values)
         {
-            _ = guild.emojis.GetOrAdd(newEmoji.Id, _ => newEmoji);
+            _ = guild.emojis.GetOrAdd(newEmoji.Id, newEmoji);
         }
 
         foreach (DiscordMessageSticker newSticker in newGuild.stickers.Values)
         {
-            _ = guild.stickers.GetOrAdd(newSticker.Id, _ => newSticker);
+            _ = guild.stickers.GetOrAdd(newSticker.Id, newSticker);
         }
 
         if (rawMembers != null)
@@ -1246,7 +1246,15 @@ public sealed partial class DiscordClient : BaseDiscordClient
         {
             foreach (DiscordStageInstance newStageInstance in newGuild.stageInstances.Values)
             {
-                _ = guild.stageInstances.GetOrAdd(newStageInstance.Id, _ => newStageInstance);
+                _ = guild.stageInstances.GetOrAdd(newStageInstance.Id, newStageInstance);
+            }
+        }
+
+        if (newGuild.soundboardSounds != null)
+        {
+            foreach (DiscordSoundboardSound newSoundboardSound in newGuild.soundboardSounds.Values)
+            {
+                _ = guild.soundboardSounds.GetOrAdd(newSoundboardSound.Id, newSoundboardSound);
             }
         }
 

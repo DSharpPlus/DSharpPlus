@@ -1267,7 +1267,7 @@ public sealed partial class DiscordClient
 
         if (exists)
         {
-            guild = foundGuild;
+            guild = foundGuild!;
         }
 
         guild.channels ??= new ConcurrentDictionary<ulong, DiscordChannel>();
