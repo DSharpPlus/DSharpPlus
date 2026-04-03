@@ -246,6 +246,13 @@ public sealed partial class RestClient : IDisposable
             }
 
             throw;
+        } 
+        finally
+        {
+            if (request is MultipartRestRequest multipartRequest)
+            {
+                multipartRequest.PostprocessAddedFiles();
+            }
         }
     }
 

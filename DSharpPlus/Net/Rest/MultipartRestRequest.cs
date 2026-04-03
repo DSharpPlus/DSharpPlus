@@ -126,8 +126,6 @@ internal readonly record struct MultipartRestRequest : IRestRequest
 
                 writer.Dispose();
 
-                PostprocessAddedFiles(current);
-
                 if (current.ContentType is not null)
                 {
                     file.Headers.ContentType = MediaTypeHeaderValue.Parse(current.ContentType);
@@ -155,22 +153,25 @@ internal readonly record struct MultipartRestRequest : IRestRequest
         return request;
     }
 
-    private static void PostprocessAddedFiles(DiscordFile file)
+    public void PostprocessAddedFiles()
     {
-        if (file.FileOptions.HasFlag(AddFileOptions.CloseStream))
+        foreach (DiscordFile file in this.Files)
         {
-            if (file.Stream is RequestStreamWrapper wrapper)
+            if (file.FileOptions.HasFlag(AddFileOptions.CloseStream))
             {
-                wrapper.UnderlyingStream.Dispose();
+                if (file.Stream is RequestStreamWrapper wrapper)
+                {
+                    wrapper.UnderlyingStream.Dispose();
+                }
+                else
+                {
+                    file.Stream.Dispose();
+                }
             }
-            else
+            else if (file.ResetPositionTo.HasValue)
             {
-                file.Stream.Dispose();
+                file.Stream.Seek(file.ResetPositionTo!.Value, SeekOrigin.Begin);
             }
-        } 
-        else if (file.ResetPositionTo.HasValue)
-        {
-            file.Stream.Seek(file.ResetPositionTo!.Value, SeekOrigin.Begin);
         }
     }
 }
