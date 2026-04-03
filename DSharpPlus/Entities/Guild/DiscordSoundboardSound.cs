@@ -21,7 +21,7 @@ public class DiscordSoundboardSound : SnowflakeObject
     /// Gets the ID of this object.
     /// </summary>
     [JsonProperty("sound_id", NullValueHandling = NullValueHandling.Ignore)]
-    public new ulong Id { get; internal set; }
+    public override ulong Id { get; internal set; }
 
     /// <summary>
     /// The name of the sound.

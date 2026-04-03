@@ -12,7 +12,7 @@ public abstract class SnowflakeObject
     /// Gets the ID of this object.
     /// </summary>
     [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
-    public ulong Id { get; internal set; }
+    public virtual ulong Id { get; internal set; }
 
     /// <summary>
     /// Gets the date and time this object was created.
