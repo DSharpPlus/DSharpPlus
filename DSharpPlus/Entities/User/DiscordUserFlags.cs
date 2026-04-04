@@ -86,10 +86,5 @@ public enum DiscordUserFlags
     /// <summary>
     /// The bot receives interactions via HTTP.
     /// </summary>
-    HttpInteractionsBot = 1 << 19,
-
-    /// <summary>
-    /// The user is an active bot developer.
-    /// </summary>
-    ActiveDeveloper = 1 << 22
+    HttpInteractionsBot = 1 << 19
 }
