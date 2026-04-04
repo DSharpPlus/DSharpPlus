@@ -4616,7 +4616,7 @@ public sealed class DiscordRestApiClient
 
         RestResponse response = await this.rest.ExecuteRequestAsync(request);
 
-        return Utilities.ReadTargetUserCsv(response.Response!);
+        return DiscordInvite.ReadTargetUserCsv(response.Response!);
     }
 
     public async ValueTask UpdateInviteTargetUsersAsync
@@ -4642,7 +4642,7 @@ public sealed class DiscordRestApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    public async ValueTask<DiscordTargetUsersJobStatus> GetInviteTargetUserJobStatusAsync
+    public async ValueTask<DiscordInviteTargetUsersJobStatus> GetInviteTargetUserJobStatusAsync
     (
         string inviteCode
     )
@@ -4656,8 +4656,7 @@ public sealed class DiscordRestApiClient
 
         RestResponse response = await this.rest.ExecuteRequestAsync(request);
 
-        return JsonConvert.DeserializeObject<DiscordTargetUsersJobStatus>(response.Response!);
-
+        return JsonConvert.DeserializeObject<DiscordInviteTargetUsersJobStatus>(response.Response!);
     }
     #endregion
 
