@@ -89,24 +89,10 @@
       topicUid: articles.commands_next.argument_converters
     - name: Command Handler
       topicUid: articles.commands_next.command_handler
-- name: Audio
+- name: Voice
   items:
-  - name: Lavalink
-    items:
-    - name: Setup
-      topicUid: articles.audio.lavalink.setup
-    - name: Configuration
-      topicUid: articles.audio.lavalink.configuration
-    - name: Music Commands
-      topicUid: articles.audio.lavalink.music_commands
-  - name: VoiceNext
-    items:
-    - name: Prerequisites
-      topicUid: articles.audio.voicenext.prerequisites
-    - name: Transmitting
-      topicUid: articles.audio.voicenext.transmit
-    - name: Receiving
-      topicUid: articles.audio.voicenext.receive
+  - name: Introduction to Voice
+    topicUid: articles.voice.introduction
 - name: Interactivity
   topicUid: articles.interactivity
 - name: Slash Commands
