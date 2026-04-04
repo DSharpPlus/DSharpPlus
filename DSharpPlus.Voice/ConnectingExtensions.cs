@@ -49,7 +49,7 @@ public static class ConnectionExtensions
             Type? receiverType = null
         )
         {
-            receiverType ??= typeof(IAudioReceiver);
+            receiverType ??= typeof(DefaultAudioReceiver);
 
             VoiceConnection connection = new
             (
