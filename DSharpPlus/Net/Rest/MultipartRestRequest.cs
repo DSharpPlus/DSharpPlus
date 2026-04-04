@@ -146,7 +146,7 @@ internal readonly record struct MultipartRestRequest : IRestRequest
 
     public void PostprocessAddedFiles()
     {
-        foreach (DiscordFile file in this.Files)
+        foreach (DiscordFile file in this.Files.Values)
         {
             if (file.FileOptions.HasFlag(AddFileOptions.CloseStream))
             {
