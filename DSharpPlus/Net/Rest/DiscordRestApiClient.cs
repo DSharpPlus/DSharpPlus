@@ -1451,7 +1451,7 @@ public sealed class DiscordRestApiClient
         string name,
         string description,
         string tags,
-        DiscordMessageFile file,
+        DiscordFile file,
         string? reason = null
     )
     {
@@ -1466,7 +1466,7 @@ public sealed class DiscordRestApiClient
                 {
                     [REASON_HEADER_NAME] = reason
                 },
-            Files = new DiscordMessageFile[]
+            Files = new DiscordFile[]
             {
                 file
             },
@@ -2382,15 +2382,7 @@ public sealed class DiscordRestApiClient
                 Files = builder.Files
             };
 
-            RestResponse res;
-            try
-            {
-                res = await this.rest.ExecuteRequestAsync(request);
-            }
-            finally
-            {
-                builder.ResetFileStreamPositions();
-            }
+            RestResponse res = await this.rest.ExecuteRequestAsync(request);
 
             return PrepareMessage(JObject.Parse(res.Response!));
         }
@@ -2511,7 +2503,7 @@ public sealed class DiscordRestApiClient
         Optional<IEnumerable<DiscordEmbed>> embeds = default,
         Optional<IEnumerable<IMention>> mentions = default,
         IReadOnlyList<DiscordComponent>? components = null,
-        IReadOnlyList<DiscordMessageFile>? files = null,
+        IReadOnlyList<DiscordFile>? files = null,
         DiscordMessageFlags? flags = null,
         IEnumerable<DiscordAttachment>? attachments = null
     )
@@ -2563,7 +2555,7 @@ public sealed class DiscordRestApiClient
                 {
                     ["payload_json"] = payload
                 },
-                Files = (IReadOnlyList<DiscordMessageFile>)files
+                Files = (IReadOnlyList<DiscordFile>)files
             };
 
             res = await this.rest.ExecuteRequestAsync(request);
@@ -2582,14 +2574,6 @@ public sealed class DiscordRestApiClient
         }
 
         DiscordMessage ret = PrepareMessage(JObject.Parse(res.Response!));
-
-        if (files is not null)
-        {
-            foreach (DiscordMessageFile file in files.Where(x => x.ResetPositionTo.HasValue))
-            {
-                file.Stream.Position = file.ResetPositionTo!.Value;
-            }
-        }
 
         return ret;
     }
@@ -2695,7 +2679,8 @@ public sealed class DiscordRestApiClient
         string reason,
         DiscordInviteTargetType? targetType = null,
         ulong? targetUserId = null,
-        ulong? targetApplicationId = null
+        ulong? targetApplicationId = null,
+        IEnumerable<ulong>? roleIds = null
     )
     {
         RestChannelInviteCreatePayload pld = new()
@@ -2706,7 +2691,8 @@ public sealed class DiscordRestApiClient
             Unique = unique,
             TargetType = targetType,
             TargetUserId = targetUserId,
-            TargetApplicationId = targetApplicationId
+            TargetApplicationId = targetApplicationId,
+            RoleIds = roleIds
         };
 
         Dictionary<string, string> headers = [];
@@ -5030,15 +5016,8 @@ public sealed class DiscordRestApiClient
             IsExemptFromGlobalLimit = true
         };
 
-        RestResponse res;
-        try
-        {
-            res = await this.rest.ExecuteRequestAsync(request);
-        }
-        finally
-        {
-            builder.ResetFileStreamPositions();
-        }
+        RestResponse res = await this.rest.ExecuteRequestAsync(request);
+
         DiscordMessage ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response!)!;
 
         ret.Discord = this.discord!;
@@ -5146,15 +5125,7 @@ public sealed class DiscordRestApiClient
             IsExemptFromGlobalLimit = true
         };
 
-        RestResponse res;
-        try
-        {
-            res = await this.rest.ExecuteRequestAsync(request);
-        }
-        finally
-        {
-            builder.ResetFileStreamPositions();
-        }
+        RestResponse res = await this.rest.ExecuteRequestAsync(request);
 
         return PrepareMessage(JObject.Parse(res.Response!));
     }
@@ -6079,7 +6050,7 @@ public sealed class DiscordRestApiClient
         DiscordMessageFlags? flags = null,
         IReadOnlyList<DiscordAutoCompleteChoice>? choices = null,
         DiscordPollBuilder? pollBuilder = null,
-        IReadOnlyList<DiscordMessageFile>? files = null
+        IReadOnlyList<DiscordFile>? files = null
     )
     {
         bool hasContent = content is not null || embeds is not null || components is not null || choices is not null || pollBuilder is not null;
@@ -6138,20 +6109,7 @@ public sealed class DiscordRestApiClient
                 IsExemptFromAllLimits = true
             };
 
-            try
-            {
-                await this.rest.ExecuteRequestAsync(request);
-            }
-            finally
-            {
-                foreach (DiscordMessageFile file in files)
-                {
-                    if (file.ResetPositionTo is long pos)
-                    {
-                        file.Stream.Seek(pos, SeekOrigin.Begin);
-                    }
-                }
-            }
+            await this.rest.ExecuteRequestAsync(request);            
         }
         else
         {
@@ -6272,11 +6230,6 @@ public sealed class DiscordRestApiClient
             DiscordMessage ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response!)!;
             ret.Discord = this.discord!;
 
-            foreach (DiscordMessageFile file in builder.Files.Where(x => x.ResetPositionTo.HasValue))
-            {
-                file.Stream.Position = file.ResetPositionTo!.Value;
-            }
-
             return ret;
         }
     }
@@ -6354,15 +6307,8 @@ public sealed class DiscordRestApiClient
             IsExemptFromAllLimits = true
         };
 
-        RestResponse res;
-        try
-        {
-            res = await this.rest.ExecuteRequestAsync(request);
-        }
-        finally
-        {
-            builder.ResetFileStreamPositions();
-        }
+        RestResponse res = await this.rest.ExecuteRequestAsync(request);
+        
         DiscordMessage ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response!)!;
 
         ret.Discord = this.discord!;

@@ -481,7 +481,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets the vanity URL code for this guild, when applicable.
     /// </summary>
     [JsonProperty("vanity_url_code")]
-    public string VanityUrlCode { get; internal set; }
+    public string? VanityUrlCode { get; internal set; }
 
     /// <summary>
     /// Gets the guild description, when applicable.
@@ -2292,7 +2292,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             extension = "json";
         }
 
-        return await this.Discord.ApiClient.CreateGuildStickerAsync(this.Id, name, description ?? string.Empty, tags, new DiscordMessageFile(null, imageContents, null, extension, contentType), reason);
+        return await this.Discord.ApiClient.CreateGuildStickerAsync(this.Id, name, description ?? string.Empty, tags, new DiscordFile(null, imageContents, null, extension, contentType), reason);
     }
 
     /// <summary>

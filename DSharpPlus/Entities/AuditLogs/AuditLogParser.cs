@@ -507,11 +507,14 @@ internal static class AuditLogParser
         entry.Reason = auditLogAction.Reason;
         entry.Discord = guild.Discord;
 
-        entry.UserResponsible = members.TryGetValue(auditLogAction.UserId!.Value, out DiscordMember? member)
-            ? member
-            : guild.Discord.UserCache.TryGetValue(auditLogAction.UserId!.Value, out DiscordUser? discordUser)
-                ? discordUser
-                : new DiscordUser { Id = auditLogAction.UserId!.Value, Discord = guild.Discord };
+        if (auditLogAction.UserId.HasValue)
+        {
+            entry.UserResponsible = members.TryGetValue(auditLogAction.UserId.Value, out DiscordMember? member)
+                ? member
+                : guild.Discord.UserCache.TryGetValue(auditLogAction.UserId.Value, out DiscordUser? discordUser)
+                    ? discordUser
+                    : new DiscordUser { Id = auditLogAction.UserId.Value, Discord = guild.Discord };
+        }
 
         return entry;
     }
@@ -1087,13 +1090,18 @@ internal static class AuditLogParser
     internal static DiscordAuditLogOverwriteEntry ParseOverwriteEntry(DiscordGuild guild,
         AuditLogAction auditLogAction)
     {
+        DiscordChannel? channel = guild.GetChannel(auditLogAction.TargetId!.Value);
         DiscordAuditLogOverwriteEntry entry = new()
         {
-            Target = guild
-                .GetChannel(auditLogAction.TargetId!.Value)
+            Target = channel?
                 .PermissionOverwrites
                 .FirstOrDefault(xo => xo.Id == auditLogAction.Options.Id),
-            Channel = guild.GetChannel(auditLogAction.TargetId.Value)
+            Channel = channel ?? new DiscordChannel
+            {
+                Id = auditLogAction.TargetId.Value,
+                Discord = guild.Discord,
+                GuildId = guild.Id
+            }
         };
 
         foreach (AuditLogActionChange? change in auditLogAction.Changes)
