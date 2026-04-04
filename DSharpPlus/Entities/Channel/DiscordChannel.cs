@@ -799,7 +799,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         }
 
         return await this.Discord.ApiClient.CreateChannelInviteAsync
-            (
+        (
             this.Id,
             max_age,
             max_uses,
@@ -811,7 +811,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
             targetApplicationId,
             roleIds,
             csvFile
-            );
+        );
     }
 
     /// <summary>
