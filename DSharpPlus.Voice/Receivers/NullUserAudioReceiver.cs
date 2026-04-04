@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.IO.Pipelines;
 
@@ -6,24 +7,24 @@ namespace DSharpPlus.Voice.Receivers;
 /// <summary>
 /// Provides an audio receiver that discards all received audio.
 /// </summary>
-internal sealed class NullUserAudioReceiver : IUserAudioReceiver
+internal sealed class NullUserAudioReceiver : UserAudioReceiver
 {
     private static readonly PipeReader reader = NullReaderSetup();
 
     /// <inheritdoc />
-    public PipeReader Reader => reader;
+    public override PipeReader Reader => reader;
 
     /// <inheritdoc />
-    public bool IsSpeaking => false;
+    public override bool IsSpeaking => false;
 
     /// <inheritdoc />
-    public void Ingest(ushort sequence, uint timestamp, byte[] audio)
+    protected internal override void Ingest(uint sequence, AudioTimestamp timestamp, TimeSpan duration, byte[] audio)
     {
         // empty - we discard the audio
     }
 
     /// <inheritdoc />
-    public void Close()
+    protected internal override void Close()
     {
         // dont do anything
     }

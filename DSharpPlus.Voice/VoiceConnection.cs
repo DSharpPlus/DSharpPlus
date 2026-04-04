@@ -41,7 +41,7 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         Type receiverType
     )
     {
-        if (!receiverType.IsAssignableTo(typeof(IAudioReceiver)))
+        if (!receiverType.IsAssignableTo(typeof(AudioReceiver)))
         {
             throw new InvalidOperationException("An audio receiver must implement DSharpPlus.Voice.Receivers.IAudioReceiver.");
         }
@@ -59,7 +59,7 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         this.codec = provider.GetRequiredService<IAudioCodec>();
         this.e2ee = provider.GetRequiredService<IE2EESession>();
         this.options = provider.GetRequiredService<IOptions<VoiceOptions>>().Value;
-        this.Receiver = (IAudioReceiver)provider.GetRequiredService(receiverType);
+        this.Receiver = (AudioReceiver)provider.GetRequiredService(receiverType);
         
         DiscordRestApiClientFactory apiClientFactory = provider.GetRequiredService<DiscordRestApiClientFactory>();
         this.apiClient = apiClientFactory.GetCurrentApplicationClient();
@@ -150,7 +150,7 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     /// <summary>
     /// Provides a mechanism for receiving audio from Discord.
     /// </summary>
-    public IAudioReceiver Receiver { get; }
+    public AudioReceiver Receiver { get; }
 
     /// <summary>
     /// Creates a new audio writer to send audio through this connection.
@@ -198,6 +198,7 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         else
         {
             await this.Receiver.ProcessUserStoppedSpeakingAsync(userId);
+            this.voiceUsers[userId].IndicateStoppedSpeaking();
         }
     }
 

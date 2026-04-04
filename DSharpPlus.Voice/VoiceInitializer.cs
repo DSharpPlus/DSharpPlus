@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 using DSharpPlus.EventArgs;
@@ -57,6 +58,8 @@ internal sealed class VoiceInitializer : IEventHandler<ClientStartedEventArgs>
         {
             this.logger.LogInformation("AEAD AES-256 GCM encryption support enabled.");
         }
+
+        this.logger.LogInformation("Initialized DSharpPlus.Voice for process architecture {arch}.", RuntimeInformation.ProcessArchitecture);
 
         return Task.CompletedTask;
     }

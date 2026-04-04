@@ -5,7 +5,7 @@ using System.Text;
 namespace DSharpPlus.Voice;
 
 /// <summary>
-/// Represents a timestamp within the lifetime of an audio connection.
+/// Represents a timestamp within the lifetime of an audio connection, relative to when the user first started sending audio.
 /// </summary>
 public readonly record struct AudioTimestamp 
     : IComparable<AudioTimestamp>, 
@@ -80,6 +80,30 @@ public readonly record struct AudioTimestamp
     /// Gets this timestamp expressed in total days.
     /// </summary>
     public double TotalDays => (double)this.timestamp / 86400000;
+
+    /// <summary>
+    /// Subtracts a duration from the given timestamp.
+    /// </summary>
+    public static AudioTimestamp operator - (AudioTimestamp timestamp, TimeSpan timeSpan)
+        => new(timestamp.timestamp - (ulong)timeSpan.TotalMilliseconds);
+
+    /// <summary>
+    /// Adds a duration to the given timestamp.
+    /// </summary>
+    public static AudioTimestamp operator + (AudioTimestamp timestamp, TimeSpan timeSpan)
+        => new(timestamp.timestamp + (ulong)timeSpan.TotalMilliseconds);
+
+    /// <summary>
+    /// Compares two timestamps for which one is greater.
+    /// </summary>
+    public static bool operator > (AudioTimestamp left, AudioTimestamp right)
+        => left.timestamp > right.timestamp;
+
+    /// <summary>
+    /// Compares two timestamps for which one is lesser.
+    /// </summary>
+    public static bool operator < (AudioTimestamp left, AudioTimestamp right)
+        => left.timestamp < right.timestamp;
 
     // we just implement parsing and formatting on top of TimeSpan, which in principle looks similar, even if it's a bit inefficient to do so
     // for the utf-8 bits

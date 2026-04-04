@@ -231,8 +231,8 @@ partial class VoiceConnection
     
     private int WriteAndEncryptFrame(ReadOnlySpan<byte> unencrypted, Span<byte> target, uint timestamp, ushort sequence)
     {
-        ArrayPoolBufferWriter<byte> e2eeWriter = new();
-        ArrayPoolBufferWriter<byte> encryptedWriter = new();
+        using ArrayPoolBufferWriter<byte> e2eeWriter = new();
+        using ArrayPoolBufferWriter<byte> encryptedWriter = new();
 
         this.e2ee.EncryptFrame(unencrypted, e2eeWriter);
 

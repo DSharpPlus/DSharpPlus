@@ -1,5 +1,7 @@
 using System;
 
+using DSharpPlus.Voice.Receivers;
+
 namespace DSharpPlus.Voice;
 
 /// <summary>
@@ -74,4 +76,9 @@ public sealed class VoiceOptions
     /// this at five ticks, which is the most natural value, unless there is a specific motivating scenario to change this value.
     /// </remarks>
     public int SilenceTicksBeforePausingConnection { get; set; } = 5;
+
+    /// <summary>
+    /// Provides the default processing mode for connections that track per-user received audio. Defaults to discarding audio.
+    /// </summary>
+    public UserAudioReceiveMode DefaultUserAudioReceiveMode { get; set; } = UserAudioReceiveMode.Discard;
 }

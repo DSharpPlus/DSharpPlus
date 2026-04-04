@@ -1,3 +1,5 @@
+using System;
+
 namespace DSharpPlus.Voice;
 
 /// <summary>
@@ -10,6 +12,9 @@ internal sealed class VoiceUser
 
     private uint timestampNormalizationFactor;
     private ushort sequenceNormalizationFactor;
+    private DateTimeOffset firstSpeakingTimestamp = DateTimeOffset.MinValue;
+    private ulong timestampResynchronizationFactor = 0;
+    private bool receivedFirstPacketSinceSpeaking = false;
 
     /// <summary>
     /// The snowflake ID of this user.
@@ -26,23 +31,35 @@ internal sealed class VoiceUser
     /// </summary>
     public bool IsSpeaking { get; internal set; }
 
-    public ulong NormalizedTimestamp { get; private set; } = ulong.MaxValue;
+    public ulong NormalizedTimestamp { get; private set; }
 
     public uint NormalizedSequence { get; private set; }
 
     public (uint sequence, ulong timestamp) UpdateTimestampAndSequence(ushort rtpSequence, uint rtpTimestamp)
     {
         // uninitialized, the values we received are the random offset from zero
-        if (this.NormalizedTimestamp == ulong.MaxValue)
+        if (!this.receivedFirstPacketSinceSpeaking)
         {
-            this.timestampNormalizationFactor = rtpTimestamp;
-            this.sequenceNormalizationFactor = rtpSequence;
+            if (this.firstSpeakingTimestamp == DateTimeOffset.MinValue)
+            {
+                this.firstSpeakingTimestamp = DateTimeOffset.UtcNow;
+                this.timestampNormalizationFactor = rtpTimestamp;
+                this.sequenceNormalizationFactor = rtpSequence;
 
-            this.NormalizedTimestamp = 0;
-            this.NormalizedSequence = 0;
+                this.NormalizedTimestamp = 0;
+                this.NormalizedSequence = 0;
 
-            return (0, 0);
+                this.receivedFirstPacketSinceSpeaking = true;
+                return (0, 0);
+            }
+            else
+            {
+                this.timestampResynchronizationFactor = (ulong)(DateTimeOffset.UtcNow - this.firstSpeakingTimestamp).TotalMilliseconds;
+                this.timestampNormalizationFactor = rtpTimestamp;
+            }
         }
+
+        this.receivedFirstPacketSinceSpeaking = true;
 
         ushort normalizedLowerSequence = (ushort)(rtpSequence - this.sequenceNormalizationFactor);
         uint normalizedLowerTimestamp = rtpTimestamp - this.timestampNormalizationFactor;
@@ -61,9 +78,14 @@ internal sealed class VoiceUser
             normalizedTimestamp += uint.MaxValue;
         }
 
+        normalizedTimestamp += this.timestampResynchronizationFactor;
+
         this.NormalizedSequence = normalizedSequence;
         this.NormalizedTimestamp = normalizedTimestamp;
 
         return (normalizedSequence, normalizedTimestamp);
     }
+
+    public void IndicateStoppedSpeaking() 
+        => this.receivedFirstPacketSinceSpeaking = false;
 }
