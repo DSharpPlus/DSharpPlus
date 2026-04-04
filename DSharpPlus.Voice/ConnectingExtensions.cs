@@ -17,6 +17,13 @@ public static class ConnectionExtensions
 {
     extension(DiscordChannel channel)
     {
+        /// <summary>
+        /// Connects to a voice channel.
+        /// </summary>
+        /// <param name="audioType">The type of audio to optimize for.</param>
+        /// <param name="receiverType">The type of audio receiver to use.</param>
+        /// <returns>The initialized and active voice connection.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if this channel could not be connected to.</exception>
         public async Task<VoiceConnection> ConnectAsync(AudioType audioType = AudioType.Auto, Type? receiverType = null)
         {
             if (channel.IsPrivate)
@@ -41,15 +48,23 @@ public static class ConnectionExtensions
             return await channel.ConnectAsync(scope, userId, audioType, receiverType);
         }
 
+        /// <summary>
+        /// Connects to a voice channel.
+        /// </summary>
+        /// <param name="scope">A service scope to use for this connection.</param>
+        /// <param name="currentUserId">The snowflake identifier of the current user.</param>
+        /// <param name="audioType">The type of audio to optimize for.</param>
+        /// <param name="receiverType">The type of audio receiver to use.</param>
+        /// <returns>The initialized and active voice connection.</returns>
         public async Task<VoiceConnection> ConnectAsync
         (
             IServiceScope scope,
             ulong currentUserId,
-            AudioType type = AudioType.Auto,
+            AudioType audioType = AudioType.Auto,
             Type? receiverType = null
         )
         {
-            receiverType ??= typeof(DefaultAudioReceiver);
+            receiverType ??= typeof(NullAudioReceiver);
 
             VoiceConnection connection = new
             (
@@ -58,7 +73,7 @@ public static class ConnectionExtensions
                 channel.Id,
                 channel.GuildId.Value,
                 channel.Bitrate.Value,
-                type,
+                audioType,
                 channel.Guild.VoiceStates.Where(x => x.Value.ChannelId == channel.Id).Select(x => x.Value.UserId),
                 receiverType
             );

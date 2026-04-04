@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 
 using DSharpPlus.Voice.Codec;
 
-using Microsoft.Extensions.Logging;
-
 namespace DSharpPlus.Voice.Receivers;
 
 /// <summary>
@@ -16,13 +14,9 @@ public sealed class DefaultAudioReceiver : AudioReceiver
 {
     private readonly ConcurrentDictionary<ulong, UserAudioReceiver> receivers = [];
     private readonly IAudioCodec codec;
-    private readonly ILogger<AudioReceiver> logger;
 
-    public DefaultAudioReceiver(IAudioCodec codec, ILogger<AudioReceiver> logger)
-    {
-        this.codec = codec;
-        this.logger = logger;
-    }
+    public DefaultAudioReceiver(IAudioCodec codec) 
+        => this.codec = codec;
 
     /// <summary>
     /// Fired when a user started speaking.
@@ -45,10 +39,10 @@ public sealed class DefaultAudioReceiver : AudioReceiver
     public event Func<ulong, Task> UserLeft;
 
     /// <summary>
-    /// Controls the default receive mode for newly speaking users. Defaults to discarding their audio. Use
+    /// Controls the default receive mode for newly speaking users. Defaults to processing their audio in real-time. Use
     /// <see cref="UpdateUserReceiver"/> to update a specific user and <see cref="UpdateAllReceiverModes"/> to update all users. 
     /// </summary>
-    public UserAudioReceiveMode DefaultReceiveMode { get; set; } = UserAudioReceiveMode.Discard;
+    public UserAudioReceiveMode DefaultReceiveMode { get; set; } = UserAudioReceiveMode.Process;
 
     /// <summary>
     /// The currently active receivers.
