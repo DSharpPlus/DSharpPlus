@@ -798,7 +798,20 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
             csvFile = new DiscordFile("file", csvStream, null, "csv", "text/csv", AddFileOptions.CloseStream);
         }
 
-        return await this.Discord.ApiClient.CreateChannelInviteAsync(this.Id, max_age, max_uses, temporary, unique, reason, targetType, targetUserId, targetApplicationId, roleIds, csvFile);
+        return await this.Discord.ApiClient.CreateChannelInviteAsync
+            (
+            this.Id,
+            max_age,
+            max_uses,
+            temporary,
+            unique,
+            reason,
+            targetType,
+            targetUserId,
+            targetApplicationId,
+            roleIds,
+            csvFile
+            );
     }
 
     /// <summary>
