@@ -84,7 +84,6 @@ partial class VoiceConnection
             TimeSpan duration = this.codec.CalculatePacketLength(audio);
             (uint normalizedSequence, ulong normalizedTimestamp) = voiceUser.UpdateTimestampAndSequence(frameInfo.Sequence, frameInfo.Timestamp);
 
-            // [TODO] handle overflows before passing the timestamp and sequence to users, also, pass the user id
             await this.Receiver.ProcessAudioAsync(frameInfo.SSRC, normalizedSequence, new(normalizedTimestamp), duration, audio);
         }
     }
@@ -118,6 +117,11 @@ partial class VoiceConnection
 
         while (!ct.IsCancellationRequested)
         {
+            if (this.selfMute)
+            {
+                await this.noLongerSelfMuted.Task;
+            }
+
             await this.sendingAudioChannel.Reader.WaitToReadAsync(ct);
 
             AudioChannelReadResult readResult = await this.sendingAudioChannel.Reader.ReadAsync(ct);

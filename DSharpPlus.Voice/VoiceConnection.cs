@@ -3,6 +3,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.WebSockets;
+using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,6 +16,8 @@ using DSharpPlus.Voice.Cryptors;
 using DSharpPlus.Voice.E2EE;
 using DSharpPlus.Voice.MemoryServices.Channels;
 using DSharpPlus.Voice.MemoryServices.Collections;
+using DSharpPlus.Voice.Protocol;
+using DSharpPlus.Voice.Protocol.Gateway.Payloads.Bidirectional;
 using DSharpPlus.Voice.Protocol.RTCP.Payloads;
 using DSharpPlus.Voice.Receivers;
 using DSharpPlus.Voice.Transport;
@@ -38,7 +42,9 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         int bitrate,
         AudioType type,
         IEnumerable<ulong> usersInCall,
-        Type receiverType
+        Type receiverType,
+        bool selfMute,
+        bool selfDeafen
     )
     {
         if (!receiverType.IsAssignableTo(typeof(AudioReceiver)))
@@ -60,6 +66,10 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         this.e2ee = provider.GetRequiredService<IE2EESession>();
         this.options = provider.GetRequiredService<IOptions<VoiceOptions>>().Value;
         this.Receiver = (AudioReceiver)provider.GetRequiredService(receiverType);
+
+        this.selfMute = selfMute;
+        this.selfDeafen = selfDeafen;
+        this.noLongerSelfMuted = new();
         
         DiscordRestApiClientFactory apiClientFactory = provider.GetRequiredService<DiscordRestApiClientFactory>();
         this.apiClient = apiClientFactory.GetCurrentApplicationClient();
@@ -116,6 +126,9 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     private uint pendingTransitionId;
     private int pendingTransitionProtocolVersion;
     private IPEndPoint? localEndpoint;
+    private bool selfMute;
+    private bool selfDeafen;
+    private TaskCompletionSource noLongerSelfMuted;
 
     // audio session tracking
     private readonly CancellationTokenSource audioCancellation;
@@ -200,6 +213,64 @@ public sealed partial class VoiceConnection : IAsyncDisposable
             await this.Receiver.ProcessUserStoppedSpeakingAsync(userId);
             this.voiceUsers[userId].IndicateStoppedSpeaking();
         }
+    }
+
+    /// <summary>
+    /// Sets whether the bot should mute itself in the current voice channel.
+    /// </summary>
+    public async Task SetSelfMuteStatusAsync(bool selfMute)
+    {
+        this.selfMute = selfMute;
+
+        VoiceStateUpdateEvent vsUpdate = new()
+        {
+            Data = new()
+            {
+                GuildId = this.guildId,
+                ChannelId = this.channelId,
+                Mute = this.selfMute,
+                Deafen = this.selfDeafen
+            }
+        };
+
+        await this.shardOrchestrator.SendOutboundEventAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(vsUpdate)), this.guildId);
+        await SendSpeakingStatusAsync(selfMute ? VoiceSpeakingFlags.None : VoiceSpeakingFlags.Microphone);
+
+        if (selfMute)
+        {
+            this.activeWriter?.SignalSilence();
+
+            // if necessary, replace the task completion source, but it may not actually be necessary if the user double-called this
+            if (this.noLongerSelfMuted.Task.IsCompleted)
+            {
+                this.noLongerSelfMuted = new();
+            }
+        }
+        else
+        {
+            this.noLongerSelfMuted.TrySetResult();
+        }
+    }
+
+    /// <summary>
+    /// Sets whether the bot should deafen itself in the current voice channel.
+    /// </summary>
+    public async Task SetSelfDeafenStatusAsync(bool selfDeafen)
+    {
+        this.selfDeafen = selfDeafen;
+
+        VoiceStateUpdateEvent vsUpdate = new()
+        {
+            Data = new()
+            {
+                GuildId = this.guildId,
+                ChannelId = this.channelId,
+                Mute = this.selfMute,
+                Deafen = this.selfDeafen
+            }
+        };
+
+        await this.shardOrchestrator.SendOutboundEventAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(vsUpdate)), this.guildId);
     }
 
     public async ValueTask DisposeAsync()

@@ -56,13 +56,12 @@ partial class VoiceConnection
 
         VoiceStateUpdateEvent update = new()
         {
-            // [TODO] do we want to allow passing mute/deafen here?
             Data = new()
             {
                 GuildId = guildId,
                 ChannelId = channelId,
-                Mute = false,
-                Deafen = false
+                Mute = this.selfMute,
+                Deafen = this.selfDeafen
             }
         };
 
