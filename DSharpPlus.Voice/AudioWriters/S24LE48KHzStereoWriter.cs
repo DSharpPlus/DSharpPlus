@@ -91,14 +91,4 @@ internal sealed class S24LE48KHzStereoWriter : AbstractPcmAudioWriter
         MemoryMarshal.Cast<Int32x2, int>(pcm).CopyTo(this.overflowBuffer);
         this.overflowSamples = pcm.Length;
     }
-
-    /// <summary>
-    /// Processes and encodes the provided PCM data.
-    /// </summary>
-    public void WriteAudio(ReadOnlySpan<Int16x2> pcm)
-    {
-        // we interpret this as the user saying the audio they submitted previously is no longer what they're writing, so we should clear this
-        this.frameOverflow.Clear();
-        base.Encode(pcm);
-    }
 }

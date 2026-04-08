@@ -13,5 +13,5 @@ public interface IAudioWriterFactory
     /// <param name="format">The format to create an audio writer for.</param>
     /// <param name="writer">The sink for encoded packets.</param>
     /// <returns>The newly created audio writer.</returns>
-    public AbstractAudioWriter CreateAudioWriter(AudioFormat format, AudioChannelWriter writer);
+    public AudioWriter CreateAudioWriter(AudioFormat format, AudioChannelWriter writer);
 }

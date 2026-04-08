@@ -93,6 +93,10 @@
   items:
   - name: Introduction to Voice
     topicUid: articles.voice.introduction
+  - name: Sending Audio
+    topicUid: articles.voice.sending
+  - name: Receiving Audio
+    topicUid: articles.voice.receiving
 - name: Interactivity
   topicUid: articles.interactivity
 - name: Slash Commands

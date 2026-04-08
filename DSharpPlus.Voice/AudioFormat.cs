@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace DSharpPlus.Voice;
 
 /// <summary>
-/// Represents what format audio will passed in to a <see cref="AbstractAudioWriter"/>. 
+/// Represents what format audio will passed in to a <see cref="AudioWriter"/>. 
 /// </summary>
 public readonly record struct AudioFormat
 {
@@ -30,12 +30,12 @@ public readonly record struct AudioFormat
     public static AudioFormat S16LE48KHzMonoPCM => new("s16le-48khz-mono-pcm");
 
     /// <summary>
-    /// Represents s16 little-endian 44khz stereo (two-channel) PCM audio.
+    /// Represents s16 little-endian 44.1khz stereo (two-channel) PCM audio.
     /// </summary>
     public static AudioFormat S16LE44KHzStereoPCM => new("s16le-44khz-stereo-pcm");
 
     /// <summary>
-    /// Represents s16 little-endian 44khz mono (single-channel) PCM audio.
+    /// Represents s16 little-endian 44.1khz mono (single-channel) PCM audio.
     /// </summary>
     public static AudioFormat S16LE44KHzMonoPCM => new("s16le-44khz-mono-pcm");
 

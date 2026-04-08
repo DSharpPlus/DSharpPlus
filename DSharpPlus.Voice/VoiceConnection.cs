@@ -114,7 +114,7 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     private readonly VoiceOptions options;
     private ICryptor cryptor;
     private ILogger logger;
-    private AbstractAudioWriter? activeWriter;
+    private AudioWriter? activeWriter;
 
     // hooks
     private Func<VoiceDisconnectReason, object?, Task>? disconnectHandler;
@@ -179,9 +179,9 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     /// <summary>
     /// Creates a new audio writer to send audio through this connection.
     /// </summary>
-    public AbstractAudioWriter CreateAudioWriter(AudioFormat format)
+    public AudioWriter CreateAudioWriter(AudioFormat format)
     {
-        AbstractAudioWriter writer = this.audioWriterFactory.CreateAudioWriter(format, this.sendingAudioChannel.Writer);
+        AudioWriter writer = this.audioWriterFactory.CreateAudioWriter(format, this.sendingAudioChannel.Writer);
         this.activeWriter = writer;
         return writer;
     }

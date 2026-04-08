@@ -15,7 +15,7 @@ namespace DSharpPlus.Voice;
 /// <summary>
 /// Provides a base implementation of an audio writer for PCM and PCM-shaped data.
 /// </summary>
-public abstract class AbstractPcmAudioWriter : AbstractAudioWriter
+public abstract class AbstractPcmAudioWriter : AudioWriter
 {
     private byte[]? rentedBuffer;
     private readonly short[] overflowBuffer;

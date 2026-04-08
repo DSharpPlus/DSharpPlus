@@ -65,24 +65,20 @@ services.Configure<VoiceOptions>(config => config.MaxReconnects = 15);
 ```
 ---
 
-With that done, we can connect to a channel using `ConnectAsync`. There are two overloads: one that takes an audio type and a receiver type, and one that takes a service scope, user ID and the aforementioned two other parameters. When connecting to a channel acquired from `DiscordClient`, use the first overload; when connecting to a channel acquired by other means, you must use the second overload. Realistically, this means you should rarely to never need the second overload. An `InvalidOperationException` will be thrown if you're using the first overload on a channel it cannot connect to.
+With that done, we can connect to a channel using `ConnectAsync`. There are two overloads: one that takes an audio type, a receiver type and two booleans to indicate whether the bot should mute or deafen itself, and one that takes a service scope, user ID and the aforementioned four other parameters. When connecting to a channel acquired from `DiscordClient`, use the first overload; when connecting to a channel acquired by other means, you must use the second overload. Realistically, this means you should rarely to never need the second overload. An `InvalidOperationException` will be thrown if you're using the first overload on a channel it cannot connect to.
 
 `ConnectAsync` will return control and a `VoiceConnection` instance to you as soon as the connection is initialized and ready for sending and receiving audio.
 
 ## Sending Audio
 
-To send audio, we have to acquire an audio writer from `VoiceConnection.CreateAudioWriter(AudioFormat format)`. The supported formats are provided as static fields on `AudioFormat`, for example `AudioFormat.S16LE48KHzStereoPCM` for 16-bit, 48khz, two-channel PCM audio. If you want to change the format you're sending in, you can create a new audio writer at any time. Only one audio writer may be active at any given time.
+To send audio, we have to acquire an audio writer from `VoiceConnection.CreateAudioWriter(AudioFormat format)`. The supported formats are provided as static properties on `AudioFormat`, for example `AudioFormat.S16LE48KHzStereoPCM` for 16-bit, 48khz, two-channel PCM audio. If you want to change the format you're sending in, you can create a new audio writer at any time. Only one audio writer may be active at any given time.
 
 AudioWriters are PipeWriters, which means you can use the PipeWriter API to submit audio or call `AsStream` to get a `System.IO.Stream`. 
 
 When you temporarily want to stop sending audio, use `SignalSilence` on your AudioWriter to communicate this. If you simply stop submitting audio, DSharpPlus will eventually infer that you probably forgot to signal silence, according to `VoiceOptions.SilenceTicksBeforePausingConnection`, to save on bandwidth, but you should ideally always call `SignalSilence` yourself, both for performance and to prevent audio distortion and stuttering at the end.
-
-todo: write more docs on send
 
 ## Receiving Audio
 
 Unlike sending audio, receiving audio requires your intent to be specified upfront. When calling `ConnectAsync`, there is a `Type? receiver` parameter which defaults to `NullAudioReceiver` (thus by default discarding all audio you receive). To receive audio, specify `receiver: typeof(DefaultAudioReceiver)` when connecting.
 
 You can access the configured receiver from `VoiceConnection.Receiver`. The default `NullAudioReceiver` will simply ignore all audio and does not expose anything usable to you, but other receivers may provide features of their own. `DefaultAudioReceiver` provides events for users joining, leaving, starting tos peak and falling silent as well as per-user audio streams with the received audio.
-
-todo: write more docs on receive

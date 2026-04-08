@@ -11,11 +11,11 @@ internal sealed class AudioWriteStream : Stream
 {
     private readonly int sampleSize;
 
-    private readonly AbstractAudioWriter writer;
+    private readonly AudioWriter writer;
     private readonly byte[] overflowBuffer;
     private int currentOverflow;
 
-    public AudioWriteStream(AbstractAudioWriter writer, int sampleSize)
+    public AudioWriteStream(AudioWriter writer, int sampleSize)
     {
         this.sampleSize = sampleSize;
         this.writer = writer;

@@ -4,6 +4,8 @@ DSharpPlus, for the most part, is just like any other `dotnet` library. You will
 
 Optionally, DSharpPlus can use zstd for its gateway compression and sodium for receiving [interactions](https://discord.com/developers/docs/interactions/overview#preparing-for-interactions) or [other events](https://discord.com/developers/docs/events/webhook-events). Both of those libraries are provided for platforms `{win, osx, linux, linux-musl}-{x64, arm64}` via the NuGet packages `DSharpPlus.Natives.Zstd` and `DSharpPlus.Natives.Sodium`. On other operating systems or other CPU architectures, you have to provide the libraries yourself.
 
+DSharpPlus does not support NativeAOT compilation or trimming.
+
 ---
 
 ## DSharpPlus.Voice

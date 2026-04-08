@@ -16,7 +16,7 @@ public sealed class DefaultAudioWriterFactory : IAudioWriterFactory
         => this.codec = codec;
 
     /// <inheritdoc/>
-    public AbstractAudioWriter CreateAudioWriter(AudioFormat format, AudioChannelWriter writer)
+    public AudioWriter CreateAudioWriter(AudioFormat format, AudioChannelWriter writer)
     {
         IAudioEncoder encoder = this.codec.GetEncoder();
 
