@@ -242,6 +242,7 @@ partial class VoiceConnection
         this.receiveAudioTask ??= ReceiveAudioAsync(this.audioCancellation.Token);
         this.audioKeepaliveTask ??= AudioKeepaliveAsync(this.audioCancellation.Token);
         this.sendAudioTask ??= SendAudioAsync(this.audioCancellation.Token);
+        this.rtcpTask ??= SendRTCPReportsAsync(this.audioCancellation.Token);
     }
 
     /// <summary>

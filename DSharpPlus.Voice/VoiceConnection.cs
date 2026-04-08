@@ -19,6 +19,7 @@ using DSharpPlus.Voice.MemoryServices.Collections;
 using DSharpPlus.Voice.Protocol;
 using DSharpPlus.Voice.Protocol.Gateway.Payloads.Bidirectional;
 using DSharpPlus.Voice.Protocol.RTCP.Payloads;
+using DSharpPlus.Voice.Protocol.RTP;
 using DSharpPlus.Voice.Receivers;
 using DSharpPlus.Voice.Transport;
 
@@ -79,6 +80,9 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         this.connectedUsers = [..usersInCall, userId];
         this.ssrcs = [];
         this.voiceUsers = [];
+        this.bitrate = bitrate;
+        this.rtcpReportTimer = new(TimeSpan.FromSeconds(5));
+        this.timestamp = new();
 
         this.userId = userId;
         this.channelId = channelId;
@@ -135,8 +139,15 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     private Task? receiveAudioTask;
     private Task? audioKeepaliveTask;
     private Task? sendAudioTask;
+    private Task? rtcpTask;
     private readonly ConcurrentDictionary<uint, ulong> ssrcs;
     private readonly ConcurrentDictionary<ulong, VoiceUser> voiceUsers;
+    private readonly int bitrate;
+    private readonly PeriodicTimer rtcpReportTimer;
+    private int averageRTCPPacketSize;
+    private uint packetsSent;
+    private uint opusBytesSent;
+    private RTPTimestamp timestamp;
 
     // general connection info
     private string sessionId;

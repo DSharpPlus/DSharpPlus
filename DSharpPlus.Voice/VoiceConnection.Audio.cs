@@ -4,6 +4,7 @@ using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,6 +18,8 @@ using DSharpPlus.Voice.Protocol.RTP;
 
 using Microsoft.Extensions.Logging;
 
+using static DSharpPlus.Voice.Protocol.RTCP.RTCPIntervalHelper;
+
 namespace DSharpPlus.Voice;
 
 partial class VoiceConnection
@@ -29,6 +32,9 @@ partial class VoiceConnection
             ArrayPoolBufferWriter<byte> decryptedWriter = new();
 
             await this.mediaTransport.ReceiveAsync(receiveWriter);
+
+            ulong userId;
+            VoiceUser? voiceUser;
 
             // if it's 8 bytes it's the UDP heartbeat/keepalive, or potentially a RTCP Goodbye packet
             if (receiveWriter.WrittenCount == 8 && !RTCPSerializer.IsValidRTCPPacket(receiveWriter.WrittenSpan))
@@ -47,31 +53,48 @@ partial class VoiceConnection
             }
             else if (RTCPSerializer.IsValidRTCPPacket(receiveWriter.WrittenSpan))
             {
+                UpdateAverageRTCPPacketSize(receiveWriter.WrittenCount);
+
                 IReadOnlyList<IRTCPPacket> rtcpPackets = RTCPSerializer.Deserialize(receiveWriter.WrittenSpan);
                 
-                if (this.logger.IsEnabled(LogLevel.Trace))
+                foreach (IRTCPPacket singlePacket in rtcpPackets)
                 {
-                    foreach (IRTCPPacket singlePacket in rtcpPackets)
+                    if (this.logger.IsEnabled(LogLevel.Trace))
                     {
                         this.logger.LogTrace("Received RTCP packet {packet}", singlePacket);
                     }
-                }
 
-                // [TODO] handle
+                    if (singlePacket is RTCPSenderReportPacket senderReportPacket)
+                    {
+                        if (!this.ssrcs.TryGetValue(senderReportPacket.SSRC, out userId))
+                        {
+                            // race condition: we're still waiting on their SSRC, but they're already sending RTCP reports, just ignore
+                            continue;
+                        }
+
+                        if (!this.voiceUsers.TryGetValue(userId, out voiceUser))
+                        {
+                            // something insane has happened. this is probably? impossible
+                            throw new UnreachableException();
+                        }
+
+                        voiceUser.LastSenderReport = DateTimeOffset.UtcNow;
+                    }
+                }
 
                 continue;
             }
 
             this.cryptor.Decrypt(receiveWriter.WrittenSpan, decryptedWriter, out RTPFrameInfo frameInfo);
             
-            if (!this.ssrcs.TryGetValue(frameInfo.SSRC, out ulong userId))
+            if (!this.ssrcs.TryGetValue(frameInfo.SSRC, out userId))
             {
                 // race condition: we're still waiting on their ssrc but they already started speaking
                 // [TODO] consider buffering such received packets?
                 continue;
             }
 
-            if (!this.voiceUsers.TryGetValue(userId, out VoiceUser? voiceUser))
+            if (!this.voiceUsers.TryGetValue(userId, out voiceUser))
             {
                 // something insane has happened. this is probably? impossible
                 throw new UnreachableException();
@@ -109,7 +132,6 @@ partial class VoiceConnection
         bool framePrepared = true;
         byte[] currentFrame = new byte[5772]; // no real point pooling this, since we use it for the entire lifetime
         ushort sequence = (ushort)Random.Shared.NextInt64();
-        uint timestamp = (uint)Random.Shared.NextInt64();
         PeriodicTimer timer = new(TimeSpan.FromMilliseconds(20));
 
         AudioBufferLease lease;
@@ -131,14 +153,16 @@ partial class VoiceConnection
                 break;
             }
 
+            this.timestamp.RealignTimestamp();
+
             lease = readResult.Buffer.Value;
-            length = WriteAndEncryptFrame(lease.Buffer, currentFrame, timestamp, sequence);
+            length = WriteAndEncryptFrame(lease.Buffer, currentFrame, this.timestamp.Value, sequence);
             lease.Dispose();
 
             // we have audio available, start sending it
             while (await timer.WaitForNextTickAsync(ct))
             {
-                unchecked { timestamp += 20; }
+                this.timestamp.Add(20);
 
                 // we were processing a long frame and haven't yet waited long enough, just wait until the next tick
                 if (--counter > 0)
@@ -158,6 +182,9 @@ partial class VoiceConnection
                     }
 
                     silenceCounter = 0;
+                    this.packetsSent++;
+                    this.opusBytesSent += (uint)length - 12;
+
                     await this.mediaTransport.SendAsync(currentFrame.AsMemory()[..length]);
                 }
                 else
@@ -192,7 +219,7 @@ partial class VoiceConnection
                 lease = readResult.Buffer.Value;
 
                 counter = lease.FrameCount;
-                length = WriteAndEncryptFrame(lease.Buffer, currentFrame, timestamp, sequence);
+                length = WriteAndEncryptFrame(lease.Buffer, currentFrame, this.timestamp.Value, sequence);
                 lease.Dispose();
             }
         }
@@ -205,11 +232,62 @@ partial class VoiceConnection
             for (int i = 0; i < 5; i++)
             {
                 lease = this.encoder.WriteSilenceFrame();
-                length = WriteAndEncryptFrame(lease.Buffer, currentFrame, timestamp, sequence);
+                length = WriteAndEncryptFrame(lease.Buffer, currentFrame, this.timestamp.Value, sequence);
                 lease.Dispose();
 
+                this.packetsSent++;
+                this.opusBytesSent += 3;
                 await this.mediaTransport.SendAsync(currentFrame.AsMemory()[..length]);
             }
+        }
+    }
+
+    private async Task SendRTCPReportsAsync(CancellationToken ct)
+    {
+        RTCPSourceDescriptionPacket description = new()
+        {
+            SourceDescriptions = [new()
+            {
+                SSRC = this.ssrc,
+                DescriptionItems = 
+                [
+                    new()
+                    {
+                        Type = SourceDescriptionItemType.CanonicalName,
+                        Value = this.userId.ToString()
+                    },
+                    new()
+                    {
+                        Type = SourceDescriptionItemType.ApplicationName,
+                        Value = $"DSharpPlus.Voice v{Utilities.Version}"
+                    }
+                ]
+            }]
+        };
+
+        TimeSpan initialDelay = CalculateInitialRTCPInterval(this.connectedUsers.Count, this.bitrate);
+
+        await Task.Delay((int)initialDelay.TotalMilliseconds, ct);
+
+        IRTCPPacket report = CollectAndWriteRTCPReport();
+        await SendRTCPPacketsAsync([report, description]);
+
+        // recalculate the delay after initial calibration
+        TimeSpan afterRecalibration = CalculateRTCPInterval
+        (
+            this.connectedUsers.Count,
+            this.voiceUsers.Count(x => x.Value.IsSpeaking),
+            this.bitrate,
+            this.averageRTCPPacketSize,
+            this.IsSpeaking
+        );
+
+        this.rtcpReportTimer.Period = afterRecalibration;
+
+        while(await this.rtcpReportTimer.WaitForNextTickAsync(ct))
+        {
+            report = CollectAndWriteRTCPReport();
+            await SendRTCPPacketsAsync([report, description]);
         }
     }
 
@@ -230,7 +308,56 @@ partial class VoiceConnection
             RTCPSerializer.Serialize(packet, writer);
         }
 
+        UpdateAverageRTCPPacketSize(writer.WrittenCount);
+
         await this.mediaTransport.SendAsync(writer.WrittenMemory);
+    }
+
+    private IRTCPPacket CollectAndWriteRTCPReport()
+    {
+        List<ReceptionReport> receptionReports = [];
+
+        foreach (VoiceUser user in this.voiceUsers.Values)
+        {
+            if (!user.IsSpeaking)
+            {
+                continue;
+            }
+
+            ReceptionReport report = new()
+            {
+                SSRC = user.SSRC,
+                HighestSequenceReceived = user.HighestSequenceReceived,
+                InterarrivalJitter = (uint)user.InterarrivalJitterEstimate,
+                PacketLoss = user.PacketLoss,
+                CumulativePacketsLost = user.CumulativePacketsLost,
+                LastSenderReportTimestamp = user.LastSenderReport,
+                DelaySinceLastSenderReport = DateTimeOffset.UtcNow - user.LastSenderReport
+            };
+
+            receptionReports.Add(report);
+        }
+
+        if (this.IsSpeaking)
+        {
+            return new RTCPSenderReportPacket
+            {
+                SSRC = this.ssrc,
+                Timestamp = DateTimeOffset.UtcNow,
+                RTPTimestamp = this.timestamp.ExactValue,
+                PacketsSent = this.packetsSent,
+                BytesSent = this.opusBytesSent,
+                ReceptionReports = receptionReports
+            };
+        }
+        else
+        {
+            return new RTCPReceiverReportPacket
+            {
+                SSRC = this.ssrc,
+                ReceptionReports = receptionReports
+            };
+        }
     }
     
     private int WriteAndEncryptFrame(ReadOnlySpan<byte> unencrypted, Span<byte> target, uint timestamp, ushort sequence)
@@ -247,5 +374,16 @@ partial class VoiceConnection
 
         encryptedWriter.WrittenSpan.CopyTo(target);
         return encryptedWriter.WrittenCount;
+    }
+
+    private void UpdateAverageRTCPPacketSize(int packetSize)
+    {
+        // we use a slightly different update formula from RFC 3550 Appendix 7: while they weigh the average to primarily
+        // account for the last sixteen or so sent packets, we're going to do the amount of members times two (so their
+        // last two reports) plus five to ten percent for assorted nonsense getting sent
+
+        int averagingFactor = (int)(this.connectedUsers.Count * 2 * 1.075);
+        this.averageRTCPPacketSize = (this.averageRTCPPacketSize * ((averagingFactor - 1) / averagingFactor))
+            + (packetSize / averagingFactor);
     }
 }
