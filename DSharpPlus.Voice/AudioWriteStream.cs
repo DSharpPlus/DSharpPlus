@@ -65,7 +65,6 @@ internal sealed class AudioWriteStream : Stream
         int toWrite = this.currentOverflow + buffer.Length;
 
         // ensure we're aligned properly
-        long targetPosition = this.Position + toWrite;
         int overflow = toWrite % this.sampleSize;
         toWrite -= overflow;
 
@@ -73,6 +72,7 @@ internal sealed class AudioWriteStream : Stream
         Span<byte> target = this.writer.GetSpan(toWrite);
         this.overflowBuffer.CopyTo(target);
         buffer.CopyTo(target[this.currentOverflow..]);
+        this.writer.Advance(toWrite);
 
         // repopulate the overflow buffer with whatever we're overflowing with
         this.overflowBuffer.AsSpan().Clear();

@@ -120,13 +120,13 @@ public abstract class AbstractPcmAudioWriter : AudioWriter
 
         // start by concatenating the overflow from the last operation with the start of our span
         short[] overflowWrapper = ArrayPool<short>.Shared.Rent(this.encoder.SamplesPerPacket * 2);
-        this.overflowBuffer.AsSpan().CopyTo(overflowWrapper);
+        this.overflowBuffer.AsSpan()[..(this.overflowSamples * 2)].CopyTo(overflowWrapper);
 
         int samplesNeededToFillOverflow = this.encoder.SamplesPerPacket - this.overflowSamples;
-        MemoryMarshal.Cast<Int16x2, short>(pcm[..samplesNeededToFillOverflow]).CopyTo(overflowWrapper.AsSpan()[(this.overflowSamples * 4)..]);
+        MemoryMarshal.Cast<Int16x2, short>(pcm[..samplesNeededToFillOverflow]).CopyTo(overflowWrapper.AsSpan()[(this.overflowSamples * 2)..]);
 
         // we pass fake sequences and timestamps, they'll be filled out later.
-        AudioBufferLease firstPacket = this.encoder.Encode(overflowWrapper.AsSpan()[..(this.encoder.SamplesPerPacket * 4)], out _);
+        AudioBufferLease firstPacket = this.encoder.Encode(overflowWrapper.AsSpan()[..(this.encoder.SamplesPerPacket * 2)], out _);
         this.PacketWriter.TryWrite(firstPacket);
 
         ArrayPool<short>.Shared.Return(overflowWrapper);

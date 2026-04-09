@@ -56,7 +56,7 @@ public sealed class AeadAes256GcmCryptor : ICryptor
         uint nonceInt = Interlocked.Increment(ref this.nonce);
 
         Span<byte> nonce = stackalloc byte[SodiumInterop.AeadAes256GcmNonceLength];
-        BinaryPrimitives.WriteUInt32BigEndian(nonce, nonceInt);
+        BinaryPrimitives.WriteUInt32LittleEndian(nonce, nonceInt);
 
         // write the unencrypted header
         encrypted.Write(frame[..rtpHeaderSize]);
@@ -70,7 +70,7 @@ public sealed class AeadAes256GcmCryptor : ICryptor
         int written = SodiumInterop.EncryptAeadAes256Gcm(unencrypted, target, header, this.key, nonce);
         encrypted.Advance(written);
 
-        BinaryPrimitives.WriteUInt32BigEndian(encrypted.GetSpan(4), nonceInt);
+        BinaryPrimitives.WriteUInt32LittleEndian(encrypted.GetSpan(4), nonceInt);
         encrypted.Advance(4);
     }
 }

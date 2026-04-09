@@ -49,12 +49,13 @@ internal static class RTCPIntervalHelper
         }
 
         double time = averageRTCPPacketSize * relevantMembers / budgetedBandwidth;
-        time = double.Min(time, minimumTime);
 
         // we don't want to randomize intervals every time, so we'll choose a smaller randomization factor
         // ... and we'll just hope we recalculate often enough for this to not become too much of an issue
         time *= double.Min(Random.Shared.NextDouble() + 0.75, 1.25);
         time /= compensation;
+        
+        time = double.Max(time, minimumTime);
 
         return TimeSpan.FromSeconds(time);
     }

@@ -55,7 +55,7 @@ public sealed class AeadXChaCha20Poly1305Cryptor : ICryptor
         uint nonceInt = Interlocked.Increment(ref this.nonce);
 
         Span<byte> nonce = stackalloc byte[SodiumInterop.AeadXChaCha20Poly1305NonceLength];
-        BinaryPrimitives.WriteUInt32BigEndian(nonce, nonceInt);
+        BinaryPrimitives.WriteUInt32LittleEndian(nonce, nonceInt);
 
         // write the unencrypted header
         encrypted.Write(frame[..rtpHeaderSize]);
@@ -69,7 +69,7 @@ public sealed class AeadXChaCha20Poly1305Cryptor : ICryptor
         int written = SodiumInterop.EncryptAeadXChaCha20Poly1305(unencrypted, target, header, this.key, nonce);
         encrypted.Advance(written);
 
-        BinaryPrimitives.WriteUInt32BigEndian(encrypted.GetSpan(4), nonceInt);
+        BinaryPrimitives.WriteUInt32LittleEndian(encrypted.GetSpan(4), nonceInt);
         encrypted.Advance(4);
     }
 }

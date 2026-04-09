@@ -188,6 +188,14 @@ unsafe partial struct KoanaInterop
 
     /// <summary>
     /// <code>
+    /// <![CDATA[int32_t koana_get_max_encrypted_size(koana_context* context, int32_t unencrypted_size)]]>
+    /// </code>
+    /// </summary>
+    [LibraryImport("koana")]
+    private static partial int koana_get_max_encrypted_size(KoanaContext* context, int unencryptedSize);
+
+    /// <summary>
+    /// <code>
     /// <![CDATA[void koana_destroy_roster(native_roster* roster);]]>
     /// </code>
     /// </summary>

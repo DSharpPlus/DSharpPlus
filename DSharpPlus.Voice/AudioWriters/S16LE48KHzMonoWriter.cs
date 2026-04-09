@@ -57,14 +57,4 @@ internal sealed class S16LE48KHzMonoWriter : AbstractPcmAudioWriter
         ArrayPool<byte>.Shared.Return(buffer);
         ArrayPool<Int16x2>.Shared.Return(pcmBuffer);
     }
-
-    /// <summary>
-    /// Processes and encodes the provided PCM data.
-    /// </summary>
-    public void WriteAudio(ReadOnlySpan<Int16x2> pcm)
-    {
-        // we interpret this as the user saying the audio they submitted previously is no longer what they're writing, so we should clear this
-        this.overflow.Clear();
-        base.Encode(pcm);
-    }
 }

@@ -118,11 +118,16 @@ public sealed class MlsSession : IE2EESession, IDisposable
     {
         lock (this.mlsLock)
         {
-            int encrypted = this.koana.EncryptFrame(unencryptedFrame, encryptedFrame.GetSpan(unencryptedFrame.Length), this.ssrc);
+            int maxEncryptedSize = this.koana.GetMaxEncryptedSize(unencryptedFrame.Length);
+            int encrypted = this.koana.EncryptFrame(unencryptedFrame, encryptedFrame.GetSpan(maxEncryptedSize), this.ssrc);
             encryptedFrame.Advance(encrypted);
             return encrypted;
         }
     }
+
+    /// <inheritdoc />
+    public int GetMaxEncryptedLength(int unencryptedLength)
+        => this.koana.GetMaxEncryptedSize(unencryptedLength);
 
     /// <inheritdoc/>
     public void Dispose()

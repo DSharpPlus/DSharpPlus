@@ -130,7 +130,8 @@ partial class VoiceConnection
         int counter = 1;
         int silenceCounter = 0;
         bool framePrepared = true;
-        byte[] currentFrame = new byte[5772]; // no real point pooling this, since we use it for the entire lifetime
+        // no real point pooling this, since we use it for the entire lifetime
+        byte[] currentFrame = new byte[this.e2ee.GetMaxEncryptedLength(5760) + 12]; 
         ushort sequence = (ushort)Random.Shared.NextInt64();
         PeriodicTimer timer = new(TimeSpan.FromMilliseconds(20));
 
@@ -171,7 +172,7 @@ partial class VoiceConnection
                 }
 
                 // this must be incremented after the early return, otherwise we produce wrong sequences here
-                unchecked { sequence++; }
+                _ = unchecked(sequence++);
 
                 if (framePrepared)
                 {
@@ -293,7 +294,7 @@ partial class VoiceConnection
 
     private async Task SendRTCPPacketsAsync(IReadOnlyList<IRTCPPacket> packets)
     {
-        if (this.logger.IsEnabled(LogLevel.Trace))
+        if (this.logger.IsEnabled(LogLevel.Trace) && this.options.LogOutboundRTCPPackets)
         {
             foreach (IRTCPPacket packet in packets)
             {
@@ -363,12 +364,13 @@ partial class VoiceConnection
     private int WriteAndEncryptFrame(ReadOnlySpan<byte> unencrypted, Span<byte> target, uint timestamp, ushort sequence)
     {
         using ArrayPoolBufferWriter<byte> e2eeWriter = new();
-        using ArrayPoolBufferWriter<byte> encryptedWriter = new();
+
+        RTPHelper.WriteRTPHeader(e2eeWriter.GetSpan(12), sequence, timestamp, this.ssrc);
+        e2eeWriter.Advance(12);
 
         this.e2ee.EncryptFrame(unencrypted, e2eeWriter);
-
-        RTPHelper.WriteRTPHeader(encryptedWriter.GetSpan(12), sequence, timestamp, this.ssrc);
-        encryptedWriter.Advance(12);
+        
+        using ArrayPoolBufferWriter<byte> encryptedWriter = new();
 
         this.cryptor.Encrypt(e2eeWriter.WrittenSpan, encryptedWriter);
 

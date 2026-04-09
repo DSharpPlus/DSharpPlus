@@ -30,8 +30,11 @@ public static class RegistrationExtensions
                 .AddScoped<ICryptorFactory, DefaultCryptorFactory>()
                 .AddScoped<IAudioCodec, OpusCodec>()
                 .AddScoped<IAudioWriterFactory, DefaultAudioWriterFactory>()
-                .AddScoped<IE2EESession, MlsSession>()
-                .AddScoped<DefaultAudioReceiver>();
+                .AddScoped<IE2EESession, MlsSession>();
+            
+            // receiver types
+            services.AddScoped<DefaultAudioReceiver>()
+                .AddScoped<NullAudioReceiver>();
 
             services.ConfigureEventHandlers(x => x.AddEventHandlers<VoiceInitializer>());
 

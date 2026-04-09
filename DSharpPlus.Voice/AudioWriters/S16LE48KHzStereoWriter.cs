@@ -54,14 +54,4 @@ public sealed class S16LE48KHzStereoWriter : AbstractPcmAudioWriter
         this.overflow.SetOverflow(buffer.AsSpan()[(length & ~0b11)..length]);
         ArrayPool<byte>.Shared.Return(buffer);
     }
-
-    /// <summary>
-    /// Processes and encodes the provided PCM data.
-    /// </summary>
-    public void WriteAudio(ReadOnlySpan<Int16x2> pcm)
-    {
-        // we interpret this as the user saying the audio they submitted previously is no longer what they're writing, so we should clear this
-        this.overflow.Clear();
-        base.Encode(pcm);
-    }
 }

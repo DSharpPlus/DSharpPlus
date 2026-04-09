@@ -74,4 +74,10 @@ public sealed class VoiceOptions
     /// this at five ticks, which is the most natural value, unless there is a specific motivating scenario to change this value.
     /// </remarks>
     public int SilenceTicksBeforePausingConnection { get; set; } = 5;
+
+    /// <summary>
+    /// Specifies whether to log outgoing RTCP packets at trace level. This is extremely verbose and unlikely to be remarkably useful.
+    /// Defaults to false.
+    /// </summary>
+    public bool LogOutboundRTCPPackets { get; set; } = false;
 }

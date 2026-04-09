@@ -64,4 +64,9 @@ public interface IE2EESession : IDisposable
     /// Writes the client's key package to the writer.
     /// </summary>
     public void WriteKeyPackage(ArrayPoolBufferWriter<byte> writer);
+
+    /// <summary>
+    /// Gets the maximum encrypted length of a payload of the provided size.
+    /// </summary>
+    public int GetMaxEncryptedLength(int unencryptedLength);
 }

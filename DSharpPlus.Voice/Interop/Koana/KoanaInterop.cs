@@ -286,9 +286,11 @@ internal unsafe partial struct KoanaInterop : IDisposable
             }
         }
 
-        Debug.Assert(size == unencryptedFrame.Length);
         return size;
     }
+
+    public readonly int GetMaxEncryptedSize(int unencryptedSize)
+        => koana_get_max_encrypted_size(this.context, unencryptedSize);
 
     public readonly ushort GetProtocolVersion()
         => koana_get_current_protocol_version(this.context);
