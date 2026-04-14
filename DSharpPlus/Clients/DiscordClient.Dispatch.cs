@@ -419,6 +419,11 @@ public sealed partial class DiscordClient
                 gid = (ulong)dat["guild_id"];
                 await OnVoiceServerUpdateEventAsync((string)dat["endpoint"], (string)dat["token"], this.guilds[gid]);
                 break;
+            
+            case "voice_channel_effect_send":
+
+                await OnVoiceChannelEffectSendAsync(dat.ToDiscordObject<VoiceChannelEffectSendEventArgs>());
+                break;
 
             #endregion
 
@@ -598,6 +603,33 @@ public sealed partial class DiscordClient
 
             case "entitlement_delete":
                 await OnEntitlementDeletedAsync(dat.ToDiscordObject<DiscordEntitlement>());
+                break;
+            #endregion
+
+            #region Soundboard
+            case "guild_soundboard_sound_create":
+                gid = (ulong)dat["guild_id"];
+                await OnGuildSoundboardSoundCreateAsync(gid, dat);
+                break;
+
+            case "guild_soundboard_sound_update":
+                gid = (ulong)dat["guild_id"];
+                await OnGuildSoundboardSoundUpdateAsync(gid, dat);
+                break;
+
+            case "guild_soundboard_sound_delete":
+                gid = (ulong)dat["guild_id"];
+                await OnGuildSoundboardSoundDeleteAsync(gid, (ulong)dat["sound_id"]);
+                break;
+
+            case "guild_soundboard_sounds_update":
+                gid = (ulong)dat["guild_id"];
+                await OnGuildSoundboardSoundsUpdateAsync(gid, dat["soundboard_sounds"]);
+                break;
+
+            case "soundboard_sounds":
+                gid = (ulong)dat["guild_id"];
+                await OnSoundboardSoundsAsync(gid, dat["soundboard_sounds"]);
                 break;
             #endregion
         }
@@ -1235,7 +1267,7 @@ public sealed partial class DiscordClient
 
         if (exists)
         {
-            guild = foundGuild;
+            guild = foundGuild!;
         }
 
         guild.channels ??= new ConcurrentDictionary<ulong, DiscordChannel>();
@@ -1247,6 +1279,7 @@ public sealed partial class DiscordClient
         guild.members ??= new ConcurrentDictionary<ulong, DiscordMember>();
         guild.stageInstances ??= new ConcurrentDictionary<ulong, DiscordStageInstance>();
         guild.scheduledEvents ??= new ConcurrentDictionary<ulong, DiscordScheduledGuildEvent>();
+        guild.soundboardSounds ??= new ConcurrentDictionary<ulong, DiscordSoundboardSound>();
 
         UpdateCachedGuild(eventGuild, rawMembers);
 
@@ -1318,6 +1351,11 @@ public sealed partial class DiscordClient
         foreach (DiscordStageInstance stageInstance in guild.stageInstances.Values)
         {
             stageInstance.Discord = this;
+        }
+
+        foreach (DiscordSoundboardSound sound in guild.soundboardSounds.Values)
+        {
+            sound.Discord = this;
         }
 
         bool old = Volatile.Read(ref this.guildDownloadCompleted);
@@ -2481,6 +2519,9 @@ public sealed partial class DiscordClient
         await this.dispatcher.DispatchAsync(this, ea);
     }
 
+    private async Task OnVoiceChannelEffectSendAsync(VoiceChannelEffectSendEventArgs eventArgs) 
+        => await this.dispatcher.DispatchAsync(this, eventArgs);
+
     #endregion
 
     #region Thread
@@ -3173,6 +3214,92 @@ public sealed partial class DiscordClient
 
     private async Task OnEntitlementDeletedAsync(DiscordEntitlement entitlement)
         => await this.dispatcher.DispatchAsync(this,  new EntitlementDeletedEventArgs { Entitlement = entitlement });
+
+    #endregion
+
+    #region Soundboard
+
+    private async Task OnGuildSoundboardSoundCreateAsync(ulong guildId, JObject dat)
+    {
+        DiscordGuild? guild = InternalGetCachedGuild(guildId);
+        DiscordSoundboardSound sound = dat.ToDiscordObject<DiscordSoundboardSound>();
+        sound.Discord = this;
+
+        guild?.soundboardSounds[sound.Id] = sound;
+
+        await this.dispatcher.DispatchAsync(this, new GuildSoundboardSoundCreatedEventArgs
+        {
+            Guild = guild,
+            SoundboardSound = sound
+        });
+    }
+
+    private async Task OnGuildSoundboardSoundUpdateAsync(ulong guildId, JObject dat)
+    {
+        DiscordGuild guild = InternalGetCachedGuild(guildId);
+        DiscordSoundboardSound sound = dat.ToDiscordObject<DiscordSoundboardSound>();
+        sound.Discord = this;
+
+        guild.soundboardSounds.TryGetValue(sound.Id, out DiscordSoundboardSound? oldSound);
+        guild.soundboardSounds[sound.Id] = sound;
+
+        await this.dispatcher.DispatchAsync(this, new GuildSoundboardSoundUpdatedEventArgs
+        {
+            Guild = guild,
+            SoundboardSoundBefore = oldSound,
+            SoundboardSoundAfter = sound
+        });
+    }
+
+    private async Task OnGuildSoundboardSoundDeleteAsync(ulong guildId, ulong soundId)
+    {
+        DiscordGuild guild = InternalGetCachedGuild(guildId);
+        guild.soundboardSounds.TryRemove(soundId, out _);
+
+        await this.dispatcher.DispatchAsync(this, new GuildSoundboardSoundDeletedEventArgs
+        {
+            Guild = guild,
+            SoundId = soundId
+        });
+    }
+
+    private async Task OnGuildSoundboardSoundsUpdateAsync(ulong guildId, JToken rawSounds)
+    {
+        DiscordGuild guild = InternalGetCachedGuild(guildId);
+        List<DiscordSoundboardSound> sounds = [];
+
+        foreach (JToken rawSound in rawSounds)
+        {
+            DiscordSoundboardSound sound = rawSound.ToDiscordObject<DiscordSoundboardSound>();
+            sound.Discord = this;
+            sounds.Add(sound);
+            guild.soundboardSounds[sound.Id] = sound;
+        }
+
+        await this.dispatcher.DispatchAsync(this, new GuildSoundboardSoundsUpdatedEventArgs
+        {
+            Guild = guild,
+            SoundboardSounds = sounds
+        });
+    }
+
+    private async Task OnSoundboardSoundsAsync(ulong guildId, JToken rawSounds)
+    {
+        List<DiscordSoundboardSound> sounds = [];
+
+        foreach (JToken rawSound in rawSounds)
+        {
+            DiscordSoundboardSound sound = rawSound.ToDiscordObject<DiscordSoundboardSound>();
+            sound.Discord = this;
+            sounds.Add(sound);
+        }
+
+        await this.dispatcher.DispatchAsync(this, new SoundboardSoundsReceivedEventArgs
+        {
+            GuildId = guildId,
+            SoundboardSounds = sounds
+        });
+    }
 
     #endregion
 

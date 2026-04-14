@@ -280,7 +280,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<DiscordChannel> GetChannelAsync(ulong id)
+    public async ValueTask<DiscordChannel> GetChannelAsync(ulong id)
         => InternalGetCachedThread(id) ?? InternalGetCachedChannel(id) ?? await this.ApiClient.GetChannelAsync(id);
 
     /// <summary>
@@ -937,6 +937,13 @@ public sealed partial class DiscordClient : BaseDiscordClient
         }
         while (remaining > 0 && lastCount is > 0 and 100);
     }
+    
+    /// <summary>
+    /// Retrieves the default soundboard sounds.
+    /// </summary>
+    /// <returns>A list of default soundboard sounds.</returns>
+    public async Task<IReadOnlyList<DiscordSoundboardSound>> ListDefaultSoundboardSoundsAsync()
+        => await this.ApiClient.ListDefaultSoundboardSoundsAsync();
     #endregion
 
     [StackTraceHidden]
@@ -1201,12 +1208,12 @@ public sealed partial class DiscordClient : BaseDiscordClient
 
         foreach (DiscordEmoji newEmoji in newGuild.emojis.Values)
         {
-            _ = guild.emojis.GetOrAdd(newEmoji.Id, _ => newEmoji);
+            _ = guild.emojis.GetOrAdd(newEmoji.Id, newEmoji);
         }
 
         foreach (DiscordMessageSticker newSticker in newGuild.stickers.Values)
         {
-            _ = guild.stickers.GetOrAdd(newSticker.Id, _ => newSticker);
+            _ = guild.stickers.GetOrAdd(newSticker.Id, newSticker);
         }
 
         if (rawMembers != null)
@@ -1239,7 +1246,15 @@ public sealed partial class DiscordClient : BaseDiscordClient
         {
             foreach (DiscordStageInstance newStageInstance in newGuild.stageInstances.Values)
             {
-                _ = guild.stageInstances.GetOrAdd(newStageInstance.Id, _ => newStageInstance);
+                _ = guild.stageInstances.GetOrAdd(newStageInstance.Id, newStageInstance);
+            }
+        }
+
+        if (newGuild.soundboardSounds != null)
+        {
+            foreach (DiscordSoundboardSound newSoundboardSound in newGuild.soundboardSounds.Values)
+            {
+                _ = guild.soundboardSounds.GetOrAdd(newSoundboardSound.Id, newSoundboardSound);
             }
         }
 

@@ -617,6 +617,15 @@ public sealed class EventHandlingBuilder
     }
 
     /// <summary>
+    /// Sent when someone sends an effect, such as an emoji reaction or a soundboard sound, in a voice channel the current user is connected to. 
+    /// </summary>
+    public EventHandlingBuilder HandleVoiceChannelEffectSend(Func<DiscordClient, VoiceChannelEffectSendEventArgs, Task> handler)
+    {
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
+        return this;
+    }
+
+    /// <summary>
     /// Fired when a thread is created.
     /// For this event to fire you need the <see cref="DiscordIntents.Guilds"/> intent.
     /// </summary>
@@ -918,6 +927,86 @@ public sealed class EventHandlingBuilder
     /// Fired if a request made over the gateway got ratelimited.
     /// </summary>
     public EventHandlingBuilder HandleRatelimited(Func<DiscordClient, RatelimitedEventArgs, Task> handler)
+    {
+        this.Services.Configure<EventHandlerCollection>
+        (
+            c => c.Register(handler)
+        );
+
+        return this;
+    }
+
+    /// <summary>
+    /// Fired when a guild soundboard sound is created.
+    /// </summary>
+    public EventHandlingBuilder HandleGuildSoundboardSoundCreated
+    (
+        Func<DiscordClient, GuildSoundboardSoundCreatedEventArgs, Task> handler
+    )
+    {
+        this.Services.Configure<EventHandlerCollection>
+        (
+            c => c.Register(handler)
+        );
+
+        return this;
+    }
+
+    /// <summary>
+    /// Fired when a guild soundboard sound is updated.
+    /// </summary>
+    public EventHandlingBuilder HandleGuildSoundboardSoundUpdated
+    (
+        Func<DiscordClient, GuildSoundboardSoundUpdatedEventArgs, Task> handler
+    )
+    {
+        this.Services.Configure<EventHandlerCollection>
+        (
+            c => c.Register(handler)
+        );
+
+        return this;
+    }
+
+    /// <summary>
+    /// Fired when a guild soundboard sound is deleted.
+    /// </summary>
+    public EventHandlingBuilder HandleGuildSoundboardSoundDeleted
+    (
+        Func<DiscordClient, GuildSoundboardSoundDeletedEventArgs, Task> handler
+    )
+    {
+        this.Services.Configure<EventHandlerCollection>
+        (
+            c => c.Register(handler)
+        );
+
+        return this;
+    }
+
+    /// <summary>
+    /// Fired when multiple guild soundboard sounds are updated.
+    /// </summary>
+    public EventHandlingBuilder HandleGuildSoundboardSoundsUpdated
+    (
+        Func<DiscordClient, GuildSoundboardSoundsUpdatedEventArgs, Task> handler
+    )
+    {
+        this.Services.Configure<EventHandlerCollection>
+        (
+            c => c.Register(handler)
+        );
+
+        return this;
+    }
+
+    /// <summary>
+    /// Fired in response to Request Soundboard Sounds.
+    /// </summary>
+    public EventHandlingBuilder HandleSoundboardSoundsReceived
+    (
+        Func<DiscordClient, SoundboardSoundsReceivedEventArgs, Task> handler
+    )
     {
         this.Services.Configure<EventHandlerCollection>
         (

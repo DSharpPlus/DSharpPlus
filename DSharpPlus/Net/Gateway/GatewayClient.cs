@@ -736,6 +736,11 @@ public sealed class GatewayClient : IGatewayClient
             "WEBHOOKS_UPDATE" => typeof(WebhooksUpdatedEventArgs),
             "MESSAGE_POLL_VOTE_ADD" => typeof(MessagePollVotedEventArgs),
             "MESSAGE_POLL_VOTE_REMOVE" => typeof(MessagePollVotedEventArgs),
+            "GUILD_SOUNDBOARD_SOUND_CREATE" => typeof(GuildSoundboardSoundCreatedEventArgs),
+            "GUILD_SOUNDBOARD_SOUND_UPDATE" => typeof(GuildSoundboardSoundUpdatedEventArgs),
+            "GUILD_SOUNDBOARD_SOUND_DELETE" => typeof(GuildSoundboardSoundDeletedEventArgs),
+            "GUILD_SOUNDBOARD_SOUNDS_UPDATE" => typeof(GuildSoundboardSoundsUpdatedEventArgs),
+            "SOUNDBOARD_SOUNDS" => typeof(SoundboardSoundsReceivedEventArgs),
             _ => typeof(UnknownEventArgs)
         };
     }
