@@ -114,9 +114,16 @@ namespace DSharpPlus.Entities
         public DiscordTeamMembershipStatus MembershipStatus { get; internal set; }
 
         /// <summary>
-        /// Gets the member's permissions within the team.
+        /// This is always unset. Use <see cref="Role"/> instead.
         /// </summary>
-        public IReadOnlyCollection<string> Permissions { get; internal set; }
+        [Obsolete]
+        public IReadOnlyCollection<string> Permissions { get; internal set; } = Array.Empty<string>();
+
+        /// <summary>
+        /// Gets the member's role within the team, either <c>admin</c>, <c>developer</c> or <c>read_only</c>. Use
+        /// <see cref="DiscordTeam.Owner"/> to determine the team owner. 
+        /// </summary>
+        public string Role { get; internal set; }
 
         /// <summary>
         /// Gets the team this member belongs to.
@@ -131,7 +138,7 @@ namespace DSharpPlus.Entities
         internal DiscordTeamMember(TransportTeamMember ttm)
         {
             this.MembershipStatus = (DiscordTeamMembershipStatus)ttm.MembershipState;
-            this.Permissions = new ReadOnlySet<string>(new HashSet<string>(ttm.Permissions));
+            this.Role = ttm.Role;
         }
 
         /// <summary>
