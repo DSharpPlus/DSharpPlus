@@ -13,6 +13,7 @@ namespace DSharpPlus.Voice.Receivers;
 public sealed class DefaultAudioReceiver : AudioReceiver
 {
     private readonly ConcurrentDictionary<ulong, UserAudioReceiver> receivers = [];
+    private readonly ConcurrentDictionary<ulong, int> consecutivelyReceivedSilenceFrames = [];
     private readonly IAudioCodec codec;
 
     public DefaultAudioReceiver(IAudioCodec codec) 
@@ -83,13 +84,40 @@ public sealed class DefaultAudioReceiver : AudioReceiver
     }
 
     /// <inheritdoc/>
-    protected internal override Task ProcessAudioAsync(ulong speakingUserId, uint sequence, AudioTimestamp timestamp, TimeSpan duration, byte[] audio)
+    protected internal override async Task ProcessAudioAsync(ulong speakingUserId, uint sequence, AudioTimestamp timestamp, TimeSpan duration, byte[] audio)
     {
-        this.receivers.TryGetValue(speakingUserId, out UserAudioReceiver? receiver);
+        if (!this.receivers.TryGetValue(speakingUserId, out UserAudioReceiver? receiver))
+        {
+            // should be impossible
+            return;
+        }
+
+        if (audio.SequenceEqual(this.codec.SilenceFrame))
+        {
+            this.consecutivelyReceivedSilenceFrames.AddOrUpdate(speakingUserId, 1, (_, silenceFrames) => silenceFrames + 1);
+
+            // trigger specifically at five silence frames, which is what discord uses as a benchmark for a break in voice data
+            // we don't want to re-trigger when it increases, that would be bad
+            if (this.consecutivelyReceivedSilenceFrames[speakingUserId] == 5)
+            {
+                await this.UserStoppedSpeaking?.Invoke(speakingUserId);
+                receiver.IsSpeaking = false;
+            }
+        }
+        else
+        {
+            if (receiver.IsSpeaking != true)
+            {
+                await this.UserStartedSpeaking?.Invoke(speakingUserId);
+                receiver.IsSpeaking = true;
+            }
+
+            this.consecutivelyReceivedSilenceFrames.AddOrUpdate(speakingUserId, 0, (_, _) => 0);
+        }
 
         receiver?.Ingest(sequence, timestamp, duration, audio);
 
-        return Task.CompletedTask;
+        return;
     }
 
     /// <inheritdoc/>
@@ -114,7 +142,7 @@ public sealed class DefaultAudioReceiver : AudioReceiver
 
         this.receivers.TryAdd(id, receiver);
 
-        await this.UserJoined(id);
+        await this.UserJoined?.Invoke(id);
     }
 
     /// <inheritdoc/>
@@ -124,7 +152,7 @@ public sealed class DefaultAudioReceiver : AudioReceiver
 
         receiver?.Close();
 
-        await this.UserLeft(id);
+        await this.UserLeft?.Invoke(id);
     }
 
     /// <inheritdoc/>
@@ -134,7 +162,7 @@ public sealed class DefaultAudioReceiver : AudioReceiver
 
         receiver?.IsSpeaking = true;
 
-        await this.UserStartedSpeaking(id);
+        await this.UserStartedSpeaking?.Invoke(id);
     }
 
     /// <inheritdoc/>
@@ -144,7 +172,7 @@ public sealed class DefaultAudioReceiver : AudioReceiver
 
         receiver?.IsSpeaking = false;
 
-        await this.UserStoppedSpeaking(id);
+        await this.UserStoppedSpeaking?.Invoke(id);
     }
 
     private UserAudioReceiver CreateNewReceiver(UserAudioReceiveMode mode)

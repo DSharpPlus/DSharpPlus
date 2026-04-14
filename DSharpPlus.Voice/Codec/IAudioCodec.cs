@@ -28,4 +28,9 @@ public interface IAudioCodec
     /// Calculates the length a packet will run for.
     /// </summary>
     public TimeSpan CalculatePacketLength(ReadOnlySpan<byte> packet);
+
+    /// <summary>
+    /// Gets the idiomatic silence frame for this codec.
+    /// </summary>
+    public ReadOnlySpan<byte> SilenceFrame { get; }
 }

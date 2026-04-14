@@ -9,6 +9,9 @@ public sealed class OpusCodec : IAudioCodec
     private IAudioEncoder? encoder;
 
     /// <inheritdoc/>
+    public ReadOnlySpan<byte> SilenceFrame => [0xF8, 0xFF, 0xFE];
+
+    /// <inheritdoc/>
     public IAudioEncoder CreateEncoder(int bitrate, AudioType type)
     {
         IAudioEncoder encoder = new OpusEncoder(bitrate, type);

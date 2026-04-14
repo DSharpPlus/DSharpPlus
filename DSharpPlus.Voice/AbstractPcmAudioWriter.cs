@@ -153,6 +153,6 @@ public abstract class AbstractPcmAudioWriter : AudioWriter
             ArrayPool<byte>.Shared.Return(this.rentedBuffer);
         }
 
-        this.rentedBuffer = ArrayPool<byte>.Shared.Rent(size);
+        this.rentedBuffer = ArrayPool<byte>.Shared.Rent(size == 0 ? 16384 : size);
     }
 }

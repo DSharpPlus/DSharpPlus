@@ -292,6 +292,7 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         }
 
         this.isDisposed = true;
+        this.isDisconnecting = true;
 
         RTCPGoodbyePacket goodbye = new()
         {
@@ -303,6 +304,7 @@ public sealed partial class VoiceConnection : IAsyncDisposable
 
         this.vgwCancellation.Cancel();
         this.heartbeatCancellation.Cancel();
+        this.audioCancellation.Cancel();
 
         await this.voiceGateway.DisconnectAsync(WebSocketCloseStatus.NormalClosure);
         await this.mediaTransport.DisconnectAsync();
