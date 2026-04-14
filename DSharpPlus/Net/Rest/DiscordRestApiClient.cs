@@ -1466,9 +1466,9 @@ public sealed class DiscordRestApiClient
                 {
                     [REASON_HEADER_NAME] = reason
                 },
-            Files = new DiscordFile[]
+            Files = new Dictionary<string, DiscordFile>()
             {
-                file
+                { "file", file }
             },
             Values = new Dictionary<string, string>()
             {
@@ -2373,13 +2373,15 @@ public sealed class DiscordRestApiClient
             string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}";
             string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}";
 
+            int fileIndex = 0;
+
             MultipartRestRequest request = new()
             {
                 Route = route,
                 Url = url,
                 Method = HttpMethod.Post,
                 Values = values,
-                Files = builder.Files
+                Files = builder.Files.ToDictionary(file => $"file{fileIndex++}")
             };
 
             RestResponse res = await this.rest.ExecuteRequestAsync(request);
@@ -2546,6 +2548,8 @@ public sealed class DiscordRestApiClient
 
         if (files is not null)
         {
+            int fileIndex = 0;
+
             MultipartRestRequest request = new()
             {
                 Route = route,
@@ -2555,7 +2559,7 @@ public sealed class DiscordRestApiClient
                 {
                     ["payload_json"] = payload
                 },
-                Files = (IReadOnlyList<DiscordFile>)files
+                Files = files.ToDictionary(file => $"file{fileIndex++}")
             };
 
             res = await this.rest.ExecuteRequestAsync(request);
@@ -2680,7 +2684,8 @@ public sealed class DiscordRestApiClient
         DiscordInviteTargetType? targetType = null,
         ulong? targetUserId = null,
         ulong? targetApplicationId = null,
-        IEnumerable<ulong>? roleIds = null
+        IEnumerable<ulong>? roleIds = null,
+        DiscordFile? targetUsersFile = null
     )
     {
         RestChannelInviteCreatePayload pld = new()
@@ -2704,16 +2709,45 @@ public sealed class DiscordRestApiClient
         string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.INVITES}";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.INVITES}";
 
-        RestRequest request = new()
+        RestResponse res;
+        if (targetUsersFile is null)
         {
-            Route = route,
-            Url = url,
-            Method = HttpMethod.Post,
-            Payload = DiscordJson.SerializeObject(pld),
-            Headers = headers
-        };
+            RestRequest request = new()
+            {
+                Route = route,
+                Url = url,
+                Method = HttpMethod.Post,
+                Payload = DiscordJson.SerializeObject(pld),
+                Headers = headers
+            };
 
-        RestResponse res = await this.rest.ExecuteRequestAsync(request);
+            res = await this.rest.ExecuteRequestAsync(request);
+        }
+        else
+        {
+            Dictionary<string, string> values = new()
+            {
+                { "payload_json", DiscordJson.SerializeObject(pld) }
+            };
+
+            Dictionary<string, DiscordFile> files = new()
+            {
+                { "target_users_file", targetUsersFile.Value }
+            };
+
+            MultipartRestRequest request = new()
+            {
+                Files = files,
+                Method = HttpMethod.Post,
+                Route = route,
+                Url = url,
+                Values = values,
+                Headers = headers
+            };
+
+            res = await this.rest.ExecuteRequestAsync(request);
+        }
+
 
         DiscordInvite ret = JsonConvert.DeserializeObject<DiscordInvite>(res.Response!)!;
         ret.Discord = this.discord!;
@@ -4567,6 +4601,63 @@ public sealed class DiscordRestApiClient
 
         return ret;
     }
+
+    public async ValueTask<IReadOnlyList<ulong>> GetInviteTargetUsersAsync
+    (
+        string inviteCode
+    )
+    {
+        RestRequest request = new()
+        {
+            Route = $"{Endpoints.INVITES}/:invite_code/{Endpoints.TARGET_USERS}",
+            Url = $"{Endpoints.INVITES}/{inviteCode}/{Endpoints.TARGET_USERS}",
+            Method = HttpMethod.Get
+        };
+
+        RestResponse response = await this.rest.ExecuteRequestAsync(request);
+
+        return DiscordInvite.ReadTargetUserCsv(response.Response!);
+    }
+
+    public async ValueTask UpdateInviteTargetUsersAsync
+    (
+        string inviteCode,
+        DiscordFile targetUserFile
+    )
+    {
+
+        Dictionary<string, DiscordFile> files = new()
+        {
+            { "target_users_file", targetUserFile }
+        };
+
+        MultipartRestRequest request = new()
+        {
+            Route = $"{Endpoints.INVITES}/:invite_code/{Endpoints.TARGET_USERS}",
+            Url = $"{Endpoints.INVITES}/{inviteCode}/{Endpoints.TARGET_USERS}",
+            Method = HttpMethod.Put,
+            Files = files
+        };
+
+        await this.rest.ExecuteRequestAsync(request);
+    }
+
+    public async ValueTask<DiscordInviteTargetUsersJobStatus> GetInviteTargetUserJobStatusAsync
+    (
+        string inviteCode
+    )
+    {
+        RestRequest request = new()
+        {
+            Route = $"{Endpoints.INVITES}/:invite_code/{Endpoints.TARGET_USERS}/{Endpoints.JOB_STATUS}",
+            Url = $"{Endpoints.INVITES}/{inviteCode}/{Endpoints.TARGET_USERS}/{Endpoints.JOB_STATUS}",
+            Method = HttpMethod.Get
+        };
+
+        RestResponse response = await this.rest.ExecuteRequestAsync(request);
+
+        return JsonConvert.DeserializeObject<DiscordInviteTargetUsersJobStatus>(response.Response!);
+    }
     #endregion
 
     #region Connections
@@ -5006,13 +5097,15 @@ public sealed class DiscordRestApiClient
             url.AddParameter("thread_id", builder.ThreadId.Value.ToString());
         }
 
+        int fileIndex = 0;
+
         MultipartRestRequest request = new()
         {
             Route = route,
             Url = url.Build(),
             Method = HttpMethod.Post,
             Values = values,
-            Files = builder.Files,
+            Files = builder.Files.ToDictionary(file => $"file{fileIndex++}"),
             IsExemptFromGlobalLimit = true
         };
 
@@ -5115,13 +5208,15 @@ public sealed class DiscordRestApiClient
             ["payload_json"] = DiscordJson.SerializeObject(pld)
         };
 
+        int fileIndex = 0;
+
         MultipartRestRequest request = new()
         {
             Route = route,
             Url = uriBuilder.Build(),
             Method = HttpMethod.Patch,
             Values = values,
-            Files = builder.Files,
+            Files = builder.Files.ToDictionary(file => $"file{fileIndex++}"),
             IsExemptFromGlobalLimit = true
         };
 
@@ -6099,13 +6194,15 @@ public sealed class DiscordRestApiClient
         
         if (files is not (null or []))
         {
+            int fileIndex = 0;
+
             MultipartRestRequest request = new()
             {
                 Route = route,
                 Url = url,
                 Method = HttpMethod.Post,
                 Values = values,
-                Files = files,
+                Files = files.ToDictionary(file => $"file{fileIndex++}"),
                 IsExemptFromAllLimits = true
             };
 
@@ -6215,13 +6312,15 @@ public sealed class DiscordRestApiClient
                 ["payload_json"] = DiscordJson.SerializeObject(pld)
             };
 
+            int fileIndex = 0;
+
             MultipartRestRequest request = new()
             {
                 Route = route,
                 Url = url,
                 Method = HttpMethod.Patch,
                 Values = values,
-                Files = builder.Files,
+                Files = builder.Files.ToDictionary(file => $"file{fileIndex++}"),
                 IsExemptFromAllLimits = true
             };
 
@@ -6297,13 +6396,15 @@ public sealed class DiscordRestApiClient
         string route = $"{Endpoints.WEBHOOKS}/:application_id/{interactionToken}";
         string url = $"{Endpoints.WEBHOOKS}/{applicationId}/{interactionToken}";
 
+        int fileIndex = 0;
+
         MultipartRestRequest request = new()
         {
             Route = route,
             Url = url,
             Method = HttpMethod.Post,
             Values = values,
-            Files = builder.Files,
+            Files = builder.Files.ToDictionary(file => $"file{fileIndex++}"),
             IsExemptFromAllLimits = true
         };
 
@@ -6696,13 +6797,15 @@ public sealed class DiscordRestApiClient
                 ["payload_json"] = DiscordJson.SerializeObject(pld)
             };
 
+            int fileIndex = 0;
+
             MultipartRestRequest req = new()
             {
                 Route = route,
                 Url = url,
                 Method = HttpMethod.Post,
                 Values = values,
-                Files = message.Files
+                Files = message.Files.ToDictionary(file => $"file{fileIndex++}")
             };
 
             res = await this.rest.ExecuteRequestAsync(req);

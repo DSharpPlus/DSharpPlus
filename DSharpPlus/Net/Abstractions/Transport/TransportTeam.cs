@@ -28,8 +28,8 @@ internal sealed class TransportTeamMember
     [JsonProperty("membership_state")]
     public int MembershipState { get; set; }
 
-    [JsonProperty("permissions", NullValueHandling = NullValueHandling.Include)]
-    public IEnumerable<string> Permissions { get; set; }
+    [JsonProperty("role", NullValueHandling = NullValueHandling.Include)]
+    public string Role { get; set; }
 
     [JsonProperty("team_id")]
     public ulong TeamId { get; set; }
