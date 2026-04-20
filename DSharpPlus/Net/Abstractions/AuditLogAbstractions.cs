@@ -96,6 +96,9 @@ internal sealed class AuditLogActionOptions
 
     [JsonProperty("type")]
     public object Type { get; set; }
+
+    [JsonProperty("status")]
+    public string? Status { get; set; }
 }
 
 internal sealed class AuditLogAction

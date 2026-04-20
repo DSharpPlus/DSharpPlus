@@ -926,4 +926,31 @@ public sealed class EventHandlingBuilder
 
         return this;
     }
+
+    /// <summary>
+    /// Fired in response to voice channel info being requested over the gateway.
+    /// </summary>
+    public EventHandlingBuilder HandleChannelInfo(Func<DiscordClient, ChannelInfoEventArgs, Task> handler)
+    {
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
+        return this;
+    }
+
+    /// <summary>
+    /// Fired when the status of a voice channel was updated.
+    /// </summary>
+    public EventHandlingBuilder HandleVoiceChannelStatusUpdated(Func<DiscordClient, VoiceChannelStatusUpdatedEventArgs, Task> handler)
+    {
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
+        return this;
+    }
+
+    /// <summary>
+    /// Fired when the start time of a voice channel was updated.
+    /// </summary>
+    public EventHandlingBuilder HandleVoiceChannelStartTimeUpdated(Func<DiscordClient, VoiceChannelStartTimeUpdatedEventArgs, Task> handler)
+    {
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
+        return this;
+    }
 }

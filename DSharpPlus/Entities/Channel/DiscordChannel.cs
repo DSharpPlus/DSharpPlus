@@ -6,7 +6,10 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using DSharpPlus.Clients;
+using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
+using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Abstractions.Rest;
 using DSharpPlus.Net.Models;
 using DSharpPlus.Net.Serialization;
@@ -1196,6 +1199,71 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         perms |= roleOverwrites.Allowed;
 
         return perms;
+    }
+
+    /// <summary>
+    /// Gets the status and start time of the currently active voice session, if available.
+    /// Returns <c>(null, null)</c> if there was no active voice session.
+    /// </summary>
+    public async Task<(string? status, DateTimeOffset? startTime)> GetVoiceChannelInfoAsync()
+    {
+        if (this.Discord is not DiscordClient discordClient)
+        {
+            throw new InvalidOperationException("This is not available on rest-only connections.");
+        }
+
+        if (this.Type is not DiscordChannelType.Voice and not DiscordChannelType.Stage)
+        {
+            throw new InvalidOperationException("This can only be called on voice channels.");
+        }
+
+        GatewayRequestChannelInfo request = new()
+        {
+            GuildId = this.GuildId.Value,
+            Fields = ["status", "voice_start_time"]
+        };
+
+        EventWaiter<ChannelInfoEventArgs> eventWaiter = discordClient.CreateEventWaiter<ChannelInfoEventArgs>
+        (
+            condition: (eventArgs) => eventArgs.Guild.Id == this.GuildId.Value,
+            timeout: TimeSpan.FromSeconds(100)
+        );
+
+#pragma warning disable DSP0004
+        await discordClient.SendPayloadAsync(GatewayOpCode.RequestChannelInfo, request, this.GuildId.Value);
+#pragma warning restore DSP0004
+
+        EventWaiterResult<ChannelInfoEventArgs> result = await eventWaiter.Task;
+
+        if (result.TimedOut)
+        {
+            throw new TimeoutException("The request for voice channel info timed out.");
+        }
+
+        VoiceChannelInfo? voiceChannelInfo = result.Value.ChannelInfo.FirstOrDefault(x => x.Channel.Id == this.Id);
+
+        return voiceChannelInfo is null
+            ? (null, null)
+            : (voiceChannelInfo.Status, voiceChannelInfo.StartTime);
+    }
+
+    /// <summary>
+    /// Updates the status for this voice channel. Requires the <see cref="DiscordPermission.SetVoiceChannelStatus"/>
+    /// permission, and additionally the <see cref="DiscordPermission.ManageChannels"/> permission if the current user
+    /// is not connected to the voice channel.  
+    /// </summary>
+    /// <param name="status">The new status for this voice channel, or null to clear it.</param>
+    /// <param name="reason">An optional audit log reason for this operation.</param>
+    public async Task SetVoiceChannelStatusAsync(string? status, string? reason = null)
+    {
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(status?.Length ?? 0, 500, "status.Length");
+
+        if (this.Type is not DiscordChannelType.Voice and not DiscordChannelType.Stage)
+        {
+            throw new InvalidOperationException("This can only be called on voice channels.");
+        }
+
+        await this.Discord.ApiClient.SetVoiceChannelStatusAsync(this.Id, status, reason);
     }
 
     /// <summary>
