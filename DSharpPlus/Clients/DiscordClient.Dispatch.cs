@@ -121,6 +121,25 @@ public sealed partial class DiscordClient
                 await OnChannelPinsUpdateAsync((ulong?)dat["guild_id"], cid, ts != null ? DateTimeOffset.Parse(ts, CultureInfo.InvariantCulture) : default(DateTimeOffset?));
                 break;
 
+            case "channel_info":
+                VoiceChannelInfo[] info = dat["channels"].ToDiscordObject<VoiceChannelInfo[]>();
+                await OnChannelInfoAsync((ulong)dat["guild_id"], info);
+                break;
+
+            case "voice_channel_status_update":
+                await OnVoiceChannelStatusUpdateAsync((ulong)dat["guild_id"], (ulong)dat["id"], (string?)dat["status"]);
+                break;
+
+            case "voice_channel_start_time_update":
+                long? unixTimestamp = (long?)dat["voice_start_time"];
+                await OnVoiceChannelStartTimeUpdateAsync
+                (
+                    (ulong)dat["guild_id"],
+                    (ulong)dat["id"],
+                    unixTimestamp is not null ? DateTimeOffset.FromUnixTimeSeconds(unixTimestamp.Value) : null
+                );
+                break;
+
             #endregion
 
             #region Scheduled Guild Events
@@ -1071,6 +1090,54 @@ public sealed partial class DiscordClient
         };
 
         await this.dispatcher.DispatchAsync<ChannelPinsUpdatedEventArgs>(this, ea);
+    }
+
+    internal async Task OnChannelInfoAsync(ulong guildId, IReadOnlyList<VoiceChannelInfo> channelInfo)
+    {
+        DiscordGuild guild = InternalGetCachedGuild(guildId);
+
+        foreach (VoiceChannelInfo info in channelInfo)
+        {
+            info.Channel = InternalGetCachedChannel(info.Id, guildId);
+        }
+
+        ChannelInfoEventArgs ea = new()
+        {
+            Guild = guild,
+            ChannelInfo = channelInfo
+        };
+
+        await this.dispatcher.DispatchAsync(this, ea);
+    }
+
+    internal async Task OnVoiceChannelStatusUpdateAsync(ulong guildId, ulong channelId, string? status)
+    {
+        DiscordGuild guild = InternalGetCachedGuild(guildId);
+        DiscordChannel channel = InternalGetCachedChannel(channelId, guildId);
+
+        VoiceChannelStatusUpdatedEventArgs ea = new()
+        {
+            Guild = guild,
+            Channel = channel,
+            Status = status
+        };
+
+        await this.dispatcher.DispatchAsync(this, ea);
+    }
+
+    internal async Task OnVoiceChannelStartTimeUpdateAsync(ulong guildId, ulong channelId, DateTimeOffset? startTime)
+    {
+        DiscordGuild guild = InternalGetCachedGuild(guildId);
+        DiscordChannel channel = InternalGetCachedChannel(channelId, guildId);
+
+        VoiceChannelStartTimeUpdatedEventArgs ea = new()
+        {
+            Guild = guild,
+            Channel = channel,
+            StartTime = startTime
+        };
+
+        await this.dispatcher.DispatchAsync(this, ea);
     }
 
     #endregion

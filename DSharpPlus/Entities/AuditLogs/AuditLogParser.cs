@@ -1,14 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
+
 using Microsoft.Extensions.Logging;
+
 using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus.Entities.AuditLogs;
@@ -463,6 +465,21 @@ internal static class AuditLogParser
                 entry = ParseAutoModerationRuleUpdateEntry(guild, auditLogAction);
                 break;
 
+            case DiscordAuditLogActionType.VoiceChannelStatusUpdate:
+            case DiscordAuditLogActionType.VoiceChannelStatusDelete:
+
+                entry = new DiscordAuditLogVoiceChannelStatusEntry();
+                DiscordAuditLogVoiceChannelStatusEntry voiceChannelStatusEntry =
+                    (DiscordAuditLogVoiceChannelStatusEntry)entry;
+
+                voiceChannelStatusEntry.Status = auditLogAction.Options.Status is not null
+                    ? new()
+                    : PropertyChange<string?>.From(null, auditLogAction.Options.Status);
+
+                voiceChannelStatusEntry.Target = guild.GetChannel(auditLogAction.Options.ChannelId);
+
+                break;
+
             default:
                 if (guild.Discord.Configuration.LogUnknownAuditlogs)
                 {
@@ -485,14 +502,16 @@ internal static class AuditLogParser
                 or DiscordAuditLogActionType.OverwriteCreate or DiscordAuditLogActionType.RoleCreate
                 or DiscordAuditLogActionType.WebhookCreate or DiscordAuditLogActionType.IntegrationCreate
                 or DiscordAuditLogActionType.StickerCreate
-                or DiscordAuditLogActionType.AutoModerationRuleCreate => DiscordAuditLogActionCategory.Create,
+                or DiscordAuditLogActionType.AutoModerationRuleCreate
+                or DiscordAuditLogActionType.VoiceChannelStatusUpdate => DiscordAuditLogActionCategory.Create,
 
             DiscordAuditLogActionType.ChannelDelete or DiscordAuditLogActionType.EmojiDelete or DiscordAuditLogActionType.InviteDelete
                 or DiscordAuditLogActionType.MessageDelete or DiscordAuditLogActionType.MessageBulkDelete
                 or DiscordAuditLogActionType.OverwriteDelete or DiscordAuditLogActionType.RoleDelete
                 or DiscordAuditLogActionType.WebhookDelete or DiscordAuditLogActionType.IntegrationDelete
                 or DiscordAuditLogActionType.StickerDelete
-                or DiscordAuditLogActionType.AutoModerationRuleDelete => DiscordAuditLogActionCategory.Delete,
+                or DiscordAuditLogActionType.AutoModerationRuleDelete
+                or DiscordAuditLogActionType.VoiceChannelStatusDelete => DiscordAuditLogActionCategory.Delete,
 
             DiscordAuditLogActionType.ChannelUpdate or DiscordAuditLogActionType.EmojiUpdate or DiscordAuditLogActionType.InviteUpdate
                 or DiscordAuditLogActionType.MemberRoleUpdate or DiscordAuditLogActionType.MemberUpdate

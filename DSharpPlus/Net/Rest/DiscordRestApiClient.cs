@@ -3229,6 +3229,34 @@ public sealed class DiscordRestApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
+    public async ValueTask SetVoiceChannelStatusAsync(ulong channelId, string? newStatus, string? reason = null)
+    {
+        Dictionary<string, string> headers = [];
+        if (!string.IsNullOrWhiteSpace(reason))
+        {
+            headers[REASON_HEADER_NAME] = reason;
+        }
+
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.VOICE_STATUS}";
+        string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.VOICE_STATUS}";
+
+        RestSetVoiceChannelStatusPayload payload = new()
+        {
+            Status = newStatus
+        };
+
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Put,
+            Headers = headers,
+            Payload = DiscordJson.SerializeObject(payload)
+        };
+
+        await this.rest.ExecuteRequestAsync(request);
+    }
+
     #endregion
 
     #region Threads

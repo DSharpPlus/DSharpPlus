@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+using DSharpPlus.Clients;
 using DSharpPlus.Entities.AuditLogs;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
@@ -2602,7 +2603,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             return null;
         }
     }
-    
+
     #endregion
 
     /// <summary>

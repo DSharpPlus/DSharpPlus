@@ -75,6 +75,7 @@ internal static class Endpoints
     public const string VANITY_URL = "vanity-url";
     public const string VOICE = "voice";
     public const string VOICE_STATES = "voice-states";
+    public const string VOICE_STATUS = "voice-status";
     public const string WEBHOOKS = "webhooks";
     public const string WELCOME_SCREEN = "welcome-screen";
     public const string WIDGET = "widget";

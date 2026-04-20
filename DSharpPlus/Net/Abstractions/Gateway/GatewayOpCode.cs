@@ -69,5 +69,10 @@ public enum GatewayOpCode : int
     /// <summary>
     /// Used to request guild synchronization.
     /// </summary>
-    GuildSync = 12
+    GuildSync = 12,
+
+    /// <summary>
+    /// Used to request specific information about a channel.
+    /// </summary>
+    RequestChannelInfo = 43,
 }

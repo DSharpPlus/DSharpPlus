@@ -331,3 +331,9 @@ internal sealed class RestBecomeStageSpeakerInstancePayload
     [JsonProperty("suppress", NullValueHandling = NullValueHandling.Ignore)]
     public bool? Suppress { get; set; }
 }
+
+internal sealed class RestSetVoiceChannelStatusPayload
+{
+    [JsonProperty("status")]
+    public string? Status { get; set; }
+}
