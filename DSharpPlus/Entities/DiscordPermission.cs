@@ -293,6 +293,13 @@ public enum DiscordPermission
     SendVoiceMessages = 46,
 
     /// <summary>
+    /// Allows members to set the status of a voice channel they are currently connected to, or all voice channels in conjunction
+    /// with the <see cref="ManageChannels"/> permission. 
+    /// </summary>
+    [Display(Name = "Set Voice Channel Status")]
+    SetVoiceChannelStatus = 48,
+
+    /// <summary>
     /// Allows members to send polls.
     /// </summary>
     [Display(Name = "Send Polls")]

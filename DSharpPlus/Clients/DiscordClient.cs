@@ -232,6 +232,15 @@ public sealed partial class DiscordClient : BaseDiscordClient
 
     #endregion
 
+    /// <summary>
+    /// Creates a new event waiter for an event of the specified type.
+    /// </summary>
+    /// <param name="condition">The condition an event needs to match before it fulfils the event waiter.</param>
+    /// <param name="timeout">A timeout for this event waiter.</param>
+    public EventWaiter<T> CreateEventWaiter<T>(Func<T, bool> condition, TimeSpan timeout)
+        where T : DiscordEventArgs
+        => this.dispatcher.CreateEventWaiter(condition, timeout);
+
     #region Public REST Methods
 
     /// <summary>
