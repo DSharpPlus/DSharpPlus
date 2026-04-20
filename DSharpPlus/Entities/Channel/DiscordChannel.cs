@@ -1205,7 +1205,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// Gets the status and start time of the currently active voice session, if available.
     /// Returns <c>(null, null)</c> if there was no active voice session.
     /// </summary>
-    public async Task<(string? status, DateTimeOffset? startTime)?> GetVoiceChannelInfoAsync()
+    public async Task<(string? status, DateTimeOffset? startTime)> GetVoiceChannelInfoAsync()
     {
         if (this.Discord is not DiscordClient discordClient)
         {

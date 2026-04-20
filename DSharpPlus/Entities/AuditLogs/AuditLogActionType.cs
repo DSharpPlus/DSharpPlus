@@ -300,5 +300,15 @@ public enum DiscordAuditLogActionType
     /// <summary>
     /// Member was timed out by Auto Moderation
     /// </summary>
-    AutoModerationUserCommunicationDisabled = 145
+    AutoModerationUserCommunicationDisabled = 145,
+
+    /// <summary>
+    /// Voice channel status was updated.
+    /// </summary>
+    VoiceChannelStatusUpdate = 192,
+
+    /// <summary>
+    /// Voice channel status was cleared.
+    /// </summary>
+    VoiceChannelStatusDelete = 193
 }
