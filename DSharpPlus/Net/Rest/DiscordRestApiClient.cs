@@ -677,7 +677,7 @@ public sealed class DiscordRestApiClient
         RestGuildMemberAddPayload payload = new()
         {
             AccessToken = accessToken,
-            Nickname = nick ?? "",
+            Nickname = nick,
             Roles = roles ?? [],
             Deaf = deafened ?? false,
             Mute = muted ?? false
