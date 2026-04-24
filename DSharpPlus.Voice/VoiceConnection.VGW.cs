@@ -1,6 +1,7 @@
 #pragma warning disable IDE0040
 
 using System;
+using System.Linq;
 using System.Net;
 using System.Net.WebSockets;
 using System.Text;
@@ -83,6 +84,9 @@ partial class VoiceConnection
 
         // we have all necessary information, connect to the vgw and identify
         await this.voiceGateway.ConnectAsync(this.endpoint, channelId);
+
+        DateTimeOffset connectionStartTime = DateTimeOffset.UtcNow;
+        this.metrics.SetConnectionStartTime(connectionStartTime);
 
         await this.voiceGateway.SendTextAsync(new()
         {
@@ -188,6 +192,22 @@ partial class VoiceConnection
             break;
         }
 
+        Task<EventWaiterResult<ChannelInfoEventArgs>> voiceChannelStartTimeTask = this.dispatcher.CreateEventWaiter<ChannelInfoEventArgs>
+        (
+            eventArgs => eventArgs.Guild.Id == this.guildId,
+            TimeSpan.FromSeconds(15)
+        ).Task;
+
+        RequestChannelInfoEvent voiceChannelStartTimeEvent = new()
+        {
+            Data = new()
+            {
+                GuildId = this.guildId
+            }
+        };
+
+        await this.shardOrchestrator.SendOutboundEventAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(voiceChannelStartTimeEvent)), guildId);
+
         await this.Receiver.Initialize([..this.connectedUsers]);
 
         this.e2ee.Initialize((ushort)this.daveVersion, channelId, this.userId, this.ssrc);
@@ -199,6 +219,12 @@ partial class VoiceConnection
             1 => DaveV1AnnounceKeyPackageAsync(),
             _ => LogErrorAndReconnectAsync("Invalid DAVE version {daveVersion}.", this.daveVersion)
         });
+
+        EventWaiterResult<ChannelInfoEventArgs> voiceChannelStartTime = await voiceChannelStartTimeTask;
+
+        this.metrics.SetSessionStartTime(voiceChannelStartTime.TimedOut
+            ? connectionStartTime
+            : voiceChannelStartTime.Value.ChannelInfo.First(x => x.Id == this.channelId).StartTime.Value);
 
         // ... and we await its response (which comes with the other users' keys, kind of important)
         // but only if there is a response to be awaited

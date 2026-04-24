@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 using CommunityToolkit.HighPerformance.Buffers;
 
+using DSharpPlus.Voice.Metrics;
 using DSharpPlus.Voice.Protocol.Gateway;
 
 using Microsoft.Extensions.Logging;
@@ -20,6 +21,7 @@ public sealed class TransportService : ITransportService
     private readonly ILoggerFactory loggerFactory;
     private readonly ArrayPoolBufferWriter<byte> receiveWriter;
     private readonly ArrayPoolBufferWriter<byte> sendWriter;
+    private readonly VoiceMetrics metrics;
     private ILogger logger;
     private ClientWebSocket socket;
 
@@ -29,11 +31,12 @@ public sealed class TransportService : ITransportService
     /// <inheritdoc/>
     public ushort SequenceNumber { get; internal set; }
 
-    public TransportService(ILoggerFactory loggerFactory)
+    public TransportService(ILoggerFactory loggerFactory, VoiceMetrics metrics)
     {
         this.receiveWriter = new();
         this.sendWriter = new();
         this.loggerFactory = loggerFactory;
+        this.metrics = metrics;
     }
 
     /// <inheritdoc/>
@@ -119,6 +122,8 @@ public sealed class TransportService : ITransportService
 
         if (this.isConnected)
         {
+            this.metrics.RecordGatewayPayloadSent();
+
             await this.socket.SendAsync
             (
                 buffer: payload,
@@ -144,6 +149,8 @@ public sealed class TransportService : ITransportService
 
         if (this.isConnected)
         {
+            this.metrics.RecordGatewayPayloadSent();
+
             await this.socket.SendAsync
             (
                 buffer: this.sendWriter.WrittenMemory,
@@ -177,6 +184,8 @@ public sealed class TransportService : ITransportService
             } while (!receiveResult.EndOfMessage);
         }
         catch (OperationCanceledException) { }
+
+        this.metrics.RecordGatewayPayloadReceived();
 
         if (receiveResult.MessageType == WebSocketMessageType.Binary)
         {

@@ -5,6 +5,7 @@ using DSharpPlus.Voice.AudioWriters;
 using DSharpPlus.Voice.Codec;
 using DSharpPlus.Voice.Cryptors;
 using DSharpPlus.Voice.E2EE;
+using DSharpPlus.Voice.Metrics;
 using DSharpPlus.Voice.Receivers;
 using DSharpPlus.Voice.Transport;
 
@@ -30,7 +31,8 @@ public static class RegistrationExtensions
                 .AddScoped<ICryptorFactory, DefaultCryptorFactory>()
                 .AddScoped<IAudioCodec, OpusCodec>()
                 .AddScoped<IAudioWriterFactory, DefaultAudioWriterFactory>()
-                .AddScoped<IE2EESession, MlsSession>();
+                .AddScoped<IE2EESession, MlsSession>()
+                .AddScoped<VoiceMetrics>();
             
             // receiver types
             services.AddScoped<DefaultAudioReceiver>()

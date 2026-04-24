@@ -16,6 +16,7 @@ using DSharpPlus.Voice.Cryptors;
 using DSharpPlus.Voice.E2EE;
 using DSharpPlus.Voice.MemoryServices.Channels;
 using DSharpPlus.Voice.MemoryServices.Collections;
+using DSharpPlus.Voice.Metrics;
 using DSharpPlus.Voice.Protocol;
 using DSharpPlus.Voice.Protocol.Gateway.Payloads.Bidirectional;
 using DSharpPlus.Voice.Protocol.RTCP.Payloads;
@@ -67,6 +68,9 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         this.e2ee = provider.GetRequiredService<IE2EESession>();
         this.options = provider.GetRequiredService<IOptions<VoiceOptions>>().Value;
         this.Receiver = (AudioReceiver)provider.GetRequiredService(receiverType);
+        this.metrics = provider.GetRequiredService<VoiceMetrics>();
+
+        this.metrics.SetChannelId(channelId);
 
         this.selfMute = selfMute;
         this.selfDeafen = selfDeafen;
@@ -159,6 +163,7 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     private uint ssrc;
     private bool isDisconnecting;
     private bool isDisposed;
+    private readonly VoiceMetrics metrics;
 
     /// <summary>
     /// Indicates whether we are currently sending audio.
@@ -175,6 +180,12 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     /// Provides a mechanism for receiving audio from Discord.
     /// </summary>
     public AudioReceiver Receiver { get; }
+
+    /// <summary>
+    /// Gets tracked metrics for the current connection.
+    /// </summary>
+    public VoiceMetricsCollection GetVoiceMetrics()
+        => this.metrics.GetVoiceMetrics();
 
     /// <summary>
     /// Creates a new audio writer to send audio through this connection.
@@ -310,6 +321,8 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         await this.mediaTransport.DisconnectAsync();
 
         await this.apiClient.ModifyGuildMemberAsync(this.guildId, this.userId, voiceChannelId: null);
+
+        this.metrics.CloseConnection();
         
         this.serviceScope.Dispose();
     }

@@ -1,6 +1,7 @@
 #pragma warning disable IDE0040
 
 using System;
+using System.Buffers;
 using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using CommunityToolkit.HighPerformance.Buffers;
+using CommunityToolkit.HighPerformance.Helpers;
 
 using DSharpPlus.Voice.MemoryServices;
 using DSharpPlus.Voice.MemoryServices.Channels;
@@ -28,8 +30,8 @@ partial class VoiceConnection
     {
         while (!ct.IsCancellationRequested)
         {
-            ArrayPoolBufferWriter<byte> receiveWriter = new();
-            ArrayPoolBufferWriter<byte> decryptedWriter = new();
+            using ArrayPoolBufferWriter<byte> receiveWriter = new();
+            using ArrayPoolBufferWriter<byte> decryptedWriter = new();
 
             await this.mediaTransport.ReceiveAsync(receiveWriter);
 
@@ -39,6 +41,7 @@ partial class VoiceConnection
             // if it's 8 bytes it's the UDP heartbeat/keepalive, or potentially a RTCP Goodbye packet
             if (receiveWriter.WrittenCount == 8 && !RTCPSerializer.IsValidRTCPPacket(receiveWriter.WrittenSpan))
             {
+                this.metrics.RecordKeepaliveReceived();
                 long timestamp = BinaryPrimitives.ReadInt64BigEndian(receiveWriter.WrittenSpan);
                 TimeSpan delay = DateTimeOffset.UtcNow - DateTimeOffset.FromUnixTimeMilliseconds(timestamp);
 
@@ -56,6 +59,8 @@ partial class VoiceConnection
                 UpdateAverageRTCPPacketSize(receiveWriter.WrittenCount);
 
                 IReadOnlyList<IRTCPPacket> rtcpPackets = RTCPSerializer.Deserialize(receiveWriter.WrittenSpan);
+
+                this.metrics.RecordControlPacketReceived(receiveWriter.WrittenCount, rtcpPackets.Count);
                 
                 foreach (IRTCPPacket singlePacket in rtcpPackets)
                 {
@@ -85,6 +90,8 @@ partial class VoiceConnection
                 continue;
             }
 
+            this.metrics.RecordAudioFrameReceived(receiveWriter.WrittenCount);
+
             this.cryptor.Decrypt(receiveWriter.WrittenSpan, decryptedWriter, out RTPFrameInfo frameInfo);
             
             if (!this.ssrcs.TryGetValue(frameInfo.SSRC, out userId))
@@ -100,14 +107,39 @@ partial class VoiceConnection
                 throw new UnreachableException();
             }
 
-            // the transport cryptor already is supposed to only decrypt the audio data (the header counts as additional data)
-            byte[] audio = new byte[decryptedWriter.WrittenCount];
-            this.e2ee.DecryptFrame(userId, decryptedWriter.WrittenSpan, audio);
-
-            TimeSpan duration = this.codec.CalculatePacketLength(audio);
             (uint normalizedSequence, ulong normalizedTimestamp) = voiceUser.UpdateTimestampAndSequence(frameInfo.Sequence, frameInfo.Timestamp);
 
-            await this.Receiver.ProcessAudioAsync(frameInfo.SSRC, normalizedSequence, new(normalizedTimestamp), duration, audio);
+            // handle rtp padding
+            int audioBytes = decryptedWriter.WrittenCount;
+
+            if (BitHelper.HasFlag(receiveWriter.WrittenSpan[0], 3))
+            {
+                int paddingBytes = decryptedWriter.WrittenSpan[^1];
+                audioBytes -= paddingBytes;
+
+                if (audioBytes == 0)
+                {
+                    this.metrics.RecordEmptyAudioFrameReceived();
+                    continue;
+                }
+            }
+
+            // the transport cryptor already is supposed to only decrypt the audio data (the header counts as additional data)
+            byte[] audio = ArrayPool<byte>.Shared.Rent(audioBytes);
+            int finalDecryptedLength = this.e2ee.DecryptFrame(userId, decryptedWriter.WrittenSpan, audio);
+
+            // native returns 0 if it failed
+            if (finalDecryptedLength == 0)
+            {
+                this.metrics.RecordAudioFrameFailedDecryption();
+                continue;
+            }
+
+            TimeSpan duration = this.codec.CalculatePacketLength(audio);
+
+            await this.Receiver.ProcessAudioAsync(frameInfo.SSRC, normalizedSequence, new(normalizedTimestamp), duration, audio[..finalDecryptedLength]);
+
+            ArrayPool<byte>.Shared.Return(audio);
         }
     }
 
@@ -122,6 +154,7 @@ partial class VoiceConnection
             BinaryPrimitives.WriteInt64BigEndian(buffer, currentTime);
 
             await this.mediaTransport.SendAsync(buffer);
+            this.metrics.RecordKeepaliveSent();
         }
     }
 
@@ -187,6 +220,8 @@ partial class VoiceConnection
                     this.opusBytesSent += (uint)length - 12;
 
                     await this.mediaTransport.SendAsync(currentFrame.AsMemory()[..length]);
+
+                    this.metrics.RecordAudioFrameSent(length);
                 }
                 else
                 {
@@ -239,6 +274,8 @@ partial class VoiceConnection
                 this.packetsSent++;
                 this.opusBytesSent += 3;
                 await this.mediaTransport.SendAsync(currentFrame.AsMemory()[..length]);
+
+                this.metrics.RecordAudioFrameSent(length);
             }
         }
     }
@@ -312,6 +349,8 @@ partial class VoiceConnection
         UpdateAverageRTCPPacketSize(writer.WrittenCount);
 
         await this.mediaTransport.SendAsync(writer.WrittenMemory);
+
+        this.metrics.RecordControlPacketSent(writer.WrittenCount, packets.Count);
     }
 
     private IRTCPPacket CollectAndWriteRTCPReport()
