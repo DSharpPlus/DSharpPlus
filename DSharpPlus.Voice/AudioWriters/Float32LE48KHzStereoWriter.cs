@@ -15,12 +15,12 @@ namespace DSharpPlus.Voice.AudioWriters;
 internal sealed class Float32LE48KHzStereoWriter : AbstractPcmAudioWriter
 {
     private OverflowBuffer7Bytes frameOverflow;
-    private readonly float[] overflowBuffer;
+    private readonly Singlex2[] overflowBuffer;
     private int overflowSamples;
 
     internal Float32LE48KHzStereoWriter(IAudioEncoder encoder, AudioChannelWriter writer)
         : base(encoder, writer) 
-        => this.overflowBuffer = new float[11520];
+        => this.overflowBuffer = new Singlex2[5760];
 
     /// <inheritdoc/>
     protected internal override int SampleSize => 8;
@@ -57,38 +57,37 @@ internal sealed class Float32LE48KHzStereoWriter : AbstractPcmAudioWriter
         // if this doesn't result in a full packet being written, don't bother, just add it to the overflow
         if (this.overflowSamples + pcm.Length < this.encoder.SamplesPerPacket)
         {
-            Span<Singlex2> target = MemoryMarshal.Cast<float, Singlex2>(this.overflowBuffer.AsSpan()[(this.overflowSamples * 2)..]);
-            pcm.CopyTo(target);
+            pcm.CopyTo(this.overflowBuffer.AsSpan(this.overflowSamples));
 
             this.overflowSamples += pcm.Length;
             return;
         }
 
         // start by concatenating the overflow from the last operation with the start of our span
-        float[] overflowWrapper = ArrayPool<float>.Shared.Rent(this.encoder.SamplesPerPacket * 2);
-        this.overflowBuffer.AsSpan().CopyTo(overflowWrapper);
+        Singlex2[] overflowWrapper = ArrayPool<Singlex2>.Shared.Rent(this.encoder.SamplesPerPacket);
+        this.overflowBuffer.CopyTo(overflowWrapper);
 
         int samplesNeededToFillOverflow = this.encoder.SamplesPerPacket - this.overflowSamples;
-        MemoryMarshal.Cast<Singlex2, float>(pcm[..samplesNeededToFillOverflow]).CopyTo(overflowWrapper.AsSpan()[(this.overflowSamples * 4)..]);
+        pcm[..samplesNeededToFillOverflow].CopyTo(overflowWrapper.AsSpan(this.overflowSamples));
 
         // we pass fake sequences and timestamps, they'll be filled out later.
-        AudioBufferLease firstPacket = this.encoder.Encode(overflowWrapper.AsSpan()[..(this.encoder.SamplesPerPacket * 4)], out _);
+        AudioBufferLease firstPacket = this.encoder.Encode(overflowWrapper.AsSpan()[..this.encoder.SamplesPerPacket], out _);
         this.PacketWriter.TryWrite(firstPacket);
 
-        ArrayPool<float>.Shared.Return(overflowWrapper);
+        ArrayPool<Singlex2>.Shared.Return(overflowWrapper);
 
         pcm = pcm[samplesNeededToFillOverflow..];
 
         // encode the bulk of our data
         while (pcm.Length >= this.encoder.SamplesPerPacket)
         {
-            AudioBufferLease packet = this.encoder.Encode(MemoryMarshal.Cast<Singlex2, float>(pcm[..this.encoder.SamplesPerPacket]), out _);
+            AudioBufferLease packet = this.encoder.Encode(pcm[..this.encoder.SamplesPerPacket], out _);
             this.PacketWriter.TryWrite(packet);
             pcm = pcm[this.encoder.SamplesPerPacket..];
         }
 
         // write the rest to the overflow buffer for next time
-        MemoryMarshal.Cast<Singlex2, float>(pcm).CopyTo(this.overflowBuffer);
+        pcm.CopyTo(this.overflowBuffer);
         this.overflowSamples = pcm.Length;
     }
 }

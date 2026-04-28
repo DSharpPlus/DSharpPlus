@@ -38,7 +38,7 @@ partial class VoiceConnection
         this.mlsReady = new();
 
         this.logger = this.loggerFactory.CreateLogger($"DSharpPlus.Voice.VoiceConnection - Channel {channelId}");
-        this.logger.LogDebug("Initiating connection to the voice gateway, DAVE version {daveVersion}", MaxDaveVersion);
+        this.logger.LogDebug("Initiating connection to the voice gateway, maximum supported DAVE version: {daveVersion}", MaxDaveVersion);
 
         this.logger.LogTrace("Retrieving voice server information from the main gateway.");
 
@@ -188,6 +188,8 @@ partial class VoiceConnection
 
             this.cryptor = this.cryptorFactory.CreateCryptor(selectedEncryptionMode, sd.SecretKey);
             this.daveVersion = sd.DaveProtocolVersion;
+
+            this.logger.LogDebug("Encrypting with DAVE version {dave} and transport encryption mode {mode}", this.daveVersion, this.cryptor.EncryptionMode);
 
             break;
         }

@@ -48,7 +48,7 @@ internal static unsafe partial class OpusInterop
     /// <returns>The amount of bytes written to the target buffer.</returns>
     public static int EncodeFrame(NativeOpusEncoder* encoder, ReadOnlySpan<short> pcm, Span<byte> target)
     {
-        int samples = pcm.Length / (Channels * sizeof(short));
+        int samples = pcm.Length / Channels;
         int result;
 
         fixed (short* pPcm = pcm)
@@ -72,7 +72,7 @@ internal static unsafe partial class OpusInterop
     /// <returns>The amount of bytes written to the target buffer.</returns>
     public static int EncodeFrame(NativeOpusEncoder* encoder, ReadOnlySpan<int> pcm, Span<byte> target)
     {
-        int samples = pcm.Length / (Channels * sizeof(int));
+        int samples = pcm.Length / Channels;
         int result;
 
         fixed (int* pPcm = pcm)
@@ -96,7 +96,7 @@ internal static unsafe partial class OpusInterop
     /// <returns>The amount of bytes written to the target buffer.</returns>
     public static int EncodeFrame(NativeOpusEncoder* encoder, ReadOnlySpan<float> pcm, Span<byte> target)
     {
-        int samples = pcm.Length / (Channels * sizeof(float));
+        int samples = pcm.Length / Channels;
         int result;
 
         fixed (float* pPcm = pcm)
