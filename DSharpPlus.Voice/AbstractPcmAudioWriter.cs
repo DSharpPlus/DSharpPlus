@@ -65,6 +65,7 @@ public abstract class AbstractPcmAudioWriter : AudioWriter
 
         ProcessSubmittedBytes(this.rentedBuffer.AsSpan()[..bytes]);
         ArrayPool<byte>.Shared.Return(this.rentedBuffer);
+        this.rentedBuffer = null;
     }
 
     public override ValueTask<FlushResult> FlushAsync(CancellationToken cancellationToken = default)

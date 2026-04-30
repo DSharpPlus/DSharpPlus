@@ -31,10 +31,10 @@ public sealed class S16LE48KHzStereoWriter : AbstractPcmAudioWriter
     // this reader never stores anything that would need to be flushed, but we do clear the overflow in case there's a random half-sample
     // left over that would otherwise corrupt newly submitted audio
     /// <inheritdoc/>
-    public override ValueTask<FlushResult> FlushAsync(CancellationToken cancellationToken = default)
+    public override async ValueTask<FlushResult> FlushAsync(CancellationToken cancellationToken = default)
     {
         this.overflow.Clear();
-        return ValueTask.FromResult(new FlushResult());
+        return await base.FlushAsync(cancellationToken);
     }
 
     /// <inheritdoc/>

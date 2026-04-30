@@ -5,7 +5,7 @@ namespace DSharpPlus.Voice.Protocol.RTP;
 internal record struct RTPTimestamp
 {
     private readonly DateTimeOffset startTime;
-    private ulong milliseconds;
+    private ulong ticks;
     private readonly uint startingOffset;
 
     public RTPTimestamp()
@@ -20,22 +20,22 @@ internal record struct RTPTimestamp
     public void RealignTimestamp()
     {
         DateTimeOffset currentTime = DateTimeOffset.UtcNow;
-        this.milliseconds = (ulong)(currentTime - this.startTime).TotalMilliseconds;
+        this.ticks = (ulong)(currentTime - this.startTime).TotalMilliseconds * 48;
     }
 
     /// <summary>
     /// Gets the truncated value of the currently stored RTP timestamp.
     /// </summary>
-    public readonly uint Value => (uint)(this.milliseconds + this.startingOffset);
+    public readonly uint Value => (uint)(this.ticks + this.startingOffset);
 
     /// <summary>
     /// Gets the current time as exact RTP timestamp.
     /// </summary>
-    public readonly uint ExactValue => (uint)((ulong)(DateTimeOffset.UtcNow - this.startTime).TotalMilliseconds + this.startingOffset);
+    public readonly uint ExactValue => (uint)(((ulong)(DateTimeOffset.UtcNow - this.startTime).TotalMilliseconds * 48) + this.startingOffset);
 
     /// <summary>
     /// Adds to the current RTP timestamp.
     /// </summary>
-    public void Add(uint milliseconds)
-        => this.milliseconds += milliseconds;
+    public void Add(uint ticks)
+        => this.ticks += ticks;
 }

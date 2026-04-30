@@ -31,6 +31,12 @@ internal sealed class Float32LE48KHzStereoWriter : AbstractPcmAudioWriter
     public override ValueTask<FlushResult> FlushAsync(CancellationToken cancellationToken = default)
     {
         this.frameOverflow.Clear();
+
+        AudioBufferLease packet = this.encoder.Encode(this.overflowBuffer.AsSpan()[..this.overflowSamples], out _);
+        this.PacketWriter.TryWrite(packet);
+
+        this.overflowSamples = 0;
+
         return ValueTask.FromResult(new FlushResult());
     }
 

@@ -16,10 +16,10 @@ public readonly record struct AudioTimestamp
     ISpanFormattable,
     IUtf8SpanFormattable
 {
-    private readonly ulong timestamp;
+    private readonly ulong ticks;
 
     internal AudioTimestamp(ulong normalizedRtpTimestamp)
-        => this.timestamp = normalizedRtpTimestamp;
+        => this.ticks = normalizedRtpTimestamp;
 
     /// <summary>
     /// Represents the minimum possible value of zero time elapsed since establishing the connection.
@@ -34,91 +34,91 @@ public readonly record struct AudioTimestamp
     /// <summary>
     /// Gets the milliseconds component of this timestamp.
     /// </summary>
-    public int Milliseconds => (int)(this.timestamp % 1000);
+    public int Milliseconds => (int)(this.ticks % 48000);
 
     /// <summary>
     /// Gets the seconds component of this timestamp.
     /// </summary>
-    public int Seconds => (int)(this.timestamp / 1000 % 60);
+    public int Seconds => (int)(this.ticks / 48000 % 60);
 
     /// <summary>
     /// Gets the minutes component of this timestamp.
     /// </summary>
-    public int Minutes => (int)(this.timestamp / 60000 % 60);
+    public int Minutes => (int)(this.ticks / 2880000 % 60);
 
     /// <summary>
     /// Gets the hours component of this timestamp.
     /// </summary>
-    public int Hours => (int)(this.timestamp / 3600000 % 24);
+    public int Hours => (int)(this.ticks / 172800000 % 24);
 
     /// <summary>
     /// Gets the days component of this timestamp.
     /// </summary>
-    public int Days => (int)(this.timestamp / 86400000);
+    public int Days => (int)(this.ticks / 4147200000);
 
     /// <summary>
     /// Gets this timestamp expressed in total milliseconds.
     /// </summary>
-    public ulong TotalMilliseconds => this.timestamp;
+    public ulong TotalMilliseconds => this.ticks;
 
     /// <summary>
     /// Gets this timestamp expressed in total seconds.
     /// </summary>
-    public double TotalSeconds => (double)this.timestamp / 1000;
+    public double TotalSeconds => (double)this.ticks / 48000;
 
     /// <summary>
     /// Gets this timestamp expressed in total minutes.
     /// </summary>
-    public double TotalMinutes => (double)this.timestamp / 60000;
+    public double TotalMinutes => (double)this.ticks / 2880000;
 
     /// <summary>
     /// Gets this timestamp expressed in total hours.
     /// </summary>
-    public double TotalHours => (double)this.timestamp / 3600000;
+    public double TotalHours => (double)this.ticks / 172800000;
 
     /// <summary>
     /// Gets this timestamp expressed in total days.
     /// </summary>
-    public double TotalDays => (double)this.timestamp / 86400000;
+    public double TotalDays => (double)this.ticks / 4147200000;
 
     /// <summary>
     /// Subtracts a duration from the given timestamp.
     /// </summary>
     public static AudioTimestamp operator - (AudioTimestamp timestamp, TimeSpan timeSpan)
-        => new(timestamp.timestamp - (ulong)timeSpan.TotalMilliseconds);
+        => new(timestamp.ticks - ((ulong)timeSpan.TotalMilliseconds * 48));
 
     /// <summary>
     /// Adds a duration to the given timestamp.
     /// </summary>
     public static AudioTimestamp operator + (AudioTimestamp timestamp, TimeSpan timeSpan)
-        => new(timestamp.timestamp + (ulong)timeSpan.TotalMilliseconds);
+        => new(timestamp.ticks + ((ulong)timeSpan.TotalMilliseconds * 48));
 
     /// <summary>
     /// Compares two timestamps for which one is greater.
     /// </summary>
     public static bool operator > (AudioTimestamp left, AudioTimestamp right)
-        => left.timestamp > right.timestamp;
+        => left.ticks > right.ticks;
 
     /// <summary>
     /// Compares two timestamps for which one is lesser.
     /// </summary>
     public static bool operator < (AudioTimestamp left, AudioTimestamp right)
-        => left.timestamp < right.timestamp;
+        => left.ticks < right.ticks;
 
     // we just implement parsing and formatting on top of TimeSpan, which in principle looks similar, even if it's a bit inefficient to do so
     // for the utf-8 bits
 
     /// <inheritdoc/>
     public static AudioTimestamp Parse(string s, IFormatProvider? provider) 
-        => new((ulong)TimeSpan.Parse(s, provider).TotalMilliseconds);
+        => new((ulong)TimeSpan.Parse(s, provider).TotalMilliseconds * 48);
 
     /// <inheritdoc/>
     public static AudioTimestamp Parse(ReadOnlySpan<char> s, IFormatProvider? provider) 
-        => new((ulong)TimeSpan.Parse(s, provider).TotalMilliseconds);
+        => new((ulong)TimeSpan.Parse(s, provider).TotalMilliseconds * 48);
 
     /// <inheritdoc/>
     public static AudioTimestamp Parse(ReadOnlySpan<byte> utf8Text, IFormatProvider? provider) 
-        => new((ulong)TimeSpan.Parse(Encoding.UTF8.GetString(utf8Text), provider).TotalMilliseconds);
+        => new((ulong)TimeSpan.Parse(Encoding.UTF8.GetString(utf8Text), provider).TotalMilliseconds * 48);
     
     /// <inheritdoc/>
     public static bool TryParse
@@ -134,7 +134,7 @@ public readonly record struct AudioTimestamp
     {
         if (TimeSpan.TryParse(s, provider, out TimeSpan parsed))
         {
-            result = new((ulong)parsed.TotalMilliseconds);
+            result = new((ulong)parsed.TotalMilliseconds * 48);
             return true;
         }
 
@@ -154,7 +154,7 @@ public readonly record struct AudioTimestamp
     {
         if (TimeSpan.TryParse(s, provider, out TimeSpan parsed))
         {
-            result = new((ulong)parsed.TotalMilliseconds);
+            result = new((ulong)parsed.TotalMilliseconds * 48);
             return true;
         }
 
@@ -174,7 +174,7 @@ public readonly record struct AudioTimestamp
     {
         if (TimeSpan.TryParse(Encoding.UTF8.GetString(utf8Text), provider, out TimeSpan parsed))
         {
-            result = new((ulong)parsed.TotalMilliseconds);
+            result = new((ulong)parsed.TotalMilliseconds * 48);
             return true;
         }
 
@@ -184,7 +184,7 @@ public readonly record struct AudioTimestamp
     
     /// <inheritdoc/>
     public string ToString(string? format, IFormatProvider? formatProvider)
-        => TimeSpan.FromMilliseconds(this.timestamp).ToString(format, formatProvider);
+        => TimeSpan.FromMilliseconds(this.ticks).ToString(format, formatProvider);
     
     /// <inheritdoc/>
     public bool TryFormat
@@ -195,7 +195,7 @@ public readonly record struct AudioTimestamp
         IFormatProvider? provider
     )
     {
-        return TimeSpan.FromMilliseconds(this.timestamp).TryFormat
+        return TimeSpan.FromMilliseconds(this.ticks / 48).TryFormat
         (
             destination,
             out charsWritten,
@@ -213,7 +213,7 @@ public readonly record struct AudioTimestamp
         IFormatProvider? provider
     )
     {
-        return TimeSpan.FromMilliseconds(this.timestamp).TryFormat
+        return TimeSpan.FromMilliseconds(this.ticks / 48).TryFormat
         (
             utf8Destination,
             out bytesWritten,
@@ -224,5 +224,5 @@ public readonly record struct AudioTimestamp
 
     /// <inheritdoc/>
     public int CompareTo(AudioTimestamp other) 
-        => this.timestamp.CompareTo(other.timestamp);
+        => this.ticks.CompareTo(other.ticks);
 }

@@ -196,7 +196,7 @@ partial class VoiceConnection
             // we have audio available, start sending it
             while (await timer.WaitForNextTickAsync(ct))
             {
-                this.timestamp.Add(20);
+                this.timestamp.Add(960);
 
                 // we were processing a long frame and haven't yet waited long enough, just wait until the next tick
                 if (--counter > 0)
@@ -270,6 +270,9 @@ partial class VoiceConnection
                 lease = this.encoder.WriteSilenceFrame();
                 length = WriteAndEncryptFrame(lease.Buffer, currentFrame, this.timestamp.Value, sequence);
                 lease.Dispose();
+
+                this.timestamp.Add(960);
+                _ = unchecked(sequence++);
 
                 this.packetsSent++;
                 this.opusBytesSent += 3;

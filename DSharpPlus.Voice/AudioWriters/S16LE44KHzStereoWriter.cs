@@ -57,7 +57,7 @@ internal sealed class S16LE44KHzStereoWriter : AbstractPcmAudioWriter
     }
 
     /// <inheritdoc/>
-    public override ValueTask<FlushResult> FlushAsync(CancellationToken cancellationToken = default)
+    public override async ValueTask<FlushResult> FlushAsync(CancellationToken cancellationToken = default)
     {
         short[] resampledBuffer = ArrayPool<short>.Shared.Rent(1920);
 
@@ -70,7 +70,7 @@ internal sealed class S16LE44KHzStereoWriter : AbstractPcmAudioWriter
 
         ArrayPool<short>.Shared.Return(resampledBuffer);
 
-        return ValueTask.FromResult(new FlushResult());
+        return await base.FlushAsync(cancellationToken);
     }
 
     public override void SignalCompletion()

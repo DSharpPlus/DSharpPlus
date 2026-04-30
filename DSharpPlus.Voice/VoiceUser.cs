@@ -79,7 +79,7 @@ internal sealed class VoiceUser
             }
             else
             {
-                this.timestampResynchronizationFactor = (ulong)(DateTimeOffset.UtcNow - this.firstSpeakingTimestamp).TotalMilliseconds;
+                this.timestampResynchronizationFactor = (ulong)(DateTimeOffset.UtcNow - this.firstSpeakingTimestamp).TotalMilliseconds * 48;
                 this.timestampNormalizationFactor = rtpTimestamp;
             }
         }
@@ -126,7 +126,7 @@ internal sealed class VoiceUser
         this.HighestSequenceReceived = uint.Max(this.HighestSequenceReceived, normalizedSequence + this.sequenceNormalizationFactor);
 
         // calculate transit time and jitter estimate
-        int transitTime = (int)((ulong)(DateTimeOffset.UtcNow - this.firstSpeakingTimestamp).TotalMilliseconds - normalizedTimestamp);
+        int transitTime = (int)((ulong)((DateTimeOffset.UtcNow - this.firstSpeakingTimestamp).TotalMilliseconds * 48) - normalizedTimestamp);
         int deviation = this.lastTransitTime == 0 ? 0 : transitTime - this.lastTransitTime;
         this.lastTransitTime = transitTime;
 
