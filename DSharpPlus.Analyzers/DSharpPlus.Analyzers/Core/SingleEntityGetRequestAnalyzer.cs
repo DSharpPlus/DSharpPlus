@@ -13,22 +13,19 @@ public class SingleEntityGetRequestAnalyzer : DiagnosticAnalyzer
     public const string DiagnosticId = "DSP0008";
     public const string Category = "Design";
 
-    private static readonly LocalizableString title = new LocalizableResourceString
-    (
+    private static readonly LocalizableString title = new LocalizableResourceString(
         nameof(Resources.DSP0008Title),
         Resources.ResourceManager,
         typeof(Resources)
     );
 
-    private static readonly LocalizableString description = new LocalizableResourceString
-    (
+    private static readonly LocalizableString description = new LocalizableResourceString(
         nameof(Resources.DSP0008Description),
         Resources.ResourceManager,
         typeof(Resources)
     );
 
-    private static readonly LocalizableString messageFormat = new LocalizableResourceString
-    (
+    private static readonly LocalizableString messageFormat = new LocalizableResourceString(
         nameof(Resources.DSP0008MessageFormat),
         Resources.ResourceManager,
         typeof(Resources)
@@ -49,16 +46,16 @@ public class SingleEntityGetRequestAnalyzer : DiagnosticAnalyzer
 
     private static readonly IReadOnlyDictionary<string, string> methods = new Dictionary<string, string>()
     {
-        { "GetMessageAsync", "DSharpPlus.Entities.DiscordChannel" }, 
-        { "GetGuildAsync", "DSharpPlus.DiscordClient"},
-        { "GetMemberAsync", "DSharpPlus.Entities.Channel"}
+        { "GetMessageAsync", "DSharpPlus.Entities.DiscordChannel" },
+        { "GetGuildAsync", "DSharpPlus.DiscordClient" },
+        { "GetMemberAsync", "DSharpPlus.Entities.Channel" }
     };
 
     private static readonly IReadOnlyDictionary<string, string> preferredMethods = new Dictionary<string, string>()
     {
         { "GetMessageAsync", "GetMessagesAsync" },
-        {"GetGuildAsync", "GetGuildsAsync"},
-        { "GetMemberAsync", "GetAllMembersAsync"}
+        { "GetGuildAsync", "GetGuildsAsync" },
+        { "GetMemberAsync", "GetAllMembersAsync" }
     };
 
     public override void Initialize(AnalysisContext ctx)

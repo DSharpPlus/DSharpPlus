@@ -192,4 +192,124 @@ public static class MultipleOverwriteTest
 
         await test.RunAsync();
     }
+
+    [Test]
+    public static async Task IfElseDiagnosticAsync()
+    {
+        CSharpAnalyzerTest<MultipleOverwriteAnalyzer, DefaultVerifier> test
+            = Utility.CreateAnalyzerTest<MultipleOverwriteAnalyzer>();
+
+        test.TestCode = """
+                        using DSharpPlus.Entities;
+                        using System.Threading.Tasks;
+                        using System.Collections.Generic;
+
+                        public class OverwriteTest
+                        {
+                            public async Task AddOverwritesAsync(DiscordChannel channel, DiscordMember member, bool isKick)
+                            {
+                                if (isKick)
+                                {
+                                    await channel.AddOverwriteAsync(member, DiscordPermission.KickMembers);
+                                }
+                                else
+                                {
+                                    await channel.AddOverwriteAsync(member, DiscordPermission.BanMembers);
+                                }
+                            }
+                        }
+                        """;
+
+        await test.RunAsync();
+    }
+
+    [Test]
+    public static async Task ChannelForEachLoopDiagnosticAsync()
+    {
+        CSharpAnalyzerTest<MultipleOverwriteAnalyzer, DefaultVerifier> test
+            = Utility.CreateAnalyzerTest<MultipleOverwriteAnalyzer>();
+
+        test.TestCode = """
+                        using DSharpPlus.Entities;
+                        using System.Threading.Tasks;
+                        using System.Collections.Generic;
+
+                        public record Test(DiscordChannel Channel);
+
+                        public class OverwriteTest
+                        {
+                            public async Task AddOverwritesAsync(IReadOnlyList<Test> channels, DiscordMember member)
+                            {
+                                foreach (Test test in channels) 
+                                {
+                                    await test.Channel.AddOverwriteAsync(member, DiscordPermission.KickMembers);
+                                }
+                            }
+                        }
+                        """;
+
+        await test.RunAsync();
+    }
+
+    [Test]
+    public static async Task ChannelForLoopDiagnosticAsync()
+    {
+        CSharpAnalyzerTest<MultipleOverwriteAnalyzer, DefaultVerifier> test
+            = Utility.CreateAnalyzerTest<MultipleOverwriteAnalyzer>();
+
+        test.TestCode = """
+                        using DSharpPlus.Entities;
+                        using System.Threading.Tasks;
+                        using System.Collections.Generic;
+
+                        public class OverwriteTest
+                        {
+                            public async Task AddOverwritesAsync(IReadOnlyList<DiscordChannel> channels, DiscordMember member)
+                            {
+                                for (int i = 0; i < channels.Count; i++)
+                                {
+                                    DiscordChannel channel = channels[i];
+                                    await channel.AddOverwriteAsync(member, DiscordPermission.KickMembers);
+                                }
+                            }
+                        }
+                        """;
+
+        await test.RunAsync();
+    }
+
+
+    [Test]
+    public static async Task NestedCallsDiagnosticAsync()
+    {
+        CSharpAnalyzerTest<MultipleOverwriteAnalyzer, DefaultVerifier> test
+            = Utility.CreateAnalyzerTest<MultipleOverwriteAnalyzer>();
+
+        test.TestCode = """
+                        using DSharpPlus.Entities;
+                        using System.Threading.Tasks;
+
+                        public class OverwriteTest
+                        {
+                            public async Task AddOverwritesAsync(DiscordChannel channel, DiscordMember member, bool addBan)
+                            {
+                                await channel.AddOverwriteAsync(member, DiscordPermission.KickMembers);
+                                if (addBan)
+                                {
+                                    await channel.AddOverwriteAsync(member, DiscordPermission.BanMembers);
+                                }
+                            }
+                        }
+                        """;
+
+        test.ExpectedDiagnostics.Add
+        (
+            Verifier.Diagnostic()
+                .WithLocation(11, 19)
+                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithMessage("Use one 'channel.ModifyAsync(..)' instead of multiple 'channel.AddOverwriteAsync(..)'")
+        );
+
+        await test.RunAsync();
+    }
 }
