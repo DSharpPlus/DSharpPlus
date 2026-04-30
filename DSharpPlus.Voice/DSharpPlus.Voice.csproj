@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <Description>An implementation of the Discord voice gateway for DSharpPlus.</Description>
+    <PackageId>DSharpPlus.Voice</PackageId>
+    <PackageTags>$(PackageTags), voice, dave, e2ee</PackageTags>
+    <IsPackable>true</IsPackable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>$(NoWarn);CA1873</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DSharpPlus.Natives.Koana" />
+    <PackageReference Include="DSharpPlus.Natives.Opus" />
+    <PackageReference Include="DSharpPlus.Natives.Sodium" />
+    <PackageReference Include="DSharpPlus.Natives.Speex" />
+    <PackageReference Include="Microsoft.Extensions.ObjectPool" />
+    <PackageReference Include="TerraFX.Interop.Mimalloc" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj" />
+  </ItemGroup>
+
+</Project>

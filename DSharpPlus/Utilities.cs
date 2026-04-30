@@ -20,9 +20,14 @@ namespace DSharpPlus;
 public static partial class Utilities
 {
     /// <summary>
-    /// Gets the version of the library
+    /// Gets the version user agent header of the library
     /// </summary>
     private static string VersionHeader { get; set; }
+
+    /// <summary>
+    /// Gets the library version.
+    /// </summary>
+    public static string Version { get; }
 
     internal static UTF8Encoding UTF8 { get; } = new UTF8Encoding(false);
 
@@ -30,19 +35,19 @@ public static partial class Utilities
     {
         Assembly a = typeof(DiscordClient).GetTypeInfo().Assembly;
 
-        string vs = "";
+        Version = "";
         AssemblyInformationalVersionAttribute? iv = a.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
         if (iv != null)
         {
-            vs = iv.InformationalVersion;
+            Version = iv.InformationalVersion;
         }
         else
         {
             Version? v = a.GetName().Version;
-            vs = v.ToString(3);
+            Version = v.ToString(3);
         }
 
-        VersionHeader = $"DiscordBot (https://github.com/DSharpPlus/DSharpPlus, v{vs})";
+        VersionHeader = $"DiscordBot (https://github.com/DSharpPlus/DSharpPlus, v{Version})";
     }
 
     internal static string GetApiBaseUri()
