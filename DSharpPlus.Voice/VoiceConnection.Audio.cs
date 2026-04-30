@@ -164,7 +164,7 @@ partial class VoiceConnection
         int silenceCounter = 0;
         bool framePrepared = true;
         // no real point pooling this, since we use it for the entire lifetime
-        byte[] currentFrame = new byte[this.e2ee.GetMaxEncryptedLength(5760) + 12]; 
+        byte[] currentFrame = new byte[this.e2ee.GetMaxEncryptedLength(5760) + 16]; 
         ushort sequence = (ushort)Random.Shared.NextInt64();
         PeriodicTimer timer = new(TimeSpan.FromMilliseconds(20));
 
