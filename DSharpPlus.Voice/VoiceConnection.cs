@@ -131,8 +131,8 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     private int lastSequence = -1;
     private int daveVersion;
     private int pendingHeartbeats;
-    private uint pendingTransitionId;
-    private int pendingTransitionProtocolVersion;
+    private uint? pendingTransitionId;
+    private int? pendingTransitionProtocolVersion;
     private IPEndPoint? localEndpoint;
     private bool selfMute;
     private bool selfDeafen;

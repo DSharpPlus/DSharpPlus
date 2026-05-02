@@ -29,10 +29,9 @@ partial class VoiceConnection
 
                 DavePrepareTransitionPayload prepareTransition = (DavePrepareTransitionPayload)message.Payload;
 
-                // zero means we just reinitialize
+                // zero means we just ignore
                 if (prepareTransition.TransitionId == 0)
                 {
-                    this.e2ee.ReinitializeE2EESession((ushort)this.daveVersion);
                     break;
                 }
 
@@ -55,14 +54,23 @@ partial class VoiceConnection
 
                 DaveExecuteTransitionPayload executeTransition = (DaveExecuteTransitionPayload)message.Payload;
 
-                if (this.pendingTransitionId != executeTransition.TransitionId)
+                if (this.pendingTransitionId.HasValue && this.pendingTransitionId != executeTransition.TransitionId)
                 {
                     _ = ReconnectInternalAsync(false);
                 }
 
-                this.daveVersion = this.pendingTransitionProtocolVersion;
-                this.e2ee.ReinitializeE2EESession((ushort)this.daveVersion);
-                await DaveV1AnnounceKeyPackageAsync();
+                if (this.pendingTransitionProtocolVersion.HasValue)
+                {
+                    this.daveVersion = this.pendingTransitionProtocolVersion.Value;
+                }
+
+                this.pendingTransitionProtocolVersion = null;
+                this.pendingTransitionId = null;
+
+                if (this.daveVersion != 0)
+                {
+                    this.e2ee.ReinitializeE2EESession((ushort)this.daveVersion);
+                }
 
                 break;
 
@@ -70,13 +78,13 @@ partial class VoiceConnection
 
                 DavePrepareEpochPayload prepareEpoch = (DavePrepareEpochPayload)message.Payload;
 
-                this.daveVersion = prepareEpoch.ProtocolVersion;
-                this.e2ee.ReinitializeE2EESession(prepareEpoch.ProtocolVersion);
-
-                // epoch id 1 means we're fully recreating the MLS group
-                // [TODO] figure out what happens to the actual e2ee part of e2ee when we do this
                 if (prepareEpoch.EpochId == 1)
                 {
+                    this.logger.LogTrace("Initializing DAVE session");
+
+                    this.daveVersion = prepareEpoch.ProtocolVersion;
+                    this.e2ee.ReinitializeE2EESession(prepareEpoch.ProtocolVersion);
+
                     await DaveV1AnnounceKeyPackageAsync();
                 }
 
@@ -101,6 +109,7 @@ partial class VoiceConnection
             case VoiceGatewayOpcode.MlsExternalSender:
                 
                 this.e2ee.SetExternalSender(frame.Payload.AsSpan(3));
+                this.mlsReady?.TrySetResult();
 
                 break;
 
@@ -124,7 +133,7 @@ partial class VoiceConnection
                     ushort transitionId = BinaryPrimitives.ReadUInt16BigEndian(frame.Payload.AsSpan(3));
                     await DaveV1SendInvalidCommitAsync(transitionId);
 
-                    this.e2ee.Initialize((ushort)this.daveVersion, this.channelId, this.userId, this.ssrc);
+                    this.e2ee.ReinitializeE2EESession((ushort)this.daveVersion);
 
                     await DaveV1AnnounceKeyPackageAsync();
                 }
@@ -138,7 +147,7 @@ partial class VoiceConnection
                     ushort transitionId = BinaryPrimitives.ReadUInt16BigEndian(frame.Payload.AsSpan(3));
                     await DaveV1SendInvalidCommitAsync(transitionId);
 
-                    this.e2ee.Initialize((ushort)this.daveVersion, this.channelId, this.userId, this.ssrc);
+                    this.e2ee.ReinitializeE2EESession((ushort)this.daveVersion);
 
                     await DaveV1AnnounceKeyPackageAsync();
                 }
