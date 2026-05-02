@@ -62,6 +62,7 @@ partial class VoiceConnection
 
                 this.daveVersion = this.pendingTransitionProtocolVersion;
                 this.e2ee.ReinitializeE2EESession((ushort)this.daveVersion);
+                await DaveV1AnnounceKeyPackageAsync();
 
                 break;
 
@@ -76,12 +77,7 @@ partial class VoiceConnection
                 // [TODO] figure out what happens to the actual e2ee part of e2ee when we do this
                 if (prepareEpoch.EpochId == 1)
                 {
-                    ArrayPoolBufferWriter<byte> writer = new();
-
-                    writer.Write((byte)VoiceGatewayOpcode.MlsKeyPackage);
-                    this.e2ee.WriteKeyPackage(writer);
-
-                    await this.voiceGateway.SendBinaryAsync(writer.WrittenMemory);
+                    await DaveV1AnnounceKeyPackageAsync();
                 }
 
                 break;
@@ -114,19 +110,38 @@ partial class VoiceConnection
 
                 if (response is { Length: > 0 })
                 {
-                    ArrayPoolBufferWriter<byte> writer = new();
-
-                    writer.Write((byte)VoiceGatewayOpcode.MlsCommitWelcome);
-                    writer.Write(response);
-
-                    await this.voiceGateway.SendBinaryAsync(writer.WrittenMemory);
+                    await DaveV1CommitWelcomeAsync(response);
                 }
 
                 break;
 
             case VoiceGatewayOpcode.MlsAnnounceCommitTransition:
 
-                this.e2ee.ProcessCommit(frame.Payload.AsSpan(5));
+                if (frame.Payload.Length <= 5)
+                {
+                    this.logger.LogTrace("Received invalid commit transition, reinitializing");
+
+                    ushort transitionId = BinaryPrimitives.ReadUInt16BigEndian(frame.Payload.AsSpan(3));
+                    await DaveV1SendInvalidCommitAsync(transitionId);
+
+                    this.e2ee.Initialize((ushort)this.daveVersion, this.channelId, this.userId, this.ssrc);
+
+                    await DaveV1AnnounceKeyPackageAsync();
+                }
+
+                bool success = this.e2ee.ProcessCommit(frame.Payload.AsSpan(5));
+
+                if (!success)
+                {
+                    this.logger.LogTrace("Failed to process commit transition, reinitializing");
+
+                    ushort transitionId = BinaryPrimitives.ReadUInt16BigEndian(frame.Payload.AsSpan(3));
+                    await DaveV1SendInvalidCommitAsync(transitionId);
+
+                    this.e2ee.Initialize((ushort)this.daveVersion, this.channelId, this.userId, this.ssrc);
+
+                    await DaveV1AnnounceKeyPackageAsync();
+                }
 
                 break;
 
@@ -147,11 +162,35 @@ partial class VoiceConnection
 
     private async Task DaveV1AnnounceKeyPackageAsync()
     {
-        ArrayPoolBufferWriter<byte> writer = new();
+        using ArrayPoolBufferWriter<byte> writer = new();
 
         writer.Write((byte)VoiceGatewayOpcode.MlsKeyPackage);
         this.e2ee.WriteKeyPackage(writer);
 
         await this.voiceGateway.SendBinaryAsync(writer.WrittenMemory);
+    }
+
+    private async Task DaveV1CommitWelcomeAsync(ReadOnlyMemory<byte> message)
+    {
+        using ArrayPoolBufferWriter<byte> writer = new();
+
+        writer.Write((byte)VoiceGatewayOpcode.MlsCommitWelcome);
+        writer.Write(message.Span);
+
+        await this.voiceGateway.SendBinaryAsync(writer.WrittenMemory);
+    }
+
+    private async Task DaveV1SendInvalidCommitAsync(ushort transitionId)
+    {
+        VoiceGatewayMessage message = new()
+        {
+            Opcode = VoiceGatewayOpcode.MlsInvalidCommitWelcome,
+            Payload = new MlsInvalidCommitWelcomePayload()
+            {
+                TransitionId = transitionId
+            }
+        };
+
+        await this.voiceGateway.SendTextAsync(message);
     }
 }

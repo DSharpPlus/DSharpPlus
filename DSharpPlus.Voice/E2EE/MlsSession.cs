@@ -65,14 +65,12 @@ public sealed class MlsSession : IE2EESession, IDisposable
     /// <summary>
     /// Processes an otherwise unspecified commit.
     /// </summary>
-    public void ProcessCommit(ReadOnlySpan<byte> payload)
+    public bool ProcessCommit(ReadOnlySpan<byte> payload)
     {
         lock (this.mlsLock)
         {
-            if (this.koana.ProcessCommit(payload) == KoanaError.MlsCommitResetError)
-            {
-                this.koana.ReinitializeSession(this.protocolVersion);
-            }
+            KoanaError result = this.koana.ProcessCommit(payload);
+            return result != KoanaError.MlsCommitResetError;
         }
     }
 

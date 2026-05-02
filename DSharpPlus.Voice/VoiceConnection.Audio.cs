@@ -6,6 +6,7 @@ using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -410,7 +411,23 @@ partial class VoiceConnection
         RTPHelper.WriteRTPHeader(e2eeWriter.GetSpan(12), sequence, timestamp, this.ssrc);
         e2eeWriter.Advance(12);
 
-        this.e2ee.EncryptFrame(unencrypted, e2eeWriter);
+        // passthrough if no other users are connected ([TODO]: should we just skip sending in that case?)
+        if (this.connectedUsers.Count > 1)
+        {
+            try
+            {
+                this.e2ee.EncryptFrame(unencrypted, e2eeWriter);
+            }
+            // there is a race condition here between sending and receiving the relevant information from the voice gateway
+            catch (CryptographicException)
+            {
+                e2eeWriter.Write(unencrypted);
+            }
+        }
+        else
+        {
+            e2eeWriter.Write(unencrypted);
+        }
         
         using ArrayPoolBufferWriter<byte> encryptedWriter = new();
 

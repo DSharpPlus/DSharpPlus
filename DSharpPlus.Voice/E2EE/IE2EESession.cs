@@ -36,9 +36,9 @@ public interface IE2EESession : IDisposable
     public int EncryptFrame(ReadOnlySpan<byte> unencryptedFrame, ArrayPoolBufferWriter<byte> encryptedFrame);
 
     /// <summary>
-    /// Processes an otherwise unspecified commit.
+    /// Processes an otherwise unspecified commit. Returns a value indicating whether the commit was successfully processed.
     /// </summary>
-    public void ProcessCommit(ReadOnlySpan<byte> payload);
+    public bool ProcessCommit(ReadOnlySpan<byte> payload);
 
     /// <summary>
     /// Processes proposals and retuns a message with the E2EE client's response in turn.
