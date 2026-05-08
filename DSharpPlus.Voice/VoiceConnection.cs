@@ -42,11 +42,9 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         ulong channelId,
         ulong guildId,
         int bitrate,
-        AudioType type,
         IEnumerable<ulong> usersInCall,
         Type receiverType,
-        bool selfMute,
-        bool selfDeafen
+        VoiceConnectionOptions options
     )
     {
         if (!receiverType.IsAssignableTo(typeof(AudioReceiver)))
@@ -66,20 +64,20 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         this.audioWriterFactory = provider.GetRequiredService<IAudioWriterFactory>();
         this.codec = provider.GetRequiredService<IAudioCodec>();
         this.e2ee = provider.GetRequiredService<IE2EESession>();
-        this.options = provider.GetRequiredService<IOptions<VoiceOptions>>().Value;
+        this.globalOptions = provider.GetRequiredService<IOptions<VoiceOptions>>().Value;
         this.Receiver = (AudioReceiver)provider.GetRequiredService(receiverType);
         this.metrics = provider.GetRequiredService<VoiceMetrics>();
 
         this.metrics.SetChannelId(channelId);
 
-        this.selfMute = selfMute;
-        this.selfDeafen = selfDeafen;
+        this.selfMute = options.SelfMute;
+        this.selfDeafen = options.SelfDeafen;
         this.noLongerSelfMuted = new();
         
         DiscordRestApiClientFactory apiClientFactory = provider.GetRequiredService<DiscordRestApiClientFactory>();
         this.apiClient = apiClientFactory.GetCurrentApplicationClient();
 
-        this.encoder = this.codec.CreateEncoder(bitrate, type);
+        this.encoder = this.codec.CreateEncoder(bitrate, options.AudioType);
         this.sendingAudioChannel = new();
         this.connectedUsers = [..usersInCall, userId];
         this.ssrcs = [];
@@ -87,6 +85,13 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         this.bitrate = bitrate;
         this.rtcpReportTimer = new(TimeSpan.FromSeconds(5));
         this.timestamp = new();
+        this.pauseTransmissionWhenAlone = options.PauseTransmissionIfAlone;
+        this.noLongerAlone = new();
+
+        if (!this.pauseTransmissionWhenAlone)
+        {
+            this.noLongerAlone.TrySetResult();
+        }
 
         this.userId = userId;
         this.channelId = channelId;
@@ -97,6 +102,8 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         this.vgwCancellation = new();
         this.heartbeatCancellation = new();
         this.audioCancellation = new();
+
+        options.ReceiverSetup(this.Receiver);
     }
 
     // services and stuff we receive from DI for customization purposes
@@ -115,7 +122,7 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     private readonly IAudioWriterFactory audioWriterFactory;
     private readonly SynchronizedList<ulong> connectedUsers;
     private readonly AudioChannel sendingAudioChannel;
-    private readonly VoiceOptions options;
+    private readonly VoiceOptions globalOptions;
     private ICryptor cryptor;
     private ILogger logger;
     private AudioWriter? activeWriter;
@@ -152,6 +159,8 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     private uint packetsSent;
     private uint opusBytesSent;
     private RTPTimestamp timestamp;
+    private readonly bool pauseTransmissionWhenAlone;
+    private TaskCompletionSource noLongerAlone;
 
     // general connection info
     private string sessionId;

@@ -112,14 +112,14 @@ public sealed class MlsSession : IE2EESession, IDisposable
     /// <param name="unencryptedFrame">The unencrypted frame data.</param>
     /// <param name="encryptedFrame">A buffer for the E2EE-encrypted frame data.</param>
     /// <returns>The amount of bytes written to <paramref name="encryptedFrame"/>.</returns>
-    public int EncryptFrame(ReadOnlySpan<byte> unencryptedFrame, ArrayPoolBufferWriter<byte> encryptedFrame)
+    public bool TryEncryptFrame(ReadOnlySpan<byte> unencryptedFrame, ArrayPoolBufferWriter<byte> encryptedFrame)
     {
         lock (this.mlsLock)
         {
             int maxEncryptedSize = this.koana.GetMaxEncryptedSize(unencryptedFrame.Length);
-            int encrypted = this.koana.EncryptFrame(unencryptedFrame, encryptedFrame.GetSpan(maxEncryptedSize), this.ssrc);
-            encryptedFrame.Advance(encrypted);
-            return encrypted;
+            bool success = this.koana.EncryptFrame(unencryptedFrame, encryptedFrame.GetSpan(maxEncryptedSize), this.ssrc, out int written);
+            encryptedFrame.Advance(written);
+            return success;
         }
     }
 

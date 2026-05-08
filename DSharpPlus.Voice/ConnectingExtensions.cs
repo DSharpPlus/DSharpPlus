@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
-using DSharpPlus.Voice.Codec;
 using DSharpPlus.Voice.Receivers;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -20,18 +19,14 @@ public static class ConnectionExtensions
         /// <summary>
         /// Connects to a voice channel.
         /// </summary>
-        /// <param name="audioType">The type of audio to optimize for.</param>
         /// <param name="receiverType">The type of audio receiver to use.</param>
-        /// <param name="selfMute">Indicates whether the bot should mute itself in the voice channel.</param>
-        /// <param name="selfDeafen">Indicates whether the bot should deafen itself in the voice channel.</param>
+        /// <param name="options">Further options for setting the connection up.</param>
         /// <returns>The initialized and active voice connection.</returns>
         /// <exception cref="InvalidOperationException">Thrown if this channel could not be connected to.</exception>
         public async Task<VoiceConnection> ConnectAsync
         (
-            AudioType audioType = AudioType.Auto,
             Type? receiverType = null,
-            bool selfMute = false, 
-            bool selfDeafen = false
+            VoiceConnectionOptions? options = null
         )
         {
             if (channel.IsPrivate)
@@ -53,7 +48,7 @@ public static class ConnectionExtensions
             IServiceScope scope = client.ServiceProvider.CreateAsyncScope();
             ulong userId = client.CurrentUser.Id;
 
-            return await channel.ConnectAsync(scope, userId, audioType, receiverType, selfMute, selfDeafen);
+            return await channel.ConnectAsync(scope, userId, receiverType, options);
         }
 
         /// <summary>
@@ -61,19 +56,15 @@ public static class ConnectionExtensions
         /// </summary>
         /// <param name="scope">A service scope to use for this connection.</param>
         /// <param name="currentUserId">The snowflake identifier of the current user.</param>
-        /// <param name="audioType">The type of audio to optimize for.</param>
         /// <param name="receiverType">The type of audio receiver to use.</param>
-        /// <param name="selfMute">Indicates whether the bot should mute itself in the voice channel.</param>
-        /// <param name="selfDeafen">Indicates whether the bot should deafen itself in the voice channel.</param>
+        /// <param name="options">Further options for setting the connection up.</param>
         /// <returns>The initialized and active voice connection.</returns>
         public async Task<VoiceConnection> ConnectAsync
         (
             IServiceScope scope,
             ulong currentUserId,
-            AudioType audioType = AudioType.Auto,
             Type? receiverType = null,
-            bool selfMute = false,
-            bool selfDeafen = false
+            VoiceConnectionOptions? options = null
         )
         {
             receiverType ??= typeof(NullAudioReceiver);
@@ -85,11 +76,9 @@ public static class ConnectionExtensions
                 channel.Id,
                 channel.GuildId.Value,
                 channel.Bitrate.Value,
-                audioType,
                 channel.Guild.VoiceStates.Where(x => x.Value.ChannelId == channel.Id).Select(x => x.Value.UserId),
                 receiverType,
-                selfMute,
-                selfDeafen
+                options ?? new()
             );
 
             await connection.ConnectAsync();

@@ -33,7 +33,7 @@ public interface IE2EESession : IDisposable
     /// <param name="unencryptedFrame">The unencrypted frame data.</param>
     /// <param name="encryptedFrame">A buffer for the E2EE-encrypted frame data.</param>
     /// <returns>The amount of bytes written to <paramref name="encryptedFrame"/>.</returns>
-    public int EncryptFrame(ReadOnlySpan<byte> unencryptedFrame, ArrayPoolBufferWriter<byte> encryptedFrame);
+    public bool TryEncryptFrame(ReadOnlySpan<byte> unencryptedFrame, ArrayPoolBufferWriter<byte> encryptedFrame);
 
     /// <summary>
     /// Processes an otherwise unspecified commit. Returns a value indicating whether the commit was successfully processed.

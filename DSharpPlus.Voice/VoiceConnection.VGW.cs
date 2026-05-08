@@ -215,9 +215,10 @@ partial class VoiceConnection
         this.e2ee.Initialize((ushort)this.daveVersion, channelId, this.userId, this.ssrc);
         _ = ReceiveVoiceGatewayEventsAsync(this.vgwCancellation.Token);
 
-        // this is when we tell the gateway about our local encryption keys
+        // this is when we tell the gateway about our local encryption keys, if DAVE is enabled
         await (this.daveVersion switch
         {
+            0 => Task.CompletedTask,
             1 => DaveV1AnnounceKeyPackageAsync(),
             _ => LogErrorAndReconnectAsync("Invalid DAVE version {daveVersion}.", this.daveVersion)
         });
@@ -230,7 +231,7 @@ partial class VoiceConnection
 
         // ... and we await its response (which comes with the other users' keys, kind of important)
         // but only if there is a response to be awaited
-        if (this.connectedUsers.Count != 1)
+        if (this.connectedUsers.Count != 1 && this.daveVersion >= 1)
         {
             await this.mlsReady.Task;
         }
@@ -291,7 +292,7 @@ partial class VoiceConnection
 
     private async Task<bool> ReconnectInternalAsync(bool manual)
     {
-        if (!manual && !this.options.AutoReconnect)
+        if (!manual && !this.globalOptions.AutoReconnect)
         {
             this.logger.LogDebug("Abandoning automatic reconnect because automatic reconnecting was disabled by the user.");
             return false;
@@ -303,11 +304,11 @@ partial class VoiceConnection
             return false;
         }
 
-        for (uint i = 0; i < this.options.MaxReconnects; i++)
+        for (uint i = 0; i < this.globalOptions.MaxReconnects; i++)
         {
             try
             {
-                await Task.Delay(this.options.GetReconnectionDelay(i));
+                await Task.Delay(this.globalOptions.GetReconnectionDelay(i));
                 await ReconnectCoreAsync();
                 return true;
             }
@@ -455,6 +456,8 @@ partial class VoiceConnection
                         await this.Receiver.ProcessUserJoinedAsync(userId);
                     }
 
+                    this.noLongerAlone.TrySetResult();
+
                     break;
 
                 case VoiceGatewayOpcode.ClientDisconnected:
@@ -463,6 +466,11 @@ partial class VoiceConnection
 
                     this.connectedUsers.Remove(clientDisconnected.UserId);
                     await this.Receiver.ProcessUserLeftAsync(clientDisconnected.UserId);
+
+                    if (this.pauseTransmissionWhenAlone && this.connectedUsers.Count == 0)
+                    {
+                        this.noLongerAlone = new();
+                    }
 
                     break;
 

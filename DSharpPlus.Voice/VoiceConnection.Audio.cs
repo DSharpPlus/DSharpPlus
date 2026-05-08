@@ -6,7 +6,6 @@ using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -179,6 +178,11 @@ partial class VoiceConnection
                 await this.noLongerSelfMuted.Task;
             }
 
+            if (this.pauseTransmissionWhenAlone && this.connectedUsers.Count == 0)
+            {
+                await this.noLongerAlone.Task;
+            }
+
             await this.sendingAudioChannel.Reader.WaitToReadAsync(ct);
 
             AudioChannelReadResult readResult = await this.sendingAudioChannel.Reader.ReadAsync(ct);
@@ -194,9 +198,15 @@ partial class VoiceConnection
             length = WriteAndEncryptFrame(lease.Buffer, currentFrame, this.timestamp.Value, sequence);
             lease.Dispose();
 
-            // we have audio available, start sending it
+            // we have audio available, start sending it...
             while (await timer.WaitForNextTickAsync(ct))
             {
+                // ...unless nobody is in the call and we're set to not consume audio if there are no recipients
+                if (this.pauseTransmissionWhenAlone && this.connectedUsers.Count == 0)
+                {
+                    break;
+                }
+
                 this.timestamp.Add(960);
 
                 // we were processing a long frame and haven't yet waited long enough, just wait until the next tick
@@ -220,7 +230,11 @@ partial class VoiceConnection
                     this.packetsSent++;
                     this.opusBytesSent += (uint)length - 12;
 
-                    await this.mediaTransport.SendAsync(currentFrame.AsMemory()[..length]);
+                    // don't waste bandwidth when there's nobody to hear us
+                    if (this.connectedUsers.Count != 0)
+                    {
+                        await this.mediaTransport.SendAsync(currentFrame.AsMemory()[..length]);
+                    }
 
                     this.metrics.RecordAudioFrameSent(length);
                 }
@@ -230,7 +244,7 @@ partial class VoiceConnection
                 }
 
                 // if the silence counter has exceeded the configured maximum, fall silent and pause
-                if (silenceCounter >= this.options.SilenceTicksBeforePausingConnection)
+                if (silenceCounter >= this.globalOptions.SilenceTicksBeforePausingConnection)
                 {
                     await SendFiveSilenceFramesAsync();
                     break;
@@ -335,7 +349,7 @@ partial class VoiceConnection
 
     private async Task SendRTCPPacketsAsync(IReadOnlyList<IRTCPPacket> packets)
     {
-        if (this.logger.IsEnabled(LogLevel.Trace) && this.options.LogOutboundRTCPPackets)
+        if (this.logger.IsEnabled(LogLevel.Trace) && this.globalOptions.LogOutboundRTCPPackets)
         {
             foreach (IRTCPPacket packet in packets)
             {
@@ -411,20 +425,8 @@ partial class VoiceConnection
         RTPHelper.WriteRTPHeader(e2eeWriter.GetSpan(12), sequence, timestamp, this.ssrc);
         e2eeWriter.Advance(12);
 
-        // passthrough if no other users are connected ([TODO]: should we just skip sending in that case?)
-        if (this.connectedUsers.Count > 1)
-        {
-            try
-            {
-                this.e2ee.EncryptFrame(unencrypted, e2eeWriter);
-            }
-            // there is a race condition here between sending and receiving the relevant information from the voice gateway
-            catch (CryptographicException)
-            {
-                e2eeWriter.Write(unencrypted);
-            }
-        }
-        else
+        // don't encrypt if we're on dave version 0, fallback to writing unencrypted if e2ee failed (race condition with the vgw)
+        if (this.daveVersion == 0 || !this.e2ee.TryEncryptFrame(unencrypted, e2eeWriter))
         {
             e2eeWriter.Write(unencrypted);
         }

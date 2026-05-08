@@ -3,7 +3,6 @@
 using System.Threading.Tasks;
 
 using DSharpPlus.Voice.Exceptions;
-
 using DSharpPlus.Voice.Protocol.Gateway;
 
 using Microsoft.Extensions.Logging;

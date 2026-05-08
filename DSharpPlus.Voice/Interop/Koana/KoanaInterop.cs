@@ -239,6 +239,8 @@ internal unsafe partial struct KoanaInterop : IDisposable
         Span<ulong> native = new(nativeRoster->keys, nativeRoster->length);
         native.CopyTo(backing);
 
+        koana_destroy_roster(nativeRoster);
+
         return list;
     }
 
@@ -258,7 +260,6 @@ internal unsafe partial struct KoanaInterop : IDisposable
         {
             int decrypted = koana_decrypt_frame(this.context, userId, pEncrypted, encryptedFrame.Length, pDecrypted, decryptedFrame.Length);
 
-            Debug.Assert(decrypted == encryptedFrame.Length);
             return decrypted;
         }
     }
@@ -269,24 +270,26 @@ internal unsafe partial struct KoanaInterop : IDisposable
     /// <param name="unencryptedFrame">The unencrypted frame data.</param>
     /// <param name="encryptedFrame">A buffer for the encrypted frame data, equal in length to the unencrypted form.</param>
     /// <param name="ssrc">The sender's SSRC for this frame.</param>
-    /// <returns>The amount of data that was encrypted.</returns>
-    public readonly int EncryptFrame(ReadOnlySpan<byte> unencryptedFrame, Span<byte> encryptedFrame, uint ssrc)
+    /// <param name="size">The amount of data written to the buffer.</param> 
+    /// <returns>Indicates whether encryption was successful.</returns>
+    public readonly bool EncryptFrame(ReadOnlySpan<byte> unencryptedFrame, Span<byte> encryptedFrame, uint ssrc, out int size)
     {
         Debug.Assert(unencryptedFrame.Length <= encryptedFrame.Length);
-        int size;
+        size = 0;
 
         fixed (byte* pUnencrypted = unencryptedFrame)
         fixed (byte* pEncrypted = encryptedFrame)
+        fixed (int* pSize = &size)
         {
-            KoanaError error = koana_encrypt_frame(this.context, ssrc, pUnencrypted, unencryptedFrame.Length, pEncrypted, encryptedFrame.Length, &size);
+            KoanaError error = koana_encrypt_frame(this.context, ssrc, pUnencrypted, unencryptedFrame.Length, pEncrypted, encryptedFrame.Length, pSize);
 
             if (error == KoanaError.EncryptionFailure)
             {
-                ThrowHelper.ThrowEncryptionFailure();
+                return false;
             }
         }
 
-        return size;
+        return true;
     }
 
     public readonly int GetMaxEncryptedSize(int unencryptedSize)
