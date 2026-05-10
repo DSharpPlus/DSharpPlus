@@ -19,7 +19,8 @@ public interface ICryptor
     /// <summary>
     /// Decrypts the given frame into the buffer writer.
     /// </summary>
-    public void Decrypt(ReadOnlySpan<byte> encryptedFrame, ArrayPoolBufferWriter<byte> decrypted, out RTPFrameInfo frameInfo);
+    /// <returns>A value indicating whether decryption was successful.</returns>
+    public bool Decrypt(ReadOnlySpan<byte> encryptedFrame, ArrayPoolBufferWriter<byte> decrypted, out RTPFrameInfo frameInfo);
 
     /// <summary>
     /// Gets the encryption mode supported by this cryptor.

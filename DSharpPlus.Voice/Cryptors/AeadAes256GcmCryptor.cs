@@ -29,7 +29,7 @@ public sealed class AeadAes256GcmCryptor : ICryptor
     public string EncryptionMode => "aead_aes256_gcm_rtpsize";
 
     /// <inheritdoc/>
-    public void Decrypt(ReadOnlySpan<byte> encryptedFrame, ArrayPoolBufferWriter<byte> decrypted, out RTPFrameInfo frameInfo)
+    public bool Decrypt(ReadOnlySpan<byte> encryptedFrame, ArrayPoolBufferWriter<byte> decrypted, out RTPFrameInfo frameInfo)
     {
         frameInfo = FrameParser.ParseRtpsizeSuffixedNonce(encryptedFrame, 4);
 
@@ -44,8 +44,10 @@ public sealed class AeadAes256GcmCryptor : ICryptor
         Debug.Assert(nonce.Length == SodiumInterop.AeadAes256GcmNonceLength);
         Debug.Assert(this.key.Length == SodiumInterop.AeadAes256GcmKeyLength);
 
-        int written = SodiumInterop.DecryptAeadAes256GCM(encryptedData, target, additionalData, this.key, nonce);
+        int written = SodiumInterop.DecryptAeadAes256GCM(encryptedData, target, additionalData, this.key, nonce, out bool success);
         decrypted.Advance(written);
+
+        return success;
     }
 
     /// <inheritdoc/>

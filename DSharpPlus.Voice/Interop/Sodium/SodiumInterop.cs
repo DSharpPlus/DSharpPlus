@@ -27,7 +27,14 @@ internal partial class SodiumInterop
     /// <summary>
     /// Encrypts the given frame with AEAD AES-256 GCM using the provided key and nonce. 
     /// </summary>
-    public static unsafe int EncryptAeadAes256Gcm(ReadOnlySpan<byte> source, Span<byte> target, ReadOnlySpan<byte> additionalData, ReadOnlySpan<byte> key, ReadOnlySpan<byte> nonce)
+    public static unsafe int EncryptAeadAes256Gcm
+    (
+        ReadOnlySpan<byte> source, 
+        Span<byte> target, 
+        ReadOnlySpan<byte> additionalData, 
+        ReadOnlySpan<byte> key, 
+        ReadOnlySpan<byte> nonce
+    )
     {
         ulong written;
         Debug.Assert(target.Length >= source.Length + AeadAes256GcmAdditionalBytes);
@@ -48,7 +55,15 @@ internal partial class SodiumInterop
     /// <summary>
     /// Decrypts the given frame with AEAD AES-256 GCM using the provided key and nonce.
     /// </summary>
-    public static unsafe int DecryptAeadAes256GCM(ReadOnlySpan<byte> source, Span<byte> target, ReadOnlySpan<byte> additionalData, ReadOnlySpan<byte> key, ReadOnlySpan<byte> nonce)
+    public static unsafe int DecryptAeadAes256GCM
+    (
+        ReadOnlySpan<byte> source,
+        Span<byte> target, 
+        ReadOnlySpan<byte> additionalData, 
+        ReadOnlySpan<byte> key, 
+        ReadOnlySpan<byte> nonce,
+        out bool success
+    )
     {
         ulong written;
         Debug.Assert(target.Length >= source.Length - AeadAes256GcmAdditionalBytes);
@@ -60,7 +75,7 @@ internal partial class SodiumInterop
         fixed (byte* pNonce = nonce)
         {
             int result = crypto_aead_aes256gcm_decrypt(pTarget, &written, null, pSource, (ulong)source.Length, pAdditional, (ulong)additionalData.Length, pNonce, pKey);
-            Debug.Assert(result == 0);
+            success = result == 0;
         }
 
         return (int)written;
@@ -69,7 +84,14 @@ internal partial class SodiumInterop
     /// <summary>
     /// Encrypts the given frame with AEAD XChaCha20-Poly1305 using the provided key and nonce.
     /// </summary>
-    public static unsafe int EncryptAeadXChaCha20Poly1305(ReadOnlySpan<byte> source, Span<byte> target, ReadOnlySpan<byte> additionalData, ReadOnlySpan<byte> key, ReadOnlySpan<byte> nonce)
+    public static unsafe int EncryptAeadXChaCha20Poly1305
+    (
+        ReadOnlySpan<byte> source, 
+        Span<byte> target, 
+        ReadOnlySpan<byte> additionalData, 
+        ReadOnlySpan<byte> key, 
+        ReadOnlySpan<byte> nonce
+    )
     {
         ulong written;
         Debug.Assert(target.Length >= source.Length + AeadXChaCha20Poly1305AdditionalBytes);
@@ -90,7 +112,15 @@ internal partial class SodiumInterop
     /// <summary>
     /// Decrypts the given frame with AEAD XChaCha20-Poly1305 using the provided key and nonce.
     /// </summary>
-    public static unsafe int DecryptAeadXChaCha20Poly1305(ReadOnlySpan<byte> source, Span<byte> target, ReadOnlySpan<byte> additionalData, ReadOnlySpan<byte> key, ReadOnlySpan<byte> nonce)
+    public static unsafe int DecryptAeadXChaCha20Poly1305
+    (
+        ReadOnlySpan<byte> source, 
+        Span<byte> target, 
+        ReadOnlySpan<byte> additionalData, 
+        ReadOnlySpan<byte> key, 
+        ReadOnlySpan<byte> nonce,
+        out bool success
+    )
     {
         ulong written;
         Debug.Assert(target.Length >= source.Length - AeadXChaCha20Poly1305AdditionalBytes);
@@ -102,7 +132,7 @@ internal partial class SodiumInterop
         fixed (byte* pNonce = nonce)
         {
             int result = crypto_aead_xchacha20poly1305_ietf_decrypt(pTarget, &written, null, pSource, (ulong)source.Length, pAdditional, (ulong)additionalData.Length, pNonce, pKey);
-            Debug.Assert(result == 0);
+            success = result == 0;
         }
 
         return (int)written;

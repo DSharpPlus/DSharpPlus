@@ -29,7 +29,7 @@ public sealed class AeadXChaCha20Poly1305Cryptor : ICryptor
     public string EncryptionMode => "aead_xchacha20_poly1305_rtpsize";
 
     /// <inheritdoc/>
-    public void Decrypt(ReadOnlySpan<byte> encryptedFrame, ArrayPoolBufferWriter<byte> decrypted, out RTPFrameInfo frameInfo)
+    public bool Decrypt(ReadOnlySpan<byte> encryptedFrame, ArrayPoolBufferWriter<byte> decrypted, out RTPFrameInfo frameInfo)
     {
         frameInfo = FrameParser.ParseRtpsizeSuffixedNonce(encryptedFrame, 4);
 
@@ -43,8 +43,10 @@ public sealed class AeadXChaCha20Poly1305Cryptor : ICryptor
 
         Debug.Assert(this.key.Length == SodiumInterop.AeadXChaCha20Poly1305KeyLength);
 
-        int written = SodiumInterop.DecryptAeadXChaCha20Poly1305(encryptedData, target, additionalData, this.key, nonce);
+        int written = SodiumInterop.DecryptAeadXChaCha20Poly1305(encryptedData, target, additionalData, this.key, nonce, out bool success);
         decrypted.Advance(written);
+
+        return success;
     }
 
     /// <inheritdoc/>

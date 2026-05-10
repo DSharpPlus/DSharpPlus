@@ -92,7 +92,13 @@ partial class VoiceConnection
 
             this.metrics.RecordAudioFrameReceived(receiveWriter.WrittenCount);
 
-            this.cryptor.Decrypt(receiveWriter.WrittenSpan, decryptedWriter, out RTPFrameInfo frameInfo);
+            bool success = this.cryptor.Decrypt(receiveWriter.WrittenSpan, decryptedWriter, out RTPFrameInfo frameInfo);
+
+            if (!success)
+            {
+                this.metrics.RecordAudioFrameFailedDecryption();
+                continue;
+            }
             
             if (!this.ssrcs.TryGetValue(frameInfo.SSRC, out userId))
             {
