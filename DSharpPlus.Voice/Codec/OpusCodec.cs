@@ -37,6 +37,12 @@ public sealed class OpusCodec : IAudioCodec
 
     /// <inheritdoc/>
     public TimeSpan CalculatePacketLength(ReadOnlySpan<byte> packet)
+        => CalculateOpusPacketLength(packet);
+
+    /// <summary>
+    /// Calculates the length of an opus packet.
+    /// </summary>
+    public static TimeSpan CalculateOpusPacketLength(ReadOnlySpan<byte> packet)
     {
         Debug.Assert(packet.Length > 0);
 

@@ -103,7 +103,10 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         this.heartbeatCancellation = new();
         this.audioCancellation = new();
 
-        options.ReceiverSetup(this.Receiver);
+        if (options.ReceiverSetup is not null)
+        {
+            options.ReceiverSetup(this.Receiver);
+        }
     }
 
     // services and stuff we receive from DI for customization purposes

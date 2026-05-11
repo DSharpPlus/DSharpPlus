@@ -1,3 +1,5 @@
+#pragma warning disable IDE0032
+
 using System;
 
 namespace DSharpPlus.Voice.MemoryServices.Collections;
@@ -49,10 +51,21 @@ internal struct ManualResetAccumulatingBuffer
     }
 
     /// <summary>
+    /// Discards the specified amount of bytes from the start of the buffer.
+    /// </summary>
+    public void DiscardStart(int count)
+    {
+        this.WrittenSpan[count..].CopyTo(this.buffer);
+        this.index -= count;
+    }
+
+    /// <summary>
     /// Resets this buffer after processing its contained data for reuse.
     /// </summary>
     public void Reset() 
         => this.index = 0;
+
+    public readonly int WrittenCount => this.index;
 
     public readonly ReadOnlySpan<byte> WrittenSpan => this.buffer.AsSpan()[..this.index];
 }

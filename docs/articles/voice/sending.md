@@ -13,6 +13,7 @@ To send audio to a voice connection, we must first acquire an `AudioWriter` from
 | `AudioFormat.S16LE44KHzMonoPCM` | Signed 16-bit little-endian 44.1khz mono (single-channel) PCM audio. |
 | `AudioFormat.S24LE48KHzStereoPCM` | Signed 24-bit little-endian 48khz stereo (two-channel) PCM audio. |
 | `AudioFormat.Float32LE48KHzStereoPCM` | Signed single-precision float little-endian 48khz stereo (two-channel) PCM audio. |
+| `AudioFormat.Opus` | A .opus file containing audio. Use this over PCM audio when you have .opus files, and see [the supplementary documentation](#the-oggopus-audio-writer) for further information. |
 
 It is possible, albeit somewhat complex, to add custom audio formats, see [the documentation for doing so](#adding-custom-audio-formats).
 
@@ -25,6 +26,14 @@ DSharpPlus contains a feature to try to infer when you have no more audio to sen
 After calling `SignalSilence()`, you can reawaken the audio writer by simply submitting more audio, but `SignalCompletion()` is final.
 
 If you need to change audio format in the middle of a connection, you can simply request a new `AudioWriter` from the connection. Continuing to use the old writer is invalid after that: you can only have one `AudioWriter` object at any given time, and you cannot reuse old writers.
+
+## The Ogg/Opus audio writer
+
+`AudioFormat.Opus` is a special audio writer for .opus files. It skips having to decode and re-encode the audio, which saves quite a bit of time. However, DSharpPlus only supports RFC7845-compliant ogg/opus files, and thereamongst only mono or stereo audio. If the file contains surround audio, DSharpPlus will throw an `UnsupportedOggOpusStreamException`.
+
+DSharpPlus will furthermore throw `InvalidDataException`s if the file is corrupt or log a debug message if a single ogg page (containing up to 255 opus packets) is corrupt. Corrupt pages will be skipped. DSharpPlus does not support the ogg/opus output gain feature, which is a per-file configurable volume multiplier: files will always be played at their original volume. A debug message will be logged if output gain is specified for a given ogg/opus stream.
+
+The Ogg/Opus audio writer supports ingesting multiple files consecutively. It does not support ingesting multiple files concurrently, doing so will throw an `InvalidDataException`.
 
 ## Adding custom audio formats
 

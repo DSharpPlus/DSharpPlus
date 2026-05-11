@@ -48,4 +48,9 @@ public readonly record struct AudioFormat
     /// Represents float32 little-endian 48khz stereo (two-channel) PCM audio.
     /// </summary>
     public static AudioFormat Float32LE48KHzStereoPCM => new("float32le-48khz-stereo-pcm");
+
+    /// <summary>
+    /// Represents a .opus file.
+    /// </summary>
+    public static AudioFormat Opus => new("ogg-opus");
 }
