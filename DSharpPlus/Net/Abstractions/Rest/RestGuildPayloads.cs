@@ -362,8 +362,8 @@ internal class RestGuildUpdateCurrentUserVoiceStatePayload
 
 internal class RestGuildUpdateUserVoiceStatePayload
 {
-    [JsonProperty("channel_id")]
-    public ulong ChannelId { get; set; }
+    [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
+    public ulong? ChannelId { get; set; }
 
     [JsonProperty("suppress", NullValueHandling = NullValueHandling.Ignore)]
     public bool? Suppress { get; set; }

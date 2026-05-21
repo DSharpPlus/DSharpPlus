@@ -1,5 +1,6 @@
 using System;
 using System.Buffers;
+using System.IO;
 using System.IO.Pipelines;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,6 +33,11 @@ internal sealed class OggOpusAudioWriter : AudioWriter
         ArrayPool<byte>.Shared.Return(this.rentedBuffer);
         this.rentedBuffer = null;
     }
+
+    /// <inheritdoc/>
+    public override Stream AsStream(bool leaveOpen = false) 
+        => new AudioWriteStream(this, 1);
+
 
     /// <inheritdoc/>
     public override void CancelPendingFlush()

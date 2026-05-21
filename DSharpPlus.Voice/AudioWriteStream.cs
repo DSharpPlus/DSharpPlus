@@ -17,9 +17,11 @@ internal sealed class AudioWriteStream : Stream
 
     public AudioWriteStream(AudioWriter writer, int sampleSize)
     {
+        ArgumentOutOfRangeException.ThrowIfLessThan(sampleSize, 1, nameof(sampleSize));
+
         this.sampleSize = sampleSize;
         this.writer = writer;
-        this.overflowBuffer = new byte[3];
+        this.overflowBuffer = new byte[sampleSize - 1];
         this.currentOverflow = 0;
     }
 

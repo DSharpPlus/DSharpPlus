@@ -332,7 +332,7 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         await this.voiceGateway.DisconnectAsync(WebSocketCloseStatus.NormalClosure);
         await this.mediaTransport.DisconnectAsync();
 
-        await this.apiClient.ModifyGuildMemberAsync(this.guildId, this.userId, voiceChannelId: null);
+        await this.apiClient.UpdateCurrentUserVoiceStateAsync(this.guildId, channelId: null);
 
         this.metrics.CloseConnection();
         
