@@ -32,6 +32,15 @@ public sealed unsafe class OpusDecoderHandle : SafeHandleZeroOrMinusOneIsInvalid
     public int DecodePacket(ReadOnlySpan<byte> packet, Span<short> pcm)
         => OpusInterop.DecodePacket(this.Decoder, packet, pcm);
 
+    /// <summary>
+    /// Decodes a packet into float PCM data. 
+    /// </summary>
+    /// <param name="packet">The opus-encoded packet.</param>
+    /// <param name="pcm">A buffer for PCM data. This must be 11520 elements long.</param>
+    /// <returns>The amount of samples decoded into the buffer.</returns>
+    public int DecodePacket(ReadOnlySpan<byte> packet, Span<float> pcm)
+        => OpusInterop.DecodePacket(this.Decoder, packet, pcm);
+
     /// <inheritdoc cref="OpusInterop.GetLastPacketSamples(NativeOpusDecoder*)"/>
     public int GetLastPacketSamples()
         => OpusInterop.GetLastPacketSamples(this.Decoder);

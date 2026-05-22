@@ -22,11 +22,11 @@ public sealed class OpusEncoder : IAudioEncoder
     private AudioType type;
 
     /// <inheritdoc/>
-    public int SamplesPerPacket => this.type == AudioType.Voice ? 960 : 5760;
+    public int SamplesPerPacket => this.type == AudioType.Realtime ? 960 : 5760;
 
     public OpusEncoder(int bitrate, AudioType type)
     {
-        this.encoder = new(AudioType.Voice, bitrate);
+        this.encoder = new(type, bitrate);
         this.repacketizer = new();
 
         this.type = type;
@@ -35,7 +35,7 @@ public sealed class OpusEncoder : IAudioEncoder
     /// <inheritdoc/>
     public AudioBufferLease Encode(ReadOnlySpan<Int16x2> pcm, out int consumed)
     {
-        if (this.type == AudioType.Voice)
+        if (this.type == AudioType.Realtime)
         {
             consumed = int.Min(pcm.Length, 960);
             return Encode20msCore(MemoryMarshal.Cast<Int16x2, short>(pcm[..consumed]));
@@ -52,7 +52,7 @@ public sealed class OpusEncoder : IAudioEncoder
     /// <inheritdoc/>
     public AudioBufferLease Encode(ReadOnlySpan<Int32x2> pcm, out int consumed)
     {
-        if (this.type == AudioType.Voice)
+        if (this.type == AudioType.Realtime)
         {
             consumed = int.Min(pcm.Length, 960);
             return Encode20msCore(MemoryMarshal.Cast<Int32x2, int>(pcm[..consumed]));
@@ -69,7 +69,7 @@ public sealed class OpusEncoder : IAudioEncoder
     /// <inheritdoc/>
     public AudioBufferLease Encode(ReadOnlySpan<Singlex2> pcm, out int consumed)
     {
-        if (this.type == AudioType.Voice)
+        if (this.type == AudioType.Realtime)
         {
             consumed = int.Min(pcm.Length, 960);
             return Encode20msCore(MemoryMarshal.Cast<Singlex2, float>(pcm[..consumed]));
@@ -148,6 +148,7 @@ public sealed class OpusEncoder : IAudioEncoder
 
         int written;
         int read = 0;
+        byte lastToc = 0;
 
         while (read < pcm.Length)
         {
@@ -161,6 +162,17 @@ public sealed class OpusEncoder : IAudioEncoder
                 float => this.encoder.EncodeFrame(Unsafe.As<ReadOnlySpan<T>, ReadOnlySpan<float>>(ref pcm)[read..nextTarget], frame),
                 _ => throw new InvalidOperationException($"The generic parameter {typeof(T)} is not valid")
             };
+
+            if (lastToc != 0 && (lastToc & 0xFC) != (frame[0] & 0xFC))
+            {
+                Console.WriteLine(lastToc.ToString("x"));
+                Console.WriteLine(frame[0].ToString("x"));
+                Debug.Assert(false);
+            }
+
+            lastToc = frame[0];
+
+            Debug.Assert(this.repacketizer.Fits((int)OpusCodec.CalculateOpusPacketLength(frame).TotalMilliseconds));
 
             this.repacketizer.Emplace(frame.AsSpan()[..written]);
 

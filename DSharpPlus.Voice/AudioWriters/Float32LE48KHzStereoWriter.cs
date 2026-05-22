@@ -71,7 +71,7 @@ internal sealed class Float32LE48KHzStereoWriter : AbstractPcmAudioWriter
 
         // start by concatenating the overflow from the last operation with the start of our span
         Singlex2[] overflowWrapper = ArrayPool<Singlex2>.Shared.Rent(this.encoder.SamplesPerPacket);
-        this.overflowBuffer.CopyTo(overflowWrapper);
+        this.overflowBuffer[..this.overflowSamples].CopyTo(overflowWrapper);
 
         int samplesNeededToFillOverflow = this.encoder.SamplesPerPacket - this.overflowSamples;
         pcm[..samplesNeededToFillOverflow].CopyTo(overflowWrapper.AsSpan(this.overflowSamples));

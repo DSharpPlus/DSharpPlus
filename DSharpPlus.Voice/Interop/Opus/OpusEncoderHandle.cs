@@ -26,6 +26,11 @@ public sealed unsafe class OpusEncoderHandle : SafeHandleZeroOrMinusOneIsInvalid
     {
         this.Encoder = OpusInterop.CreateEncoder(OpusEncodingMode.Voip, bitrate);
         OpusInterop.SetSignal(this.Encoder, AudioTypeToOpusSignal(audioType));
+
+        if (audioType == AudioType.Music)
+        {
+            OpusInterop.SetBandwidth(this.Encoder, OpusBandwidth.Fullband);
+        }
     }
 
     /// <summary>
@@ -73,7 +78,7 @@ public sealed unsafe class OpusEncoderHandle : SafeHandleZeroOrMinusOneIsInvalid
     {
         return audioType switch
         {
-            AudioType.Voice => OpusSignal.Voice,
+            AudioType.Realtime => OpusSignal.Voice,
             AudioType.Music => OpusSignal.Music,
             AudioType.Auto => OpusSignal.Auto,
             _ => OpusSignal.Auto

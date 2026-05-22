@@ -42,6 +42,9 @@ internal static unsafe partial class OpusInterop
         return encoder;
     }
 
+    public static void SetBandwidth(NativeOpusEncoder* encoder, OpusBandwidth bandwidth)
+        => _ = dsharpplus_opus_encoder_ctl_set_bandwidth(encoder, bandwidth);
+
     /// <summary>
     /// Encodes a 20ms frame from the provided s16le pcm data into the target buffer.
     /// </summary>
@@ -170,7 +173,33 @@ internal static unsafe partial class OpusInterop
     }
 
     /// <summary>
-    /// Gets the amount of samples contained in the last decoded packet. Identical to the output of the last <see cref="DecodePacket"/> call.
+    /// Decodes the provided packet into the provided float PCM buffer.
+    /// </summary>
+    /// <remarks>The amount of samples decoded, half the amount of values assigned.</remarks>
+    public static int DecodePacket(NativeOpusDecoder* decoder, ReadOnlySpan<byte> buffer, Span<float> pcm)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(pcm.Length, 11520, "buffer.Length");
+
+        int samples = pcm.Length / (Channels * sizeof(float));
+        int result;
+
+        fixed (float* pPcm = pcm)
+        fixed (byte* pBuffer = buffer)
+        {
+            result = opus_decode_float(decoder, pBuffer, buffer.Length, pPcm, samples, 1);
+        }
+
+        if (result < 0)
+        {
+            OpusError error = (OpusError)result;
+            throw new OpusException(error, "decoding");
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Gets the amount of samples contained in the last decoded packet. Identical to the output of the last <c>DecodePacket</c> call.
     /// </summary>
     public static int GetLastPacketSamples(NativeOpusDecoder* decoder)
     {

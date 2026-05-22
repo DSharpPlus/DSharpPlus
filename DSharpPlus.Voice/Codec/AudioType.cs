@@ -11,9 +11,9 @@ public enum AudioType
     Auto,
 
     /// <summary>
-    /// Optimize for sending voice.
+    /// Optimize for streaming audio produced in realtime.
     /// </summary>
-    Voice,
+    Realtime,
 
     /// <summary>
     /// Optimize for sending music.
