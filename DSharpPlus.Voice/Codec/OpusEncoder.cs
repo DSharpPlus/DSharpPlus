@@ -14,17 +14,13 @@ namespace DSharpPlus.Voice.Codec;
 public sealed class OpusEncoder : IAudioEncoder
 {
     private readonly OpusEncoderHandle encoder;
-    private readonly OpusRepacketizerHandle repacketizer;
     private readonly byte[] buffer20ms = new byte[960];
 
     /// <inheritdoc/>
     public int SamplesPerPacket => 960;
 
-    public OpusEncoder(int bitrate, AudioType type)
-    {
-        this.encoder = new(type, bitrate);
-        this.repacketizer = new();
-    }
+    public OpusEncoder(int bitrate, AudioType type) 
+        => this.encoder = new(type, bitrate);
 
     /// <inheritdoc/>
     public AudioBufferLease Encode(ReadOnlySpan<Int16x2> pcm, out int consumed)
@@ -95,9 +91,6 @@ public sealed class OpusEncoder : IAudioEncoder
     }
 
     /// <inheritdoc/>
-    public void Dispose()
-    {
-        this.repacketizer.Dispose();
-        this.encoder.Dispose();
-    }
+    public void Dispose() 
+        => this.encoder.Dispose();
 }
