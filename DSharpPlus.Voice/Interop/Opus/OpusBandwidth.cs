@@ -2,7 +2,7 @@ namespace DSharpPlus.Voice.Interop.Opus;
 
 internal enum OpusBandwidth
 {
-    Auto,
+    Auto = -1000,
 
     // 4khz bandpass
     Narrowband = 1101,
