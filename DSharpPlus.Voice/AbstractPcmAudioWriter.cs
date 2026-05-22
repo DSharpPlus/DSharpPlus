@@ -26,7 +26,7 @@ public abstract class AbstractPcmAudioWriter : AudioWriter
         : base(writer)
     {
         this.rentedBuffer = null;
-        this.overflowBuffer = new Int16x2[5760];
+        this.overflowBuffer = new Int16x2[960];
         this.encoder = encoder;
     }
 

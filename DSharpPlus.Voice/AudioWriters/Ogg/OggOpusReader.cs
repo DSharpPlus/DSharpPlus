@@ -210,7 +210,7 @@ internal sealed class OggOpusReader
 
             if (consumed != inputLength && pageInfo.TotalPageLength > this.pageBuffer.WrittenCount)
             {
-                throw new InvalidDataException("Encountered an invalid ogg page.");
+                return false;
             }
 
             return true;

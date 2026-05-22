@@ -20,7 +20,7 @@ internal sealed class S24LE48KHzStereoWriter : AbstractPcmAudioWriter
 
     internal S24LE48KHzStereoWriter(IAudioEncoder encoder, AudioChannelWriter writer)
         : base(encoder, writer) 
-        => this.overflowBuffer = new Int32x2[5760];
+        => this.overflowBuffer = new Int32x2[960];
 
     /// <inheritdoc/>
     protected internal override int SampleSize => 8;

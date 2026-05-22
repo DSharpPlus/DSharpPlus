@@ -1,19 +1,19 @@
 namespace DSharpPlus.Voice.Codec;
 
 /// <summary>
-/// Specifies a type of audio to optimize for.
+/// Specifies a type of audio to optimize for. This is generally best left at <see cref="Auto"/> 
 /// </summary>
 public enum AudioType
 {
     /// <summary>
-    /// Let the library decide what it thinks is best.
+    /// Let the codec decide what it thinks is best.
     /// </summary>
     Auto,
 
     /// <summary>
-    /// Optimize for streaming audio produced in realtime.
+    /// Optimize for streaming voice.
     /// </summary>
-    Realtime,
+    Voice,
 
     /// <summary>
     /// Optimize for sending music.

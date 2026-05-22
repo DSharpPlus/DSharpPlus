@@ -78,7 +78,7 @@ public sealed unsafe class OpusEncoderHandle : SafeHandleZeroOrMinusOneIsInvalid
     {
         return audioType switch
         {
-            AudioType.Realtime => OpusSignal.Voice,
+            AudioType.Voice => OpusSignal.Voice,
             AudioType.Music => OpusSignal.Music,
             AudioType.Auto => OpusSignal.Auto,
             _ => OpusSignal.Auto

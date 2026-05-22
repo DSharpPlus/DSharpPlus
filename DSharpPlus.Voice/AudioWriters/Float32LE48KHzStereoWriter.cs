@@ -20,7 +20,7 @@ internal sealed class Float32LE48KHzStereoWriter : AbstractPcmAudioWriter
 
     internal Float32LE48KHzStereoWriter(IAudioEncoder encoder, AudioChannelWriter writer)
         : base(encoder, writer) 
-        => this.overflowBuffer = new Singlex2[5760];
+        => this.overflowBuffer = new Singlex2[960];
 
     /// <inheritdoc/>
     protected internal override int SampleSize => 8;

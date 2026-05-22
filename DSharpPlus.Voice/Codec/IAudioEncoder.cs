@@ -39,11 +39,6 @@ public interface IAudioEncoder : IDisposable
     public AudioBufferLease WriteSilenceFrame();
 
     /// <summary>
-    /// Sets what kind of audio this encoder is being used for.
-    /// </summary>
-    public void SetAudioType(AudioType audioType);
-
-    /// <summary>
     /// Gets the maximum amount of samples this encoder consumes for a single packet.
     /// </summary>
     public int SamplesPerPacket { get; }
