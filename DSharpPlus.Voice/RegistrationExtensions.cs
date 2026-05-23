@@ -33,15 +33,15 @@ public static class RegistrationExtensions
                 .AddScoped<IAudioWriterFactory, DefaultAudioWriterFactory>()
                 .AddScoped<IE2EESession, MlsSession>()
                 .AddScoped<VoiceMetrics>();
-            
+
             services.AddSingleton<IVoiceConnectionRepository, VoiceConnectionRepository>();
             
             // receiver types
             services.AddScoped<DefaultAudioReceiver>()
+                .AddScoped<NullAudioReceiver>();
+
             services.ConfigureEventHandlers(x => x.AddEventHandlers<VoiceInitializer>()
                 .AddEventHandlers<GuildMonitoringEventHandler>(ServiceLifetime.Singleton));
-
-            services.ConfigureEventHandlers(x => x.AddEventHandlers<VoiceInitializer>());
 
             return services;
         }
