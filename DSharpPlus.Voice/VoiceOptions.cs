@@ -80,4 +80,14 @@ public sealed class VoiceOptions
     /// Defaults to false.
     /// </summary>
     public bool LogOutboundRTCPPackets { get; set; } = false;
+
+    /// <summary>
+    /// Specifies how long to wait for receiving instructions to move channels. Defaults to 2.5 seconds.
+    /// </summary>
+    /// <remarks>
+    /// When the bot is dragged between voice channels, we receive a disconnect signal and an instruction to move. In case the disconnect
+    /// arrives first, this specifies how long to wait before abandoning attempts at moving channel and simply disconnecting. Increasing
+    /// this value will prevent the connection from shutting itself down for the specified period of time.
+    /// </remarks>
+    public TimeSpan AwaitMoveInstructionDelay { get; set; } = TimeSpan.FromSeconds(2.5);
 }

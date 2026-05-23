@@ -118,10 +118,21 @@ internal static unsafe partial class OpusInterop
     }
 
     /// <summary>
+    /// Sets the bitrate for this encoder.
+    /// </summary>
+    public static void SetBitrate(NativeOpusEncoder* encoder, int bitrate)
+    {
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(bitrate, 512_000, nameof(bitrate));
+        ArgumentOutOfRangeException.ThrowIfLessThan(bitrate, 500, nameof(bitrate));
+
+        _ = dsharpplus_opus_encoder_ctl_set_bitrate(encoder, bitrate);
+    }
+
+    /// <summary>
     /// Sets the signal type for this encoder.
     /// </summary>
     public static void SetSignal(NativeOpusEncoder* encoder, OpusSignal signal)
-        => dsharpplus_opus_encoder_ctl_set_signal(encoder, signal);
+        => _ = dsharpplus_opus_encoder_ctl_set_signal(encoder, signal);
 
     /// <summary>
     /// Deletes the provided encoder. It is no longer valid to use anywhere after this operation.

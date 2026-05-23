@@ -66,6 +66,12 @@ public sealed unsafe class OpusEncoderHandle : SafeHandleZeroOrMinusOneIsInvalid
     public void SetAudioType(AudioType audioType)
         => OpusInterop.SetSignal(this.Encoder, AudioTypeToOpusSignal(audioType));
 
+    /// <summary>
+    /// Sets the bitrate for this encoder.
+    /// </summary>
+    public void SetBitrate(int bitrate)
+        => OpusInterop.SetBitrate(this.Encoder, bitrate);
+
     /// <inheritdoc/>
     protected override bool ReleaseHandle()
     {

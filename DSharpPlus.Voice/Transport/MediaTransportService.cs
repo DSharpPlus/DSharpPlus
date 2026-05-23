@@ -10,6 +10,7 @@ namespace DSharpPlus.Voice.Transport;
 public class MediaTransportService : IMediaTransportService
 {
     private readonly UdpClient udpClient;
+    private IPEndPoint endpoint;
 
     public MediaTransportService() 
         => this.udpClient = new();
@@ -17,7 +18,8 @@ public class MediaTransportService : IMediaTransportService
     /// <inheritdoc/>
     public Task ConnectAsync(IPEndPoint endpoint)
     {
-        this.udpClient.Connect(endpoint);
+        this.endpoint = endpoint;
+        Console.WriteLine($"Set endpoint {endpoint}");
         return Task.CompletedTask;
     }
 
@@ -32,7 +34,7 @@ public class MediaTransportService : IMediaTransportService
 
     /// <inheritdoc/>
     public async Task SendAsync(ReadOnlyMemory<byte> buffer) 
-        => await this.udpClient.SendAsync(buffer);
+        => await this.udpClient.SendAsync(buffer, this.endpoint);
 
     /// <inheritdoc/>
     public Task DisconnectAsync()

@@ -34,6 +34,11 @@ public interface IAudioEncoder : IDisposable
     public AudioBufferLease Encode(ReadOnlySpan<Singlex2> pcm, out int consumed);
 
     /// <summary>
+    /// Sets the bitrate for this encoder.
+    /// </summary>
+    public void SetBitrate(int bitrate);
+
+    /// <summary>
     /// Writes a silence frame.
     /// </summary>
     public AudioBufferLease WriteSilenceFrame();

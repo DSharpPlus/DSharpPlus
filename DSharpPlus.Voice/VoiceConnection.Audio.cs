@@ -226,7 +226,7 @@ partial class VoiceConnection
 
                 if (framePrepared)
                 {
-                    if (!this.IsSpeaking)
+                    if (!this.IsSpeaking && this.isReady)
                     {
                         this.logger.LogTrace("Commencing audio transmission to the remote server.");
                         await StartSpeakingAsync();

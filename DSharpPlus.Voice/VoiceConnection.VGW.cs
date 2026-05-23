@@ -33,7 +33,7 @@ partial class VoiceConnection
     // that is a problem.
     internal async Task ConnectAsync()
     {
-        ulong channelId = this.channelId;
+        ulong channelId = this.ChannelId;
         ulong guildId = this.guildId;
         this.mlsReady = new();
 
@@ -117,8 +117,7 @@ partial class VoiceConnection
             {
                 await HandleCloseCodeAsync(frame.Error);
             }
-
-            if (frame.Opcode == VoiceGatewayOpcode.Ready && frame.Type == WebSocketMessageType.Text)
+            else if (frame.Opcode == VoiceGatewayOpcode.Ready && frame.Type == WebSocketMessageType.Text)
             {
                 readyReceived = true;
                 
@@ -131,8 +130,7 @@ partial class VoiceConnection
 
                 this.lastSequence = readyMessage.Sequence;
             }
-
-            if (frame.Opcode == VoiceGatewayOpcode.Hello && frame.Type == WebSocketMessageType.Text)
+            else if (frame.Opcode == VoiceGatewayOpcode.Hello && frame.Type == WebSocketMessageType.Text)
             {
                 helloReceived = true;
                 
@@ -140,6 +138,10 @@ partial class VoiceConnection
                 VoiceHelloPayload hello = (VoiceHelloPayload)helloMessage.Payload;
 
                 _ = HeartbeatAsync(hello.HeartbeatInterval, this.heartbeatCancellation.Token);
+            }
+            else
+            {
+                await HandleReceivedEventAsync(frame);
             }
         }
 
@@ -227,7 +229,7 @@ partial class VoiceConnection
 
         this.metrics.SetSessionStartTime(voiceChannelStartTime.TimedOut
             ? connectionStartTime
-            : voiceChannelStartTime.Value.ChannelInfo.First(x => x.Id == this.channelId).StartTime.Value);
+            : voiceChannelStartTime.Value.ChannelInfo.First(x => x.Id == this.ChannelId).StartTime.Value);
 
         // ... and we await its response (which comes with the other users' keys, kind of important)
         // but only if there is a response to be awaited
@@ -266,6 +268,8 @@ partial class VoiceConnection
         };
 
         await SendRTCPPacketsAsync([initial, description]);
+
+        this.isReady = true;
 
         // only start these loops the first time
         this.receiveAudioTask ??= ReceiveAudioAsync(this.audioCancellation.Token);
@@ -545,7 +549,7 @@ partial class VoiceConnection
 
         await this.vgwCancellation.CancelAsync();
         await this.voiceGateway.DisconnectAsync(WebSocketCloseStatus.NormalClosure);
-        await this.voiceGateway.ConnectAsync(this.endpoint, this.channelId);
+        await this.voiceGateway.ConnectAsync(this.endpoint, this.ChannelId);
         this.vgwCancellation = new();
 
         await this.voiceGateway.SendTextAsync(new()

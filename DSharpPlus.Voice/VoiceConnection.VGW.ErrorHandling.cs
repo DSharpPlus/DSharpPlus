@@ -1,5 +1,6 @@
 #pragma warning disable IDE0040
 
+using System.Net.WebSockets;
 using System.Threading.Tasks;
 
 using DSharpPlus.Voice.Exceptions;
@@ -151,6 +152,22 @@ partial class VoiceConnection
                 break;
 
             case VoiceGatewayCloseCode.CallTerminated:
+
+                await this.voiceGateway.DisconnectAsync(WebSocketCloseStatus.NormalClosure);
+
+                this.awaitMoveInstruction ??= new(this.awaitMoveInstructionState);
+
+                Task result = await Task.WhenAny
+                (
+                    Task.Delay(this.globalOptions.AwaitMoveInstructionDelay),
+                    this.awaitMoveInstruction.Task
+                );
+
+                if (result.AsyncState == this.awaitMoveInstructionState)
+                {
+                    this.logger.LogDebug("Moving channel to new channel {channelId}", this.ChannelId);
+                    break;
+                }
 
                 this.logger.LogDebug("The call was forcibly terminated.");
                 await DisconnectAndReportReasonAsync(VoiceDisconnectReason.CallTerminated);

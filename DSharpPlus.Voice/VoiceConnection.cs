@@ -9,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using DSharpPlus.Clients;
-using DSharpPlus.Net;
 using DSharpPlus.Voice.AudioWriters;
 using DSharpPlus.Voice.Codec;
 using DSharpPlus.Voice.Cryptors;
@@ -67,22 +66,21 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         this.globalOptions = provider.GetRequiredService<IOptions<VoiceOptions>>().Value;
         this.Receiver = (AudioReceiver)provider.GetRequiredService(receiverType);
         this.metrics = provider.GetRequiredService<VoiceMetrics>();
+        this.repository = provider.GetRequiredService<IVoiceConnectionRepository>();
 
         this.metrics.SetChannelId(channelId);
 
         this.selfMute = options.SelfMute;
         this.selfDeafen = options.SelfDeafen;
         this.noLongerSelfMuted = new();
-        
-        DiscordRestApiClientFactory apiClientFactory = provider.GetRequiredService<DiscordRestApiClientFactory>();
-        this.apiClient = apiClientFactory.GetCurrentApplicationClient();
 
         this.encoder = this.codec.CreateEncoder(bitrate, options.AudioType);
         this.sendingAudioChannel = new();
         this.connectedUsers = [..usersInCall, userId];
         this.ssrcs = [];
         this.voiceUsers = [];
-        this.bitrate = bitrate;
+        this.bitrate = int.Min(bitrate, options.MaxBitrate);
+        this.bitrateLimit = options.MaxBitrate;
         this.rtcpReportTimer = new(TimeSpan.FromSeconds(5));
         this.timestamp = new();
         this.pauseTransmissionWhenAlone = options.PauseTransmissionIfAlone;
@@ -94,7 +92,7 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         }
 
         this.userId = userId;
-        this.channelId = channelId;
+        this.ChannelId = channelId;
         this.guildId = guildId;
 
         this.mlsReady = null;
@@ -107,6 +105,8 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         {
             options.ReceiverSetup(this.Receiver);
         }
+
+        this.repository.RegisterConnection(this.guildId, this);
     }
 
     // services and stuff we receive from DI for customization purposes
@@ -116,14 +116,14 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     private readonly IMediaTransportService mediaTransport;
     private readonly IShardOrchestrator shardOrchestrator;
     private readonly IEventDispatcher dispatcher;
-    private readonly DiscordRestApiClient apiClient;
     private readonly ITransportService voiceGateway;
     private readonly ICryptorFactory cryptorFactory;
     private readonly IAudioCodec codec;
     private readonly IAudioEncoder encoder;
     private readonly IE2EESession e2ee;
     private readonly IAudioWriterFactory audioWriterFactory;
-    private readonly SynchronizedList<ulong> connectedUsers;
+    private readonly IVoiceConnectionRepository repository;
+    private SynchronizedList<ulong> connectedUsers;
     private readonly AudioChannel sendingAudioChannel;
     private readonly VoiceOptions globalOptions;
     private ICryptor cryptor;
@@ -147,6 +147,9 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     private bool selfMute;
     private bool selfDeafen;
     private TaskCompletionSource noLongerSelfMuted;
+    private readonly object awaitMoveInstructionState = new();
+    private TaskCompletionSource? awaitMoveInstruction;
+    private bool isReady;
 
     // audio session tracking
     private readonly CancellationTokenSource audioCancellation;
@@ -156,7 +159,8 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     private Task? rtcpTask;
     private readonly ConcurrentDictionary<uint, ulong> ssrcs;
     private readonly ConcurrentDictionary<ulong, VoiceUser> voiceUsers;
-    private readonly int bitrate;
+    private readonly int bitrateLimit;
+    private int bitrate;
     private readonly PeriodicTimer rtcpReportTimer;
     private int averageRTCPPacketSize;
     private uint packetsSent;
@@ -170,12 +174,16 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     private string token;
     private string endpoint;
     private readonly ulong userId;
-    private readonly ulong channelId;
     private readonly ulong guildId;
     private uint ssrc;
     private bool isDisconnecting;
     private bool isDisposed;
     private readonly VoiceMetrics metrics;
+
+    /// <summary>
+    /// Gets the current channel ID of this connection;
+    /// </summary>
+    public ulong ChannelId { get; private set; }
 
     /// <summary>
     /// Indicates whether we are currently sending audio.
@@ -192,6 +200,26 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     /// Provides a mechanism for receiving audio from Discord.
     /// </summary>
     public AudioReceiver Receiver { get; }
+
+    internal async Task MoveChannelAsync(ulong newChannelId, IEnumerable<ulong> userIds)
+    {
+        this.ChannelId = newChannelId;
+        this.connectedUsers = [..userIds];
+
+        this.IsSpeaking = false;
+        this.isReady = false;
+
+        this.awaitMoveInstruction ??= new(this.awaitMoveInstructionState);
+        this.awaitMoveInstruction.TrySetResult();
+
+        await ReconnectInternalAsync(true);
+    }
+
+    internal void SetChannelMaxBitrate(int bitrate)
+    {
+        this.bitrate = int.Min(bitrate, this.bitrateLimit);
+        this.codec.GetEncoder().SetBitrate(this.bitrate);
+    }
 
     /// <summary>
     /// Gets tracked metrics for the current connection.
@@ -261,7 +289,7 @@ public sealed partial class VoiceConnection : IAsyncDisposable
             Data = new()
             {
                 GuildId = this.guildId,
-                ChannelId = this.channelId,
+                ChannelId = this.ChannelId,
                 Mute = this.selfMute,
                 Deafen = this.selfDeafen
             }
@@ -298,7 +326,7 @@ public sealed partial class VoiceConnection : IAsyncDisposable
             Data = new()
             {
                 GuildId = this.guildId,
-                ChannelId = this.channelId,
+                ChannelId = this.ChannelId,
                 Mute = this.selfMute,
                 Deafen = this.selfDeafen
             }
@@ -332,9 +360,21 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         await this.voiceGateway.DisconnectAsync(WebSocketCloseStatus.NormalClosure);
         await this.mediaTransport.DisconnectAsync();
 
-        await this.apiClient.UpdateCurrentUserVoiceStateAsync(this.guildId, channelId: null);
+        VoiceStateUpdateEvent update = new()
+        {
+            Data = new()
+            {
+                GuildId = this.guildId,
+                ChannelId = 0,
+                Mute = this.selfMute,
+                Deafen = this.selfDeafen
+            }
+        };
+
+        await this.shardOrchestrator.SendOutboundEventAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(update)), this.guildId);
 
         this.metrics.CloseConnection();
+        this.repository.UnregisterConnection(this.guildId);
         
         this.serviceScope.Dispose();
     }

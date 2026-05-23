@@ -23,6 +23,10 @@ public sealed class OpusEncoder : IAudioEncoder
         => this.encoder = new(type, bitrate);
 
     /// <inheritdoc/>
+    public void SetBitrate(int bitrate)
+        => this.encoder.SetBitrate(bitrate);
+
+    /// <inheritdoc/>
     public AudioBufferLease Encode(ReadOnlySpan<Int16x2> pcm, out int consumed)
     {
         consumed = int.Min(pcm.Length, 960);
