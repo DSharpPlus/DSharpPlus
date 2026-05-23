@@ -35,6 +35,8 @@ DSharpPlus will furthermore throw `InvalidDataException`s if the file is corrupt
 
 The Ogg/Opus audio writer supports ingesting multiple files consecutively. It does not support ingesting multiple files concurrently, doing so will throw an `InvalidDataException`.
 
+Since this audio writer sends already-encoded audio, it will not respect the channel or user-defined bitrate limit.
+
 ## Adding custom audio formats
 
 It is possible, if a little bit involved, to implement custom audio formats. First, you need to create an `AudioWriter` implementation for your format that generates opus packets from your audio input and enqueues them into `AudioWriter.PacketWriter`. The buffer containing the packet must be provisioned by an `AudioBufferManager`; `AudioBufferManager.Shared` is provided as a sane default, but it is possible to bring your own pooling if necessary.

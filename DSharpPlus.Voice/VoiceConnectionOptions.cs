@@ -39,7 +39,8 @@ public sealed class VoiceConnectionOptions
 
     /// <summary>
     /// An user-defined limit on the bitrate to send audio at. DSharpPlus will use this or the channel bitrate,
-    /// whichever is lower. Defaults to 128,000.
+    /// whichever is lower. Defaults to 128,000, the maximum Discord allows is 384,000 (which is generally not useful
+    /// for pure audio, 128,000 is generally considered transparent.)
     /// </summary>
     public int MaxBitrate { get; set; } = 128000;
 }

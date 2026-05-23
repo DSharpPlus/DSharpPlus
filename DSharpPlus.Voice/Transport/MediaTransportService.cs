@@ -19,7 +19,6 @@ public class MediaTransportService : IMediaTransportService
     public Task ConnectAsync(IPEndPoint endpoint)
     {
         this.endpoint = endpoint;
-        Console.WriteLine($"Set endpoint {endpoint}");
         return Task.CompletedTask;
     }
 

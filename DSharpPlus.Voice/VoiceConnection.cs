@@ -218,6 +218,13 @@ public sealed partial class VoiceConnection : IAsyncDisposable
     internal void SetChannelMaxBitrate(int bitrate)
     {
         this.bitrate = int.Min(bitrate, this.bitrateLimit);
+        this.logger.LogDebug("Updating bitrate to {bitrate}", this.bitrate);
+
+        if (this.activeWriter is OggOpusAudioWriter)
+        {
+            this.logger.LogDebug("Currently using ogg/opus playback, the bitrate setting will not be respected.");
+        }
+
         this.codec.GetEncoder().SetBitrate(this.bitrate);
     }
 
@@ -360,12 +367,14 @@ public sealed partial class VoiceConnection : IAsyncDisposable
         await this.voiceGateway.DisconnectAsync(WebSocketCloseStatus.NormalClosure);
         await this.mediaTransport.DisconnectAsync();
 
+        this.sendingAudioChannel.Clear();
+
         VoiceStateUpdateEvent update = new()
         {
             Data = new()
             {
                 GuildId = this.guildId,
-                ChannelId = 0,
+                ChannelId = null,
                 Mute = this.selfMute,
                 Deafen = this.selfDeafen
             }

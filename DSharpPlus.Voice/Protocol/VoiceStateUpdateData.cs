@@ -7,10 +7,10 @@ namespace DSharpPlus.Voice.Protocol;
 /// </summary>
 internal sealed record VoiceStateUpdateData
 {
-    [JsonPropertyName("channel_id"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public required ulong ChannelId { get; init; }
+    [JsonPropertyName("channel_id")]
+    public required ulong? ChannelId { get; init; }
 
-    [JsonPropertyName("guild_id"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("guild_id")]
     public required ulong GuildId { get; init; }
 
     [JsonPropertyName("self_mute")]
