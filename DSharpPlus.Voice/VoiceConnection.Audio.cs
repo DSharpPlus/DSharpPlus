@@ -206,9 +206,6 @@ partial class VoiceConnection
             length = WriteAndEncryptFrame(lease.Buffer, currentFrame, this.timestamp.Value, sequence);
             lease.Dispose();
 
-            try
-            {
-
             // we have audio available, start sending it...
             while (await timer.WaitForNextTickAsync(ct))
             {
@@ -332,12 +329,6 @@ partial class VoiceConnection
                 counter = lease.FrameCount;
                 length = WriteAndEncryptFrame(lease.Buffer, currentFrame, this.timestamp.Value, sequence);
                 lease.Dispose();
-            }
-
-            }
-            catch (Exception e)
-            {
-                this.logger.LogError(e, "something");
             }
         }
 
