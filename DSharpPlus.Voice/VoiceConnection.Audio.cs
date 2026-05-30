@@ -286,6 +286,9 @@ partial class VoiceConnection
                             break;
                         }
 
+                        this.timestamp.Add(960);
+                        _ = unchecked(sequence++);
+
                         lease = readResult.Buffer.Value;
 
                         counter = lease.FrameCount;
