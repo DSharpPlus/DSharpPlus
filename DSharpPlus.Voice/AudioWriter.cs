@@ -1,7 +1,9 @@
 using System;
+using System.Buffers;
 using System.ComponentModel;
 using System.IO.Pipelines;
 using System.Runtime.ExceptionServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 using DSharpPlus.Voice.MemoryServices.Channels;
@@ -35,6 +37,16 @@ public abstract class AudioWriter : PipeWriter
     /// </summary>
     public virtual void SignalCompletion()
         => this.PacketWriter.Terminate();
+
+    /// <returns>
+    /// This operation never flushes and always returns a successful flush result.
+    /// </returns>
+    /// <inheritdoc/>
+    public override ValueTask<FlushResult> WriteAsync(ReadOnlyMemory<byte> source, CancellationToken cancellationToken = default)
+    {
+        BuffersExtensions.Write(this, source.Span);
+        return ValueTask.FromResult(new FlushResult());
+    }
 
     /// <inheritdoc/>
     [EditorBrowsable(EditorBrowsableState.Never)]

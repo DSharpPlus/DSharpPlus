@@ -173,8 +173,10 @@ partial class VoiceConnection
         byte[] currentFrame = new byte[this.e2ee.GetMaxEncryptedLength(5760) + 16]; 
         ushort sequence = (ushort)Random.Shared.NextInt64();
         PeriodicTimer timer = new(TimeSpan.FromMilliseconds(20));
+        TimeSpan delayFromRealtime = TimeSpan.Zero;
 
         AudioBufferLease lease;
+        AudioChannelReadResult readResult;
         int length;
 
         while (!ct.IsCancellationRequested)
@@ -191,7 +193,7 @@ partial class VoiceConnection
 
             await this.sendingAudioChannel.Reader.WaitToReadAsync(ct);
 
-            AudioChannelReadResult readResult = await this.sendingAudioChannel.Reader.ReadAsync(ct);
+            readResult = await this.sendingAudioChannel.Reader.ReadAsync(ct);
 
             if (readResult.State == AudioChannelState.Terminated)
             {
@@ -203,6 +205,9 @@ partial class VoiceConnection
             lease = readResult.Buffer.Value;
             length = WriteAndEncryptFrame(lease.Buffer, currentFrame, this.timestamp.Value, sequence);
             lease.Dispose();
+
+            try
+            {
 
             // we have audio available, start sending it...
             while (await timer.WaitForNextTickAsync(ct))
@@ -256,6 +261,55 @@ partial class VoiceConnection
                     break;
                 }
 
+                TimeSpan delay = this.timestamp.GetDelayToRealtime();
+
+                if (delay >= this.globalOptions.ConsiderConnectionDelayedThreshold)
+                {
+                    this.logger.LogInformation("test");
+
+                    if (delay >= 2 * this.globalOptions.ConsiderConnectionDelayedThreshold)
+                    {
+                        this.logger.LogWarning("The audio sending loop is running {time} behind - is the bot overloaded?", delay);
+                    }
+
+                    // run in catchup mode until either transmission pauses or we catch up to realtime
+                    while (delay > TimeSpan.FromMilliseconds(20))
+                    {
+                        try
+                        {
+                            readResult = await this.sendingAudioChannel.Reader.ReadAsync(ct);
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            break;
+                        }
+
+                        if (!readResult.IsAvailable)
+                        {
+                            break;
+                        }
+
+                        lease = readResult.Buffer.Value;
+
+                        counter = lease.FrameCount;
+                        length = WriteAndEncryptFrame(lease.Buffer, currentFrame, this.timestamp.Value, sequence);
+                        lease.Dispose();
+
+                        silenceCounter = 0;
+                        this.packetsSent++;
+                        this.opusBytesSent += (uint)length - 12;
+
+                        if (this.connectedUsers.Count != 0)
+                        {
+                            await this.mediaTransport.SendAsync(currentFrame.AsMemory()[..length]);
+                        }
+
+                        this.metrics.RecordAudioFrameSent(length);
+
+                        delay = this.timestamp.GetDelayToRealtime();
+                    }
+                }
+
                 // otherwise, let's go and encrypt the next bit of audio
                 readResult = this.sendingAudioChannel.Reader.TryRead();
 
@@ -278,6 +332,12 @@ partial class VoiceConnection
                 counter = lease.FrameCount;
                 length = WriteAndEncryptFrame(lease.Buffer, currentFrame, this.timestamp.Value, sequence);
                 lease.Dispose();
+            }
+
+            }
+            catch (Exception e)
+            {
+                this.logger.LogError(e, "something");
             }
         }
 

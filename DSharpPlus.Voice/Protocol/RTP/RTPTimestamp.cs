@@ -24,6 +24,24 @@ internal record struct RTPTimestamp
     }
 
     /// <summary>
+    /// Calculates the delay between current time and the time this RTP timestamp represents.
+    /// </summary>
+    public readonly TimeSpan GetDelayToRealtime()
+    {
+        DateTimeOffset currentTime = DateTimeOffset.UtcNow;
+        ulong ticksBehind = ((ulong)(currentTime - this.startTime).TotalMilliseconds * 48) - this.ticks;
+
+        try
+        {
+            return TimeSpan.FromMilliseconds((double)ticksBehind / 48);
+        }
+        catch (OverflowException) // this can just happen while we start the loop up, it's fine
+        {
+            return TimeSpan.Zero;
+        }
+    }
+
+    /// <summary>
     /// Gets the truncated value of the currently stored RTP timestamp.
     /// </summary>
     public readonly uint Value => (uint)(this.ticks + this.startingOffset);
