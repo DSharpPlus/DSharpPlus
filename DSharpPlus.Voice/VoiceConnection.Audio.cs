@@ -173,7 +173,6 @@ partial class VoiceConnection
         byte[] currentFrame = new byte[this.e2ee.GetMaxEncryptedLength(5760) + 16]; 
         ushort sequence = (ushort)Random.Shared.NextInt64();
         PeriodicTimer timer = new(TimeSpan.FromMilliseconds(20));
-        TimeSpan delayFromRealtime = TimeSpan.Zero;
 
         AudioBufferLease lease;
         AudioChannelReadResult readResult;
@@ -205,6 +204,8 @@ partial class VoiceConnection
             lease = readResult.Buffer.Value;
             length = WriteAndEncryptFrame(lease.Buffer, currentFrame, this.timestamp.Value, sequence);
             lease.Dispose();
+
+            framePrepared = true;
 
             // we have audio available, start sending it...
             while (await timer.WaitForNextTickAsync(ct))
@@ -262,8 +263,6 @@ partial class VoiceConnection
 
                 if (delay >= this.globalOptions.ConsiderConnectionDelayedThreshold)
                 {
-                    this.logger.LogInformation("test");
-
                     if (delay >= 2 * this.globalOptions.ConsiderConnectionDelayedThreshold)
                     {
                         this.logger.LogWarning("The audio sending loop is running {time} behind - is the bot overloaded?", delay);

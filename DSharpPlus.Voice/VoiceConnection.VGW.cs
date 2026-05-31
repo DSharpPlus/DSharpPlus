@@ -337,11 +337,14 @@ partial class VoiceConnection
     /// </summary>
     public async Task StartSpeakingAsync()
     {
-        this.logger.LogDebug("Announcing that we will start sending audio.");
+        if (!this.IsSpeaking)
+        {
+            this.logger.LogDebug("Announcing that we will start sending audio.");
 
-        await SendSpeakingStatusAsync(VoiceSpeakingFlags.Microphone);
+            await SendSpeakingStatusAsync(VoiceSpeakingFlags.Microphone);
 
-        this.IsSpeaking = true;
+            this.IsSpeaking = true;
+        }
     }
 
     /// <summary>
@@ -349,11 +352,14 @@ partial class VoiceConnection
     /// </summary>
     public async Task StopSpeakingAsync()
     {
-        this.logger.LogDebug("Announcing that we will stop sending audio.");
+        if (this.IsSpeaking)
+        {
+            this.logger.LogDebug("Announcing that we will stop sending audio.");
 
-        await SendSpeakingStatusAsync(VoiceSpeakingFlags.None);
+            await SendSpeakingStatusAsync(VoiceSpeakingFlags.None);
 
-        this.IsSpeaking = false;
+            this.IsSpeaking = false;
+        }
     }
 
     private async Task SendSpeakingStatusAsync(VoiceSpeakingFlags flags)
