@@ -229,7 +229,6 @@ partial class VoiceConnection
 
             if (silenceCounter == 1)
             {
-                Console.WriteLine("narrowly missed");
                 narrowReadMisses++;
             }
 
