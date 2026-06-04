@@ -39,6 +39,11 @@ public sealed partial class AudioChannel
     public AudioChannelWriter Writer => this.writer;
 
     /// <summary>
+    /// Gets the amount of items currently in the queue.
+    /// </summary>
+    public int QueueLength => this.underlying.Reader.Count;
+
+    /// <summary>
     /// Clears all elements currently enqueued into the audio channel. This method is thread-safe.
     /// </summary>
     public void Clear()

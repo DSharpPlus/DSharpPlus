@@ -29,6 +29,9 @@ public sealed class AeadXChaCha20Poly1305Cryptor : ICryptor
     public string EncryptionMode => "aead_xchacha20_poly1305_rtpsize";
 
     /// <inheritdoc/>
+    public int GetMaxEncryptedLength(int unencrypted) => unencrypted + 16;
+
+    /// <inheritdoc/>
     public bool Decrypt(ReadOnlySpan<byte> encryptedFrame, ArrayPoolBufferWriter<byte> decrypted, out RTPFrameInfo frameInfo)
     {
         frameInfo = FrameParser.ParseRtpsizeSuffixedNonce(encryptedFrame, 4);

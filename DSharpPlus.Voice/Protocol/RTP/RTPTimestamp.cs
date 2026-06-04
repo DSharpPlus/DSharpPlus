@@ -29,7 +29,7 @@ internal record struct RTPTimestamp
     public readonly TimeSpan GetDelayToRealtime()
     {
         DateTimeOffset currentTime = DateTimeOffset.UtcNow;
-        ulong ticksBehind = ((ulong)(currentTime - this.startTime).TotalMilliseconds * 48) - this.ticks;
+        long ticksBehind = ((long)(currentTime - this.startTime).TotalMilliseconds * 48) - (long)this.ticks;
 
         try
         {

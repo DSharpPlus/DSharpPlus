@@ -1,7 +1,5 @@
 using System;
 
-using DSharpPlus.Voice.Codec;
-
 using Microsoft.Win32.SafeHandles;
 
 namespace DSharpPlus.Voice.Interop.Opus;
@@ -84,7 +82,7 @@ public sealed unsafe class OpusEncoderHandle : SafeHandleZeroOrMinusOneIsInvalid
     {
         return audioType switch
         {
-            AudioType.Voice => OpusSignal.Voice,
+            AudioType.Realtime => OpusSignal.Voice,
             AudioType.Music => OpusSignal.Music,
             AudioType.Auto => OpusSignal.Auto,
             _ => OpusSignal.Auto

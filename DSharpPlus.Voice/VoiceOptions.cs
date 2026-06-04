@@ -92,8 +92,8 @@ public sealed class VoiceOptions
     public TimeSpan AwaitMoveInstructionDelay { get; set; } = TimeSpan.FromSeconds(2.5);
 
     /// <summary>
-    /// Specifies above which threshold DSharpPlus is to consider a connection to be delayed and attempt to catch up. Defaults to 0.08
-    /// seconds, or four frames of audio.
+    /// Specifies above which threshold DSharpPlus is to consider a connection to be delayed and attempt to catch up. Defaults to 0.25
+    /// seconds.
     /// </summary>
-    public TimeSpan ConsiderConnectionDelayedThreshold { get; set; } = TimeSpan.FromMilliseconds(80);
+    public TimeSpan ConsiderConnectionDelayedThreshold { get; set; } = TimeSpan.FromMilliseconds(250);
 }

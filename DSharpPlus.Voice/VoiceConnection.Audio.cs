@@ -12,8 +12,6 @@ using System.Threading.Tasks;
 using CommunityToolkit.HighPerformance.Buffers;
 using CommunityToolkit.HighPerformance.Helpers;
 
-using DSharpPlus.Voice.MemoryServices;
-using DSharpPlus.Voice.MemoryServices.Channels;
 using DSharpPlus.Voice.Protocol.RTCP;
 using DSharpPlus.Voice.Protocol.RTCP.Payloads;
 using DSharpPlus.Voice.Protocol.RTP;
@@ -23,6 +21,9 @@ using Microsoft.Extensions.Logging;
 using static DSharpPlus.Voice.Protocol.RTCP.RTCPIntervalHelper;
 
 namespace DSharpPlus.Voice;
+
+// contains the code for receive, keepalive and rtcp. sending lives in VoiceConnection.Audio.Sending.cs, it was complicated enough
+// to warrant its own file
 
 partial class VoiceConnection
 {
@@ -164,199 +165,6 @@ partial class VoiceConnection
         }
     }
 
-    private async Task SendAudioAsync(CancellationToken ct)
-    {
-        int counter = 1;
-        int silenceCounter = 0;
-        bool framePrepared = true;
-        // no real point pooling this, since we use it for the entire lifetime
-        byte[] currentFrame = new byte[this.e2ee.GetMaxEncryptedLength(5760) + 16]; 
-        ushort sequence = (ushort)Random.Shared.NextInt64();
-        PeriodicTimer timer = new(TimeSpan.FromMilliseconds(20));
-
-        AudioBufferLease lease;
-        AudioChannelReadResult readResult;
-        int length;
-
-        while (!ct.IsCancellationRequested)
-        {
-            if (this.selfMute)
-            {
-                await this.noLongerSelfMuted.Task;
-            }
-
-            if (this.pauseTransmissionWhenAlone && this.connectedUsers.Count == 0)
-            {
-                await this.noLongerAlone.Task;
-            }
-
-            await this.sendingAudioChannel.Reader.WaitToReadAsync(ct);
-
-            readResult = await this.sendingAudioChannel.Reader.ReadAsync(ct);
-
-            if (readResult.State == AudioChannelState.Terminated)
-            {
-                break;
-            }
-
-            this.timestamp.RealignTimestamp();
-
-            lease = readResult.Buffer.Value;
-            length = WriteAndEncryptFrame(lease.Buffer, currentFrame, this.timestamp.Value, sequence);
-            lease.Dispose();
-
-            framePrepared = true;
-
-            // we have audio available, start sending it...
-            while (await timer.WaitForNextTickAsync(ct))
-            {
-                // ...unless nobody is in the call and we're set to not consume audio if there are no recipients
-                if (this.pauseTransmissionWhenAlone && this.connectedUsers.Count == 0)
-                {
-                    break;
-                }
-
-                this.timestamp.Add(960);
-
-                // we were processing a long frame and haven't yet waited long enough, just wait until the next tick
-                if (--counter > 0)
-                {
-                    continue;
-                }
-
-                // this must be incremented after the early return, otherwise we produce wrong sequences here
-                _ = unchecked(sequence++);
-
-                if (framePrepared)
-                {
-                    if (!this.IsSpeaking && this.isReady)
-                    {
-                        this.logger.LogTrace("Commencing audio transmission to the remote server.");
-                        await StartSpeakingAsync();
-                    }
-
-                    silenceCounter = 0;
-                    this.packetsSent++;
-                    this.opusBytesSent += (uint)length - 12;
-
-                    // don't waste bandwidth when there's nobody to hear us
-                    if (this.connectedUsers.Count != 0)
-                    {
-                        await this.mediaTransport.SendAsync(currentFrame.AsMemory()[..length]);
-                    }
-
-                    this.metrics.RecordAudioFrameSent(length);
-                }
-                else
-                {
-                    silenceCounter++;
-                }
-
-                // if the silence counter has exceeded the configured maximum, fall silent and pause
-                if (silenceCounter >= this.globalOptions.SilenceTicksBeforePausingConnection)
-                {
-                    await SendFiveSilenceFramesAsync();
-                    break;
-                }
-
-                TimeSpan delay = this.timestamp.GetDelayToRealtime();
-
-                if (delay >= this.globalOptions.ConsiderConnectionDelayedThreshold)
-                {
-                    if (delay >= 2 * this.globalOptions.ConsiderConnectionDelayedThreshold)
-                    {
-                        this.logger.LogWarning("The audio sending loop is running {time} behind - is the bot overloaded?", delay);
-                    }
-
-                    // run in catchup mode until either transmission pauses or we catch up to realtime
-                    while (delay > TimeSpan.FromMilliseconds(20))
-                    {
-                        try
-                        {
-                            readResult = await this.sendingAudioChannel.Reader.ReadAsync(ct);
-                        }
-                        catch (OperationCanceledException)
-                        {
-                            break;
-                        }
-
-                        if (!readResult.IsAvailable)
-                        {
-                            break;
-                        }
-
-                        this.timestamp.Add(960);
-                        _ = unchecked(sequence++);
-
-                        lease = readResult.Buffer.Value;
-
-                        counter = lease.FrameCount;
-                        length = WriteAndEncryptFrame(lease.Buffer, currentFrame, this.timestamp.Value, sequence);
-                        lease.Dispose();
-
-                        silenceCounter = 0;
-                        this.packetsSent++;
-                        this.opusBytesSent += (uint)length - 12;
-
-                        if (this.connectedUsers.Count != 0)
-                        {
-                            await this.mediaTransport.SendAsync(currentFrame.AsMemory()[..length]);
-                        }
-
-                        this.metrics.RecordAudioFrameSent(length);
-
-                        delay = this.timestamp.GetDelayToRealtime();
-                    }
-                }
-
-                // otherwise, let's go and encrypt the next bit of audio
-                readResult = this.sendingAudioChannel.Reader.TryRead();
-
-                if (!readResult.IsAvailable)
-                {
-                    framePrepared = false;
-
-                    // if we're told to not expect any audio soon, just shut up
-                    if (readResult.State is AudioChannelState.Paused or AudioChannelState.Terminated)
-                    {
-                        await SendFiveSilenceFramesAsync();
-                        break;
-                    }
-                    
-                    continue;
-                }
-
-                lease = readResult.Buffer.Value;
-
-                counter = lease.FrameCount;
-                length = WriteAndEncryptFrame(lease.Buffer, currentFrame, this.timestamp.Value, sequence);
-                lease.Dispose();
-            }
-        }
-
-        async Task SendFiveSilenceFramesAsync()
-        {
-            this.logger.LogTrace("Pausing audio transmission to the remote server.");
-            await StopSpeakingAsync();
-
-            for (int i = 0; i < 5; i++)
-            {
-                lease = this.encoder.WriteSilenceFrame();
-                length = WriteAndEncryptFrame(lease.Buffer, currentFrame, this.timestamp.Value, sequence);
-                lease.Dispose();
-
-                this.timestamp.Add(960);
-                _ = unchecked(sequence++);
-
-                this.packetsSent++;
-                this.opusBytesSent += 3;
-                await this.mediaTransport.SendAsync(currentFrame.AsMemory()[..length]);
-
-                this.metrics.RecordAudioFrameSent(length);
-            }
-        }
-    }
-
     private async Task SendRTCPReportsAsync(CancellationToken ct)
     {
         RTCPSourceDescriptionPacket description = new()
@@ -475,27 +283,6 @@ partial class VoiceConnection
                 ReceptionReports = receptionReports
             };
         }
-    }
-    
-    private int WriteAndEncryptFrame(ReadOnlySpan<byte> unencrypted, Span<byte> target, uint timestamp, ushort sequence)
-    {
-        using ArrayPoolBufferWriter<byte> e2eeWriter = new();
-
-        RTPHelper.WriteRTPHeader(e2eeWriter.GetSpan(12), sequence, timestamp, this.ssrc);
-        e2eeWriter.Advance(12);
-
-        // don't encrypt if we're on dave version 0, fallback to writing unencrypted if e2ee failed (race condition with the vgw)
-        if (this.daveVersion == 0 || !this.e2ee.TryEncryptFrame(unencrypted, e2eeWriter))
-        {
-            e2eeWriter.Write(unencrypted);
-        }
-        
-        using ArrayPoolBufferWriter<byte> encryptedWriter = new();
-
-        this.cryptor.Encrypt(e2eeWriter.WrittenSpan, encryptedWriter);
-
-        encryptedWriter.WrittenSpan.CopyTo(target);
-        return encryptedWriter.WrittenCount;
     }
 
     private void UpdateAverageRTCPPacketSize(int packetSize)

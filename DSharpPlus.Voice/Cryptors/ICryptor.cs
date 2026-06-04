@@ -23,6 +23,11 @@ public interface ICryptor
     public bool Decrypt(ReadOnlySpan<byte> encryptedFrame, ArrayPoolBufferWriter<byte> decrypted, out RTPFrameInfo frameInfo);
 
     /// <summary>
+    /// Gets the maximum length of an encrypted packet, given an unencrypted size.
+    /// </summary>
+    public int GetMaxEncryptedLength(int unencrypted);
+
+    /// <summary>
     /// Gets the encryption mode supported by this cryptor.
     /// </summary>
     public string EncryptionMode { get; }

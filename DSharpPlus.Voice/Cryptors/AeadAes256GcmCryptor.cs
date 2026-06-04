@@ -29,6 +29,9 @@ public sealed class AeadAes256GcmCryptor : ICryptor
     public string EncryptionMode => "aead_aes256_gcm_rtpsize";
 
     /// <inheritdoc/>
+    public int GetMaxEncryptedLength(int unencrypted) => unencrypted + 16;
+
+    /// <inheritdoc/>
     public bool Decrypt(ReadOnlySpan<byte> encryptedFrame, ArrayPoolBufferWriter<byte> decrypted, out RTPFrameInfo frameInfo)
     {
         frameInfo = FrameParser.ParseRtpsizeSuffixedNonce(encryptedFrame, 4);
