@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Diagnostics.Tracing;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -16,7 +15,6 @@ using DSharpPlus.Clients;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
-using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Gateway;
 using DSharpPlus.Net.InboundWebhooks;
@@ -240,6 +238,37 @@ public sealed partial class DiscordClient : BaseDiscordClient
     public EventWaiter<T> CreateEventWaiter<T>(Func<T, bool> condition, TimeSpan timeout)
         where T : DiscordEventArgs
         => this.dispatcher.CreateEventWaiter(condition, timeout);
+
+    /// <summary>
+    /// Creates a new event collector for events of the specified type.
+    /// </summary>
+    /// <param name="condition">The condition events need to match before they are collected.</param>
+    /// <param name="timeout">The time events should be collected for.</param>
+    public EventCollector<T> CreateEventCollector<T>(Func<T, bool> condition, TimeSpan timeout)
+        where T : DiscordEventArgs
+        => this.dispatcher.CreateEventCollector(condition, timeout);
+
+    /// <summary>
+    /// Waits for an event matching the specified condition.
+    /// </summary>
+    /// <param name="condition">The condition an event needs to match.</param>
+    /// <param name="timeout">A timeout for this event waiter.</param>
+    public async Task<EventWaiterResult<T>> WaitForEventAsync<T>(Func<T, bool> condition, TimeSpan timeout)
+        where T : DiscordEventArgs
+    {
+        EventWaiter<T> eventWaiter = this.dispatcher.CreateEventWaiter(condition, timeout);
+        return await eventWaiter.Task;
+    }
+
+    /// <summary>
+    /// Collects events matching the specified condition over the specified time span.
+    /// </summary>
+    public async Task<IReadOnlyList<T>> CollectEventsAsync<T>(Func<T, bool> condition, TimeSpan timeout)
+        where T : DiscordEventArgs
+    {
+        EventCollector<T> eventCollector = this.dispatcher.CreateEventCollector(condition, timeout);
+        return await eventCollector.Task;
+    }
 
     #region Public REST Methods
 

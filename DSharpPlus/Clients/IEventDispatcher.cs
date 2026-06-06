@@ -26,4 +26,12 @@ public interface IEventDispatcher
     /// <param name="timeout">A timeout for this event waiter.</param>
     public EventWaiter<T> CreateEventWaiter<T>(Func<T, bool> condition, TimeSpan timeout)
         where T : DiscordEventArgs;
+
+    /// <summary>
+    /// Creates a new event collector for an event of the specified type.
+    /// </summary>
+    /// <param name="condition">The condition an event needs to match before it is added to the collector.</param>
+    /// <param name="timeout">The timeout for this event collector.</param>
+    public EventCollector<T> CreateEventCollector<T>(Func<T, bool> condition, TimeSpan timeout)
+        where T : DiscordEventArgs;
 }
