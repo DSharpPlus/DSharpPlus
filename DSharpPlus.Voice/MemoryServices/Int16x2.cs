@@ -14,5 +14,8 @@ public readonly struct Int16x2
     public short Second => (short)(this.value & 0x0000_FFFF);
 
     public Int16x2(short value)
-        => this.value = (int)(ushort)value << 16 | (ushort)value;
+        => this.value = ((int)(ushort)value << 16) | (ushort)value;
+
+    public Int16x2(short first, short second)
+        => this.value = ((int)(ushort)first << 16) | (ushort)second;
 }

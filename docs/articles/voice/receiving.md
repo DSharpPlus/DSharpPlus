@@ -3,7 +3,7 @@ title: Receiving Audio
 uid: articles.voice.receiving
 ---
 
-Unlike sending, which can change format and mode at any point in the connection if so desired, your desired receive mode must be specified up-front when calling `ConnectAsync`. Both of those methods take a parameter of the shape `Type? receiverType = null`, which, if left unspecified, defaults to `typeof(NullAudioReceiver)`. By default, thus, no audio will be received.
+Unlike sending, which can change format and mode at any point in the connection if so desired, your desired receive mode must be specified up-front when calling `ConnectAsync`. Both overloads take a parameter of the shape `Type? receiverType = null`, which, if left unspecified, defaults to `typeof(NullAudioReceiver)`. By default, thus, no audio will be received.
 
 If you desire to receive audio, you must specify a different receiver. DSharpPlus.Voice provides the following receivers:
 
