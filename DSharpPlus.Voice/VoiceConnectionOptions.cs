@@ -1,0 +1,46 @@
+using System;
+
+using DSharpPlus.Voice.Codec;
+using DSharpPlus.Voice.Receivers;
+
+namespace DSharpPlus.Voice;
+
+/// <summary>
+/// Provides per-connection behavioural configuration.
+/// </summary>
+public sealed class VoiceConnectionOptions
+{
+    /// <summary>
+    /// Indicates whether the bot should mute itself. Defaults to false.
+    /// </summary>
+    public bool SelfMute { get; set; } = false;
+
+    /// <summary>
+    /// Indicates whether the bot should deafen itself. Defaults to false.
+    /// </summary>
+    public bool SelfDeafen { get; set; } = false;
+
+    /// <summary>
+    /// Indicates how the library should generally treat sending audio.
+    /// </summary>
+    public AudioType AudioType { get; set; } = AudioType.Auto;
+
+    /// <summary>
+    /// Indicates whether the library should pause transmission of audio when the bot is alone in a voice channel.
+    /// If this is set to true, playback will resume where it left off when someone joins the voice channel again.
+    /// Defaults to false.
+    /// </summary>
+    public bool PauseTransmissionIfAlone { get; set; } = false;
+
+    /// <summary>
+    /// Sets up the audio receiver, if one was specified.
+    /// </summary>
+    public Action<AudioReceiver>? ReceiverSetup { get; set; }
+
+    /// <summary>
+    /// An user-defined limit on the bitrate to send audio at. DSharpPlus will use this or the channel bitrate,
+    /// whichever is lower. Defaults to 128,000, the maximum Discord allows is 384,000 (which is generally not useful
+    /// for pure audio, 128,000 is generally considered transparent.)
+    /// </summary>
+    public int MaxBitrate { get; set; } = 128000;
+}

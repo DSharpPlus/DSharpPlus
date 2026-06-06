@@ -1,0 +1,205 @@
+#pragma warning disable IDE0040
+
+using System;
+using System.Buffers;
+using System.Buffers.Binary;
+using System.Diagnostics;
+using System.Net.WebSockets;
+using System.Threading.Tasks;
+
+using CommunityToolkit.HighPerformance;
+using CommunityToolkit.HighPerformance.Buffers;
+
+using DSharpPlus.Voice.Protocol.Gateway;
+using DSharpPlus.Voice.Protocol.Gateway.Payloads.DaveV1.Clientbound;
+using DSharpPlus.Voice.Protocol.Gateway.Payloads.DaveV1.Serverbound;
+using DSharpPlus.Voice.Transport;
+
+using Microsoft.Extensions.Logging;
+
+namespace DSharpPlus.Voice;
+
+partial class VoiceConnection
+{
+    private async Task HandleDaveV1JsonPayloadsAsync(VoiceGatewayMessage message)
+    {
+        switch (message.Opcode)
+        {
+            case VoiceGatewayOpcode.PrepareTransition:
+
+                DavePrepareTransitionPayload prepareTransition = (DavePrepareTransitionPayload)message.Payload;
+
+                // zero means we just ignore
+                if (prepareTransition.TransitionId == 0)
+                {
+                    break;
+                }
+
+                this.pendingTransitionId = prepareTransition.TransitionId;
+                this.pendingTransitionProtocolVersion = prepareTransition.ProtocolVersion;
+
+                // we're ready
+                await this.voiceGateway.SendTextAsync(new()
+                {
+                    Opcode = VoiceGatewayOpcode.TransitionReady,
+                    Payload = new DaveTransitionReadyPayload
+                    {
+                        TransitionId = prepareTransition.TransitionId
+                    }
+                });
+
+                break;
+
+            case VoiceGatewayOpcode.ExecuteTransition:
+
+                DaveExecuteTransitionPayload executeTransition = (DaveExecuteTransitionPayload)message.Payload;
+
+                if (this.pendingTransitionId.HasValue && this.pendingTransitionId != executeTransition.TransitionId)
+                {
+                    _ = ReconnectInternalAsync(false);
+                }
+
+                if (this.pendingTransitionProtocolVersion.HasValue)
+                {
+                    this.daveVersion = this.pendingTransitionProtocolVersion.Value;
+                }
+
+                this.pendingTransitionProtocolVersion = null;
+                this.pendingTransitionId = null;
+
+                if (this.daveVersion != 0)
+                {
+                    this.e2ee.ReinitializeE2EESession((ushort)this.daveVersion);
+                }
+
+                break;
+
+            case VoiceGatewayOpcode.PrepareEpoch:
+
+                DavePrepareEpochPayload prepareEpoch = (DavePrepareEpochPayload)message.Payload;
+
+                if (prepareEpoch.EpochId == 1)
+                {
+                    this.logger.LogTrace("Initializing DAVE session");
+
+                    this.daveVersion = prepareEpoch.ProtocolVersion;
+                    this.e2ee.ReinitializeE2EESession(prepareEpoch.ProtocolVersion);
+
+                    await DaveV1AnnounceKeyPackageAsync();
+                }
+
+                break;
+
+            default:
+
+                this.logger.LogWarning("Opcode {opcode} is not defined for DAVE v1.", message.Opcode);
+                break;
+        }
+    }
+
+    private async Task HandleDaveV1BinaryPayloadsAsync(VoiceGatewayTransportFrame frame)
+    {
+        Debug.Assert(frame.Type == WebSocketMessageType.Binary);
+
+        // here, the sequence is guaranteed
+        this.lastSequence = BinaryPrimitives.ReadUInt16BigEndian(frame.Payload);
+
+        switch (frame.Opcode)
+        {
+            case VoiceGatewayOpcode.MlsExternalSender:
+                
+                this.e2ee.SetExternalSender(frame.Payload.AsSpan(3));
+                this.mlsReady?.TrySetResult();
+
+                break;
+
+            case VoiceGatewayOpcode.MlsProposals:
+
+                byte[] response = this.e2ee.ProcessProposals(frame.Payload.AsSpan(3), [.. this.connectedUsers]);
+
+                if (response is { Length: > 0 })
+                {
+                    await DaveV1CommitWelcomeAsync(response);
+                }
+
+                break;
+
+            case VoiceGatewayOpcode.MlsAnnounceCommitTransition:
+
+                if (frame.Payload.Length <= 5)
+                {
+                    this.logger.LogTrace("Received invalid commit transition, reinitializing");
+
+                    ushort transitionId = BinaryPrimitives.ReadUInt16BigEndian(frame.Payload.AsSpan(3));
+                    await DaveV1SendInvalidCommitAsync(transitionId);
+
+                    this.e2ee.ReinitializeE2EESession((ushort)this.daveVersion);
+
+                    await DaveV1AnnounceKeyPackageAsync();
+                }
+
+                bool success = this.e2ee.ProcessCommit(frame.Payload.AsSpan(5));
+
+                if (!success)
+                {
+                    this.logger.LogTrace("Failed to process commit transition, reinitializing");
+
+                    ushort transitionId = BinaryPrimitives.ReadUInt16BigEndian(frame.Payload.AsSpan(3));
+                    await DaveV1SendInvalidCommitAsync(transitionId);
+
+                    this.e2ee.ReinitializeE2EESession((ushort)this.daveVersion);
+
+                    await DaveV1AnnounceKeyPackageAsync();
+                }
+
+                break;
+
+            case VoiceGatewayOpcode.MlsWelcome:
+
+                this.e2ee.ProcessWelcome(frame.Payload.AsSpan(5), [.. this.connectedUsers]);
+                this.mlsReady?.TrySetResult();
+
+                break;
+
+            default:
+
+                // we don't really need to reconnect here, discord tests in prod all the time
+                this.logger.LogWarning("Opcode {opcode} is not defined for DAVE v1.", frame.Opcode);
+                break;
+        }
+    }
+
+    private async Task DaveV1AnnounceKeyPackageAsync()
+    {
+        using ArrayPoolBufferWriter<byte> writer = new();
+
+        writer.Write((byte)VoiceGatewayOpcode.MlsKeyPackage);
+        this.e2ee.WriteKeyPackage(writer);
+
+        await this.voiceGateway.SendBinaryAsync(writer.WrittenMemory);
+    }
+
+    private async Task DaveV1CommitWelcomeAsync(ReadOnlyMemory<byte> message)
+    {
+        using ArrayPoolBufferWriter<byte> writer = new();
+
+        writer.Write((byte)VoiceGatewayOpcode.MlsCommitWelcome);
+        writer.Write(message.Span);
+
+        await this.voiceGateway.SendBinaryAsync(writer.WrittenMemory);
+    }
+
+    private async Task DaveV1SendInvalidCommitAsync(ushort transitionId)
+    {
+        VoiceGatewayMessage message = new()
+        {
+            Opcode = VoiceGatewayOpcode.MlsInvalidCommitWelcome,
+            Payload = new MlsInvalidCommitWelcomePayload()
+            {
+                TransitionId = transitionId
+            }
+        };
+
+        await this.voiceGateway.SendTextAsync(message);
+    }
+}
