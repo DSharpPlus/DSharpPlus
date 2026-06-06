@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Diagnostics.Tracing;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -16,7 +15,7 @@ using DSharpPlus.Clients;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
-using DSharpPlus.Net;
+using DSharpPlus.Metrics;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Gateway;
 using DSharpPlus.Net.InboundWebhooks;
@@ -48,6 +47,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
     private readonly ChannelReader<DiscordWebhookEvent> webhookEventReader;
     private readonly ChannelReader<DiscordHttpInteractionPayload> interactionEventReader;
     private readonly IEventDispatcher dispatcher;
+    private readonly RestMetricsContainer restMetrics;
+    private readonly GatewayMetricsContainer gatewayMetrics;
 
     private readonly ConcurrentDictionary<Int128, Channel<GuildMembersChunkedEventArgs>> guildMembersChunkedEvents = [];
 
@@ -109,6 +110,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
         IOptions<TokenContainer> token,
         IShardOrchestrator shardOrchestrator,
         IOptions<GatewayClientOptions> gatewayOptions,
+        RestMetricsContainer restMetrics,
+        GatewayMetricsContainer gatewayMetrics,
 
         [FromKeyedServices("DSharpPlus.Gateway.EventChannel")]
         Channel<GatewayPayload> eventChannel,
@@ -133,6 +136,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
         this.dispatcher = eventDispatcher;
         this.webhookEventReader = webhookEventChannel.Reader;
         this.interactionEventReader = interactionEventChannel.Reader;
+        this.restMetrics = restMetrics;
+        this.gatewayMetrics = gatewayMetrics;
 
         this.ApiClient.SetClient(this);
         this.Intents = gatewayOptions.Value.Intents;
@@ -231,6 +236,18 @@ public sealed partial class DiscordClient : BaseDiscordClient
     }
 
     #endregion
+
+    /// <summary>
+    /// Provides metrics collected about rest requests and their status.
+    /// </summary>
+    public RestMetricsCollection GetRestRequestMetrics()
+        => this.restMetrics.GetCollectedMetrics();
+
+    /// <summary>
+    /// Provides metrics collected from the gateway.
+    /// </summary>
+    public GatewayMetricsCollection GetGatewayMetrics()
+        => this.gatewayMetrics.GetCollectedMetrics();
 
     /// <summary>
     /// Creates a new event waiter for an event of the specified type.

@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Channels;
 
 using DSharpPlus.Clients;
+using DSharpPlus.Metrics;
 using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Gateway;
@@ -70,13 +71,15 @@ public static partial class ServiceCollectionExtensions
 
         serviceCollection.AddTransient<DiscordRestApiClient>()
             .AddSingleton<DiscordRestApiClientFactory>()
-            .AddTransient<RestClient>();
+            .AddTransient<RestClient>()
+            .AddSingleton<RestMetricsContainer>();
 
         // gateway setup
         serviceCollection.Configure<GatewayClientOptions>(c => c.Intents = intents)
             .AddKeyedSingleton("DSharpPlus.Gateway.EventChannel", Channel.CreateUnbounded<GatewayPayload>(new UnboundedChannelOptions { SingleReader = true }))
             .AddTransient<ITransportService, TransportService>()
             .AddTransient<IGatewayClient, GatewayClient>()
+            .AddSingleton<GatewayMetricsContainer>()
             .RegisterBestDecompressor()
             .AddSingleton<IEventDispatcher, DefaultEventDispatcher>()
             .AddSingleton<DiscordClient>();
