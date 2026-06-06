@@ -1,6 +1,5 @@
 using System;
 using System.Threading;
-using DSharpPlus.Clients;
 
 namespace DSharpPlus.Metrics;
 
@@ -11,10 +10,6 @@ public sealed class GatewayMetricsContainer
 {
     private LiveGatewayMetrics metrics;
     private readonly DateTimeOffset creation = DateTimeOffset.UtcNow;
-    private readonly int shardCount;
-
-    public GatewayMetricsContainer(IShardOrchestrator orchestrator)
-        => this.shardCount = orchestrator.ConnectedShardCount;
 
     /// <summary>
     /// Gets a snapshot of metrics as collected so far.
@@ -24,7 +19,6 @@ public sealed class GatewayMetricsContainer
         return new()
         {
             Duration = DateTimeOffset.UtcNow - this.creation,
-            ShardCount = this.shardCount,
 
             EventsReceived = this.metrics.eventsReceived,
             BytesReceived = this.metrics.bytesReceived,

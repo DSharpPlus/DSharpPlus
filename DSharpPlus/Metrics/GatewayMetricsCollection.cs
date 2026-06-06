@@ -13,11 +13,6 @@ public readonly record struct GatewayMetricsCollection
     public TimeSpan Duration { get; init; }
 
     /// <summary>
-    /// The amount of shards managed by DSharpPlus while these metrics were collected.
-    /// </summary>
-    public int ShardCount { get; init; }
-
-    /// <summary>
     /// The amount of events received from the gateway.
     /// </summary>
     public ulong EventsReceived { get; init; }
