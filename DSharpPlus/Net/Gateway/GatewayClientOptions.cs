@@ -69,7 +69,7 @@ public sealed class GatewayClientOptions
 
     /// <summary>
     /// Specifies the timeout to use when sending a payload to the gateway and for websocket-level keepalive messages
-    /// (this is distinct from heartbeating). If this is exceeded, DSharpPlus will attemptbto reconnect and resume. 
+    /// (this is distinct from heartbeating). If this is exceeded, DSharpPlus will attempt to reconnect and resume. 
     /// Defaults to 5 seconds.
     /// </summary>
     /// <remarks>
