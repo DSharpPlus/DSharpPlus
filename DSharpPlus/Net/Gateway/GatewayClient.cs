@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.Metrics;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Gateway.Compression;
 using DSharpPlus.Net.Serialization;
@@ -32,6 +33,7 @@ public sealed class GatewayClient : IGatewayClient
     private readonly GatewayClientOptions options;
     private readonly ILoggerFactory factory;
     private readonly EventHandlerCollection handlers;
+    private readonly GatewayMetricsContainer metrics;
     private readonly string token;
     private readonly bool compress;
 
@@ -72,7 +74,8 @@ public sealed class GatewayClient : IGatewayClient
         IOptions<GatewayClientOptions> options,
         IGatewayController controller,
         ILoggerFactory factory,
-        IOptions<EventHandlerCollection> handlers
+        IOptions<EventHandlerCollection> handlers,
+        GatewayMetricsContainer metrics
     )
     {
         this.transportService = transportService;
@@ -84,6 +87,7 @@ public sealed class GatewayClient : IGatewayClient
         this.options = options.Value;
         this.controller = controller;
         this.handlers = handlers.Value;
+        this.metrics = metrics;
 
         this.logger = factory.CreateLogger("DSharpPlus.Net.Gateway.IGatewayClient - invalid shard");
     }
@@ -533,6 +537,8 @@ public sealed class GatewayClient : IGatewayClient
                     "Received hello event, starting heartbeating with an interval of {interval} and identifying.",
                     TimeSpan.FromMilliseconds(helloPayload.HeartbeatInterval)
                 );
+
+                this.metrics.RecordReconnect();
 
                 this.IsConnected = true;
                 _ = HeartbeatAsync(helloPayload.HeartbeatInterval, this.gatewayTokenSource.Token);
