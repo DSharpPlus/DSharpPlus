@@ -66,4 +66,15 @@ public sealed class GatewayClientOptions
     /// may be pruned if there is no user code handling them. Exercise caution with this option.
     /// </remarks>
     public bool EnableEventQueuePruning { get; set; } = false;
+
+    /// <summary>
+    /// Specifies the timeout to use when sending a payload to the gateway and for websocket-level keepalive messages
+    /// (this is distinct from heartbeating). If this is exceeded, DSharpPlus will attemptbto reconnect and resume. 
+    /// Defaults to 5 seconds.
+    /// </summary>
+    /// <remarks>
+    /// This is intended to detect transient connection failures where we need to reconnect, but will also come into
+    /// effect during Discord outages and if your internet connection is slow or prone to spikes in latency.
+    /// </remarks>
+    public TimeSpan SendingTimeout { get; set; } = TimeSpan.FromSeconds(5);
 }
