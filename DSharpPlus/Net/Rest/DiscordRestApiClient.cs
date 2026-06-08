@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.Entities.AuditLogs;
 using DSharpPlus.Exceptions;
-using DSharpPlus.Metrics;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Abstractions.Rest;
 using DSharpPlus.Net.Serialization;
@@ -42,10 +41,6 @@ public sealed class DiscordRestApiClient
     // This is for meta-clients, such as the webhook client
     internal DiscordRestApiClient(TimeSpan timeout, ILogger logger)
         => this.rest = new(new(), timeout, logger);
-
-    /// <inheritdoc cref="RestClient.GetRequestMetrics(bool)"/>
-    internal RequestMetricsCollection GetRequestMetrics(bool sinceLastCall = false)
-        => this.rest.GetRequestMetrics(sinceLastCall);
 
     internal void SetClient(BaseDiscordClient client)
         => this.discord = client;

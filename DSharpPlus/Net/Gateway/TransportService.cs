@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.HighPerformance.Buffers;
 
 using DSharpPlus.Logging;
+using DSharpPlus.Metrics;
 using DSharpPlus.Net.Gateway.Compression;
 
 using Microsoft.Extensions.Logging;
@@ -24,6 +25,7 @@ internal sealed class TransportService : ITransportService
     private readonly ArrayPoolBufferWriter<byte> decompressedWriter;
     private readonly IPayloadDecompressor decompressor;
     private readonly ILoggerFactory factory;
+    private readonly GatewayMetricsContainer metrics;
 
     private readonly bool streamingDeserialization;
 
@@ -34,13 +36,15 @@ internal sealed class TransportService : ITransportService
     (
         ILoggerFactory factory,
         IPayloadDecompressor decompressor,
-        IOptions<GatewayClientOptions> options
+        IOptions<GatewayClientOptions> options,
+        GatewayMetricsContainer metrics
     )
     {
         this.factory = factory;
         this.writer = new();
         this.decompressedWriter = new();
         this.decompressor = decompressor;
+        this.metrics = metrics;
 
         this.streamingDeserialization = options.Value.EnableStreamingDeserialization;
 
@@ -161,10 +165,14 @@ internal sealed class TransportService : ITransportService
             return new(ex);
         }
 
+        this.metrics.RecordGatewayEventReceived(this.writer.WrittenCount);
+
         if (!this.decompressor.TryDecompress(this.writer.WrittenSpan, this.decompressedWriter))
         {
             throw new InvalidDataException("Failed to decompress a gateway payload.");
         }
+
+        this.metrics.RecordGatewayEventDecompressed(this.decompressedWriter.WrittenCount);
 
         if (this.logger.IsEnabled(LogLevel.Trace) && RuntimeFeatures.EnableInboundGatewayLogging)
         {
@@ -211,7 +219,6 @@ internal sealed class TransportService : ITransportService
 
         if (this.logger.IsEnabled(LogLevel.Trace) && RuntimeFeatures.EnableOutboundGatewayLogging)
         {
-
             this.logger.LogTrace("Length for the last outbound outbound event: {length}", payload.Length);
 
             string anonymized = Encoding.UTF8.GetString(payload);
@@ -231,6 +238,8 @@ internal sealed class TransportService : ITransportService
 
         if (!this.isDisposed)
         {
+            this.metrics.RecordGatewayEventSent(payload.Length);
+
             await this.socket.SendAsync
             (
                 buffer: payload,

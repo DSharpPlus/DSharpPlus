@@ -26,7 +26,7 @@ public sealed partial class RestClient : IDisposable
     private readonly AsyncManualResetEvent globalRateLimitEvent;
     private readonly ResiliencePipeline<HttpResponseMessage> pipeline;
     private readonly RateLimitStrategy rateLimitStrategy;
-    private readonly RequestMetricsContainer metrics = new();
+    private readonly RestMetricsContainer metrics;
     private readonly TimeSpan timeout;
 
     private string token;
@@ -38,7 +38,8 @@ public sealed partial class RestClient : IDisposable
     (
         ILogger<RestClient> logger,
         IHttpClientFactory clientFactory,
-        IOptions<RestClientOptions> options
+        IOptions<RestClientOptions> options,
+        RestMetricsContainer metrics
     )
         : this
         (
@@ -49,10 +50,8 @@ public sealed partial class RestClient : IDisposable
             (int)options.Value.RatelimitRetryDelayFallback.TotalMilliseconds,
             (int)options.Value.InitialRequestTimeout.TotalMilliseconds,
             options.Value.MaximumConcurrentRestRequests
-        )
-    {
-
-    }
+        ) 
+        => this.metrics = metrics;
 
     // This is for meta-clients, such as the webhook client
     internal RestClient
@@ -169,51 +168,30 @@ public sealed partial class RestClient : IDisposable
                 this.logger.LogTrace("Request {TraceId}: {Content}", traceId, anonymized);
             }
 
-            switch (response.StatusCode)
+            this.metrics.RegisterRestRequestOutcome(response.StatusCode, response.Headers);
+
+            return response.StatusCode switch
             {
-                case HttpStatusCode.BadRequest or HttpStatusCode.MethodNotAllowed:
+                HttpStatusCode.BadRequest or HttpStatusCode.MethodNotAllowed => throw new BadRequestException(request.Build(), response, content),
 
-                    this.metrics.RegisterBadRequest();
-                    throw new BadRequestException(request.Build(), response, content);
+                HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden => throw new UnauthorizedException(request.Build(), response, content),
 
-                case HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden:
+                HttpStatusCode.NotFound => throw new NotFoundException(request.Build(), response, content),
 
-                    this.metrics.RegisterForbidden();
-                    throw new UnauthorizedException(request.Build(), response, content);
+                HttpStatusCode.RequestEntityTooLarge => throw new RequestSizeException(request.Build(), response, content),
 
-                case HttpStatusCode.NotFound:
+                HttpStatusCode.TooManyRequests => throw new RateLimitException(request.Build(), response, content),
 
-                    this.metrics.RegisterNotFound();
-                    throw new NotFoundException(request.Build(), response, content);
-
-                case HttpStatusCode.RequestEntityTooLarge:
-
-                    this.metrics.RegisterRequestTooLarge();
-                    throw new RequestSizeException(request.Build(), response, content);
-
-                case HttpStatusCode.TooManyRequests:
-
-                    this.metrics.RegisterRatelimitHit(response.Headers);
-                    throw new RateLimitException(request.Build(), response, content);
-
-                case HttpStatusCode.InternalServerError
+                HttpStatusCode.InternalServerError
                     or HttpStatusCode.BadGateway
                     or HttpStatusCode.ServiceUnavailable
-                    or HttpStatusCode.GatewayTimeout:
+                    or HttpStatusCode.GatewayTimeout => throw new ServerErrorException(request.Build(), response, content),
 
-                    this.metrics.RegisterServerError();
-                    throw new ServerErrorException(request.Build(), response, content);
-
-                default:
-
-                    this.metrics.RegisterSuccess();
-                    break;
-            }
-
-            return new RestResponse()
-            {
-                Response = content,
-                ResponseCode = response.StatusCode
+                _ => new RestResponse()
+                {
+                    Response = content,
+                    ResponseCode = response.StatusCode
+                },
             };
         }
         catch (Exception ex)
@@ -255,14 +233,6 @@ public sealed partial class RestClient : IDisposable
             }
         }
     }
-
-    /// <summary>
-    /// Gets the request metrics, optionally since the last time they were checked.
-    /// </summary>
-    /// <param name="sinceLastCall">If set to true, this resets the counter. Lifetime metrics are unaffected.</param>
-    /// <returns>A snapshot of the rest metrics.</returns>
-    public RequestMetricsCollection GetRequestMetrics(bool sinceLastCall = false)
-        => sinceLastCall ? this.metrics.GetTemporalMetrics() : this.metrics.GetLifetimeMetrics();
 
     public void Dispose()
     {
