@@ -28,6 +28,7 @@ internal sealed class TransportService : ITransportService
     private readonly GatewayMetricsContainer metrics;
 
     private readonly bool streamingDeserialization;
+    private readonly TimeSpan sendingTimeout;
 
     private bool isConnected = false;
     private bool isDisposed = false;
@@ -47,6 +48,7 @@ internal sealed class TransportService : ITransportService
         this.metrics = metrics;
 
         this.streamingDeserialization = options.Value.EnableStreamingDeserialization;
+        this.sendingTimeout = options.Value.SendingTimeout;
 
         this.logger = factory.CreateLogger("DSharpPlus.Net.Gateway.ITransportService - invalid shard");
     }
@@ -54,20 +56,23 @@ internal sealed class TransportService : ITransportService
     /// <inheritdoc/>
     public async ValueTask ConnectAsync(string url, int? shardId)
     {
-        this.logger = shardId is null
-            ? this.factory.CreateLogger("DSharpPlus.Net.Gateway.ITransportService")
-            : this.factory.CreateLogger($"DSharpPlus.Net.Gateway.ITransportService - Shard {shardId}");
-
-        this.socket = new();
-        this.decompressor.Initialize();
-
-        ObjectDisposedException.ThrowIf(this.isDisposed, this);
-
         if (this.isConnected)
         {
             this.logger.LogWarning("Attempted to connect, but there already is a connection opened. Ignoring.");
             return;
         }
+        
+        this.logger = shardId is null
+            ? this.factory.CreateLogger("DSharpPlus.Net.Gateway.ITransportService")
+            : this.factory.CreateLogger($"DSharpPlus.Net.Gateway.ITransportService - Shard {shardId}");
+
+        this.socket = new();
+
+        this.socket.Options.KeepAliveTimeout = this.sendingTimeout;
+
+        this.decompressor.Initialize();
+
+        ObjectDisposedException.ThrowIf(this.isDisposed, this);
 
         this.logger.LogTrace("Connecting to the Discord gateway.");
 
