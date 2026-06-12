@@ -7,6 +7,8 @@ using DSharpPlus.Net;
 using DSharpPlus.Net.Gateway;
 using DSharpPlus.Net.Gateway.Compression;
 
+using Microsoft.Extensions.Logging;
+
 namespace DSharpPlus.Clients;
 
 /// <summary>
@@ -17,6 +19,9 @@ public sealed class SingleShardOrchestrator : IShardOrchestrator
     private readonly IGatewayClient gatewayClient;
     private readonly DiscordRestApiClient apiClient;
     private readonly IPayloadDecompressor decompressor;
+    private readonly ILogger<IShardOrchestrator> logger;
+
+    private Task<GatewayConnectionFrame> gatewayTask;
 
     /// <summary>
     /// Creates a new instance of this type.
@@ -25,12 +30,14 @@ public sealed class SingleShardOrchestrator : IShardOrchestrator
     (
         IGatewayClient gatewayClient,
         DiscordRestApiClientFactory apiClientFactory,
-        IPayloadDecompressor decompressor
+        IPayloadDecompressor decompressor,
+        ILogger<IShardOrchestrator> logger
     )
     {
         this.gatewayClient = gatewayClient;
         this.apiClient = apiClientFactory.GetCurrentApplicationClient();
         this.decompressor = decompressor;
+        this.logger = logger;
     }
 
     /// <inheritdoc/>
@@ -93,7 +100,25 @@ public sealed class SingleShardOrchestrator : IShardOrchestrator
             gwuri.AddParameter("compress", this.decompressor.Name);
         }
 
-        await this.gatewayClient.ConnectAsync(gwuri.Build(), activity, status, idleSince);
+        this.gatewayTask = this.gatewayClient.ConnectAsync(gwuri.Build(), activity, status, idleSince);
+
+        _ = RunGatewayAsync();
+    }
+
+    private async Task RunGatewayAsync()
+    {
+        while (true)
+        {
+            GatewayConnectionFrame frame = await this.gatewayTask;
+
+            if (frame.DisconnectReason is GatewayDisconnectReason.UserRequested or GatewayDisconnectReason.IrrecoverableCloseCode)
+            {
+                this.logger.LogInformation("The gateway exited with disconnect reason {reason}, abandoning reconnecting.", frame.DisconnectReason);
+                break;
+            }
+
+            this.gatewayTask = this.gatewayClient.ReconnectAsync();
+        }
     }
 
     /// <inheritdoc/>
