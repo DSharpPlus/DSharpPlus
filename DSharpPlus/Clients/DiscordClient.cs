@@ -173,7 +173,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         }
         else
         {
-            long? since_unix = idlesince != null ? Utilities.GetUnixTime(idlesince.Value) : null;
+            long? since_unix = idlesince?.ToUnixTimeSeconds();
             this.status = new StatusUpdate()
             {
                 Activity = new TransportActivity(activity),
