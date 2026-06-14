@@ -1,6 +1,8 @@
 using System;
 using System.Net.Http;
 
+using DSharpPlus.Net;
+
 namespace DSharpPlus.Exceptions;
 
 public abstract class DiscordException : Exception
@@ -13,7 +15,7 @@ public abstract class DiscordException : Exception
     /// <summary>
     /// Gets the response to the request.
     /// </summary>
-    public virtual HttpResponseMessage? Response { get; internal set; }
+    public virtual RestResponse Response { get; internal set; }
 
     /// <summary>
     /// Gets the JSON message received.

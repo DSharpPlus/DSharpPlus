@@ -1,6 +1,8 @@
 using System.Net.Http;
 using System.Text.Json;
 
+using DSharpPlus.Net;
+
 namespace DSharpPlus.Exceptions;
 
 /// <summary>
@@ -8,15 +10,15 @@ namespace DSharpPlus.Exceptions;
 /// </summary>
 public class RequestSizeException : DiscordException
 {
-    internal RequestSizeException(HttpRequestMessage request, HttpResponseMessage response, string content)
-        : base($"Request entity too large: {response.StatusCode}. Make sure the data sent is within Discord's upload limit.")
+    internal RequestSizeException(HttpRequestMessage request, RestResponse response)
+        : base($"Request entity too large: {response.ResponseCode}. Make sure the data sent is within Discord's upload limit.")
     {
         this.Request = request;
         this.Response = response;
 
         try
         {
-            using JsonDocument document = JsonDocument.Parse(content);
+            using JsonDocument document = JsonDocument.Parse(response.Response);
             JsonElement responseModel = document.RootElement;
 
             if

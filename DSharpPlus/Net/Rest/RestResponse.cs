@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Headers;
 
 namespace DSharpPlus.Net;
 
@@ -10,10 +11,15 @@ public record struct RestResponse
     /// <summary>
     /// Gets the response code sent by the remote party.
     /// </summary>
-    public HttpStatusCode? ResponseCode { get; internal set; }
+    public HttpStatusCode ResponseCode { get; internal set; }
 
     /// <summary>
     /// Gets the contents of the response sent by the remote party.
     /// </summary>
     public string? Response { get; internal set; }
+
+    /// <summary>
+    /// Gets the headers received with this rest request.
+    /// </summary>
+    public HttpResponseHeaders? ResponseHeaders { get; internal set; }
 }
