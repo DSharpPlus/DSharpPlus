@@ -21,11 +21,7 @@ namespace DSharpPlus.Extensions;
 
 public static partial class ServiceCollectionExtensions
 {
-    internal static IServiceCollection AddDSharpPlusDefaultsSingleShard
-    (
-        this IServiceCollection serviceCollection,
-        DiscordIntents intents
-    )
+    internal static IServiceCollection AddDSharpPlusDefaultsSingleShard(this IServiceCollection serviceCollection, DiscordIntents intents)
     {
         serviceCollection.AddDSharpPlusServices(intents)
             .AddSingleton<IShardOrchestrator, SingleShardOrchestrator>();
@@ -33,11 +29,7 @@ public static partial class ServiceCollectionExtensions
         return serviceCollection;
     }
 
-    internal static IServiceCollection AddDSharpPlusDefaultsMultiShard
-    (
-        this IServiceCollection serviceCollection,
-        DiscordIntents intents
-    )
+    internal static IServiceCollection AddDSharpPlusDefaultsMultiShard(this IServiceCollection serviceCollection, DiscordIntents intents)
     {
         serviceCollection.AddDSharpPlusServices(intents)
             .AddSingleton<IShardOrchestrator, MultiShardOrchestrator>();
@@ -45,17 +37,12 @@ public static partial class ServiceCollectionExtensions
         return serviceCollection;
     }
 
-    internal static IServiceCollection AddDSharpPlusServices
-    (
-        this IServiceCollection serviceCollection,
-        DiscordIntents intents
-    )
+    internal static IServiceCollection AddDSharpPlusServices(this IServiceCollection serviceCollection, DiscordIntents intents)
     {
         // peripheral setup
         serviceCollection.AddMemoryCache()
             .AddSingleton<IMessageCacheProvider, MessageCache>()
-            .AddSingleton<IClientErrorHandler, DefaultClientErrorHandler>()
-            .AddSingleton<IGatewayController, DefaultGatewayController>();
+            .AddSingleton<IClientErrorHandler, DefaultClientErrorHandler>();
 
         // rest setup
         serviceCollection.AddHttpClient("DSharpPlus.Rest.HttpClient")
@@ -76,7 +63,7 @@ public static partial class ServiceCollectionExtensions
 
         // gateway setup
         serviceCollection.Configure<GatewayClientOptions>(c => c.Intents = intents)
-            .AddKeyedSingleton("DSharpPlus.Gateway.EventChannel", Channel.CreateUnbounded<GatewayPayload>(new UnboundedChannelOptions { SingleReader = true }))
+            .AddKeyedSingleton("DSharpPlus.Gateway.EventChannel", Channel.CreateUnbounded<GatewayPayload>(new() { SingleReader = true }))
             .AddTransient<ITransportService, TransportService>()
             .AddTransient<IGatewayClient, GatewayClient>()
             .AddSingleton<GatewayMetricsContainer>()
@@ -85,20 +72,8 @@ public static partial class ServiceCollectionExtensions
             .AddSingleton<DiscordClient>();
 
         // http events/interactions, if we're using those - doesn't actually cause any overhead if we aren't
-        serviceCollection.AddKeyedSingleton("DSharpPlus.Webhooks.EventChannel", Channel.CreateUnbounded<DiscordWebhookEvent>
-            (
-                new UnboundedChannelOptions
-                {
-                    SingleReader = true
-                }
-            ))
-            .AddKeyedSingleton("DSharpPlus.Interactions.EventChannel", Channel.CreateUnbounded<DiscordHttpInteractionPayload>
-            (
-                new UnboundedChannelOptions
-                {
-                    SingleReader = true
-                }
-            ))
+        serviceCollection.AddKeyedSingleton("DSharpPlus.Webhooks.EventChannel", Channel.CreateUnbounded<DiscordWebhookEvent>(new() { SingleReader = true }))
+            .AddKeyedSingleton("DSharpPlus.Interactions.EventChannel", Channel.CreateUnbounded<DiscordHttpInteractionPayload>(new() { SingleReader = true }))
             .AddSingleton<IInteractionTransportService, InteractionTransportService>()
             .AddSingleton<IWebhookTransportService, WebhookEventTransportService>();
 

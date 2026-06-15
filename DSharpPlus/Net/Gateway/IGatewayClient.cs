@@ -19,7 +19,7 @@ public interface IGatewayClient
     /// <param name="status">An optional status to send to the gateway when connecting.</param>
     /// <param name="idleSince">An optional idle timer to send to the gateway when connecting.</param>
     /// <param name="shardInfo">If this isn't the only shard, additional information about this shard.</param>
-    public ValueTask ConnectAsync
+    public Task<GatewayConnectionFrame> ConnectAsync
     (
         string url,
         DiscordActivity? activity = null,
@@ -31,17 +31,17 @@ public interface IGatewayClient
     /// <summary>
     /// Disconnects from the gateway.
     /// </summary>
-    public ValueTask DisconnectAsync();
+    public Task DisconnectAsync();
 
     /// <summary>
     /// Reconnects to the gateway.
     /// </summary>
-    public ValueTask ReconnectAsync();
+    public Task<GatewayConnectionFrame> ReconnectAsync();
 
     /// <summary>
     /// Sends the provided payload to the gateway.
     /// </summary>
-    public ValueTask WriteAsync(byte[] payload);
+    public Task WriteAsync(byte[] payload);
 
     /// <summary>
     /// Indicates whether this client is connected.
