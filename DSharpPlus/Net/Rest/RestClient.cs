@@ -1,6 +1,7 @@
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -149,6 +150,8 @@ public sealed partial class RestClient : IDisposable
             ResilienceContextPool.Shared.Return(context);
 
             string content = await response.Content.ReadAsStringAsync();
+            HttpResponseHeaders headers = response.Headers;
+            HttpStatusCode statusCode = response.StatusCode;
 
             // consider logging headers too
             if (this.logger.IsEnabled(LogLevel.Trace) && RuntimeFeatures.EnableRestRequestLogging)
@@ -170,55 +173,56 @@ public sealed partial class RestClient : IDisposable
 
             this.metrics.RegisterRestRequestOutcome(response.StatusCode, response.Headers);
 
+            RestResponse returnValue = new RestResponse()
+            {
+                Response = content,
+                ResponseCode = statusCode,
+                ResponseHeaders = headers
+            };
+
             return response.StatusCode switch
             {
-                HttpStatusCode.BadRequest or HttpStatusCode.MethodNotAllowed => throw new BadRequestException(request.Build(), response, content),
+                HttpStatusCode.BadRequest or HttpStatusCode.MethodNotAllowed => throw new BadRequestException(request.Build(), returnValue),
 
-                HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden => throw new UnauthorizedException(request.Build(), response, content),
+                HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden => throw new UnauthorizedException(request.Build(), returnValue),
 
-                HttpStatusCode.NotFound => throw new NotFoundException(request.Build(), response, content),
+                HttpStatusCode.NotFound => throw new NotFoundException(request.Build(), returnValue),
 
-                HttpStatusCode.RequestEntityTooLarge => throw new RequestSizeException(request.Build(), response, content),
+                HttpStatusCode.RequestEntityTooLarge => throw new RequestSizeException(request.Build(), returnValue),
 
-                HttpStatusCode.TooManyRequests => throw new RateLimitException(request.Build(), response, content),
+                HttpStatusCode.TooManyRequests => throw new RateLimitException(request.Build(), returnValue),
 
                 HttpStatusCode.InternalServerError
                     or HttpStatusCode.BadGateway
                     or HttpStatusCode.ServiceUnavailable
-                    or HttpStatusCode.GatewayTimeout => throw new ServerErrorException(request.Build(), response, content),
+                    or HttpStatusCode.GatewayTimeout => throw new ServerErrorException(request.Build(), returnValue),
 
-                _ => new RestResponse()
-                {
-                    Response = content,
-                    ResponseCode = response.StatusCode
-                },
+                _ => returnValue
             };
         }
-        catch (Exception ex)
+        catch (DiscordException ex)
         {
             if (ex is BadRequestException badRequest)
             {
-                this.logger.LogError
+                this.logger.LogWarning
                 (
                     "Request to {url} was rejected by the Discord API:\n" +
                     "  Error Code: {Code}\n" +
                     "  Errors: {Errors}\n" +
-                    "  Message: {JsonMessage}\n" +
-                    "  Stack trace: {Stacktrace}",
+                    "  Message: {JsonMessage}\n",
                     $"{Endpoints.BASE_URI}/{request.Url}",
                     badRequest.Code,
                     badRequest.Errors,
-                    badRequest.JsonMessage,
-                    badRequest.StackTrace
+                    badRequest.JsonMessage
                 );
             }
             else
             {
-                this.logger.LogError
+                this.logger.LogWarning
                 (
                     LoggerEvents.RestError,
-                    ex,
-                    "Request to {url} triggered an exception",
+                    "Received non-success status code {code} making a request to {url}",
+                    ex.Response.ResponseCode,
                     $"{Endpoints.BASE_URI}/{request.Url}"
                 );
             }

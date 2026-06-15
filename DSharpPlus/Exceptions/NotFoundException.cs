@@ -1,6 +1,8 @@
 using System.Net.Http;
 using System.Text.Json;
 
+using DSharpPlus.Net;
+
 namespace DSharpPlus.Exceptions;
 
 /// <summary>
@@ -8,22 +10,18 @@ namespace DSharpPlus.Exceptions;
 /// </summary>
 public class NotFoundException : DiscordException
 {
-    internal NotFoundException(HttpRequestMessage request, HttpResponseMessage response, string content)
-        : base("Not found: " + response.StatusCode)
+    internal NotFoundException(HttpRequestMessage request, RestResponse response)
+        : base("Not found: " + response.ResponseCode)
     {
         this.Request = request;
         this.Response = response;
 
         try
         {
-            using JsonDocument document = JsonDocument.Parse(content);
+            using JsonDocument document = JsonDocument.Parse(response.Response);
             JsonElement responseModel = document.RootElement;
 
-            if
-            (
-                responseModel.TryGetProperty("message", out JsonElement message)
-                && message.ValueKind == JsonValueKind.String
-            )
+            if (responseModel.TryGetProperty("message", out JsonElement message) && message.ValueKind == JsonValueKind.String)
             {
                 this.JsonMessage = message.GetString();
             }
