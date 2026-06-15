@@ -206,7 +206,7 @@ internal sealed class TransportActivity
         /// </summary>
         [JsonIgnore]
         public DateTimeOffset? Start
-            => this.start != null ? Utilities.GetDateTimeOffsetFromMilliseconds(this.start.Value, false) : null;
+            => this.start != null ? DateTimeOffset.FromUnixTimeMilliseconds(this.start.Value) : null;
 
         [JsonProperty("start", NullValueHandling = NullValueHandling.Ignore)]
         internal long? start;
@@ -216,7 +216,7 @@ internal sealed class TransportActivity
         /// </summary>
         [JsonIgnore]
         public DateTimeOffset? End
-            => this.end != null ? Utilities.GetDateTimeOffsetFromMilliseconds(this.end.Value, false) : null;
+            => this.end != null ? DateTimeOffset.FromUnixTimeMilliseconds(this.end.Value) : null;
 
         [JsonProperty("end", NullValueHandling = NullValueHandling.Ignore)]
         internal long? end;
