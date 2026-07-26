@@ -227,9 +227,7 @@ public sealed class GatewayClient : IGatewayClient
     /// <inheritdoc/>
     public async Task DisconnectAsync()
     {
-        this.closureRequested = true;
-        this.IsConnected = false;
-        await this.gatewayTokenSource.CancelAsync();
+        await TerminateCurrentFrameAsync(GatewayDisconnectReason.UserRequested);
         await this.transportService.DisconnectAsync(WebSocketCloseStatus.NormalClosure);
     }
 
@@ -460,7 +458,6 @@ public sealed class GatewayClient : IGatewayClient
 
         try
         {
-            this.IsConnected = false;
             await this.gatewayTokenSource.CancelAsync();
 
             this.gatewayTokenSource = new();
