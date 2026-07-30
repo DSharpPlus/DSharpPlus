@@ -3,6 +3,7 @@ using System.IO;
 using System.Net.WebSockets;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Unicode;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -175,7 +176,7 @@ internal sealed class TransportService : ITransportService
 
         if (this.logger.IsEnabled(LogLevel.Trace) && RuntimeFeatures.EnableInboundGatewayLogging)
         {
-            if (receiveResult.MessageType == WebSocketMessageType.Text)
+            if (receiveResult.MessageType == WebSocketMessageType.Text || Utf8.IsValid(this.decompressedWriter.WrittenSpan))
             {
                 string result = Encoding.UTF8.GetString(this.decompressedWriter.WrittenSpan);
 
@@ -201,7 +202,7 @@ internal sealed class TransportService : ITransportService
 
         return receiveResult.MessageType is WebSocketMessageType.Text or WebSocketMessageType.Binary
             ? new(this.decompressedWriter.WrittenSpan.ToArray(), receiveResult.MessageType)
-            : new(this.socket.CloseStatus!, WebSocketMessageType.Close);
+            : new((int)this.socket.CloseStatus!, WebSocketMessageType.Close);
     }
 
     /// <inheritdoc/>

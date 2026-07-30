@@ -22,7 +22,6 @@ namespace DSharpPlus.Clients;
 public sealed class MultiShardOrchestrator : IShardOrchestrator
 {
     private ConcurrentDictionary<int, IGatewayClient> shards;
-    private ConcurrentDictionary<int, Task<GatewayConnectionFrame>> gatewayTasks;
     private readonly DiscordRestApiClient apiClient;
     private readonly ShardingOptions options;
     private readonly IServiceProvider serviceProvider;
@@ -112,7 +111,6 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
         }
 
         this.shards = new(-1, (int)this.shardCount);
-        this.gatewayTasks = new(-1, (int)this.shardCount);
 
         // create all shard instances before starting any of them
         for (int i = 0; i < startShards; i++)
@@ -126,8 +124,9 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
 
             for (int j = i; j < i + info.SessionBucket.MaxConcurrency && j < startShards; j++)
             {
-                this.gatewayTasks.TryAdd(i, this.shards[j].ConnectAsync
+                _ = RunGatewayAsync
                 (
+                    i,
                     gwuri.Build(),
                     activity,
                     status,
@@ -137,7 +136,7 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
                         ShardCount = (int)totalShards,
                         ShardId = (int)stride + j
                     }
-                ));
+                );
             }
 
             TimeSpan diff = DateTimeOffset.UtcNow - startTime;
@@ -147,8 +146,6 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
                 await Task.Delay(TimeSpan.FromSeconds(5) - diff);
             }
         }
-
-        _ = RunGatewayAsync();
     }
 
     /// <inheritdoc/>
@@ -232,26 +229,29 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
         await Parallel.ForEachAsync(this.shards, async (shard, _) => await shard.Value.WriteAsync(payload));
     }
 
-    private async Task RunGatewayAsync()
+    private async Task RunGatewayAsync(int shardNumber, string uri, DiscordActivity? activity, DiscordUserStatus? status, DateTimeOffset? idleSince, ShardInfo shardInfo)
     {
+        Task<GatewayConnectionFrame> gatewayTask = this.shards[shardNumber].ConnectAsync(uri, activity, status, idleSince, shardInfo);
+
         while (true)
         {
-            Task<GatewayConnectionFrame> frame = await Task.WhenAny(this.gatewayTasks.Values);
+            GatewayConnectionFrame frame = await gatewayTask;
 
-            if (frame.Result.DisconnectReason is GatewayDisconnectReason.UserRequested or GatewayDisconnectReason.IrrecoverableCloseCode)
+            if (frame.DisconnectReason is GatewayDisconnectReason.UserRequested or GatewayDisconnectReason.IrrecoverableCloseCode)
             {
-                this.logger.LogInformation
+                this.logger.LogError
                 (
-                    "Shard {shardId} exited with disconnect reason {reason}, abandoning reconnecting.", 
-                    frame.Result.ShardId, 
-                    frame.Result.DisconnectReason
+                    frame.Exception,
+                    "Shard {shardId} exited with disconnect reason {reason} and close code {closeCode}, abandoning reconnecting.",
+                    frame.ShardId, 
+                    frame.DisconnectReason,
+                    frame.CloseCode ?? (GatewayCloseCode)1000
                 );
                 
                 break;
             }
 
-            Task<GatewayConnectionFrame> newTask = this.shards[frame.Result.ShardId].ReconnectAsync();
-            _ = this.gatewayTasks.AddOrUpdate(frame.Result.ShardId, newTask, (_, _) => newTask);
+            gatewayTask = this.shards[shardNumber].ReconnectAsync();
         }
     }
 
