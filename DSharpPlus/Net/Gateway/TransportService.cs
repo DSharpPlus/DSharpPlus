@@ -167,6 +167,11 @@ internal sealed class TransportService : ITransportService
 
         this.metrics.RecordGatewayEventReceived(this.writer.WrittenCount);
 
+        if (this.socket.CloseStatus is not null || this.writer.WrittenCount == 0)
+        {
+            return new(((int?)this.socket.CloseStatus) ?? 5000, WebSocketMessageType.Close);
+        }
+
         if (!this.decompressor.TryDecompress(this.writer.WrittenSpan, this.decompressedWriter))
         {
             throw new InvalidDataException("Failed to decompress a gateway payload.");
