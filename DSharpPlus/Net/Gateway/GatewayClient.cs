@@ -363,7 +363,8 @@ public sealed class GatewayClient : IGatewayClient
         }
     }
 
-    private async Task HandleEventCoreAsync(GatewayPayload payload)
+    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder))]
+    private async ValueTask HandleEventCoreAsync(GatewayPayload payload)
     {
         switch (payload.OpCode)
         {
@@ -451,7 +452,7 @@ public sealed class GatewayClient : IGatewayClient
     /// </summary>
     private async Task<bool> TryResumeAsync()
     {
-        if (this.resumeUrl is null || this.sessionId is null)
+        if (this.resumeUrl is null || this.sessionId is null || !this.IsConnected)
         {
             return false;
         }
