@@ -125,6 +125,7 @@ internal sealed class TransportService : ITransportService
                 }
                 catch (WebSocketException) { }
                 catch (OperationCanceledException) { }
+                catch (InvalidOperationException) { }
 
                 break;
         }
