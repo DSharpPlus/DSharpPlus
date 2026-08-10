@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.RateLimiting;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
@@ -27,6 +28,7 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
     private readonly IServiceProvider serviceProvider;
     private readonly IPayloadDecompressor decompressor;
     private readonly ILogger<IShardOrchestrator> logger;
+    private readonly ConcurrencyLimiter reconnectConcurrencyLimiter;
 
     private uint shardCount;
     private uint stride;
@@ -67,6 +69,12 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
         this.serviceProvider = serviceProvider;
         this.decompressor = decompressor;
         this.logger = logger;
+
+        this.reconnectConcurrencyLimiter = new(new()
+        {
+            PermitLimit = 1,
+            QueueLimit = int.MaxValue
+        });
     }
 
     /// <inheritdoc/>
@@ -251,6 +259,7 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
                 break;
             }
 
+            using RateLimitLease lease = await this.reconnectConcurrencyLimiter.AcquireAsync();
             gatewayTask = this.shards[shardNumber].ReconnectAsync();
         }
     }
