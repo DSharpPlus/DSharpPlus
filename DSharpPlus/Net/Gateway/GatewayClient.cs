@@ -608,7 +608,7 @@ public sealed class GatewayClient : IGatewayClient
             bool success = errorCode switch
             {
                 < 4000 => await HandleSystemErrorAsync(errorCode),
-                (>= 4000 and <= 4002) or 4005 or 4008 => await TryResumeAsync(),
+                (>= 4000 and <= 4002) or 4005 or 4008 or 5000 => await TryResumeAsync(),
                 _ => false
             };
 
