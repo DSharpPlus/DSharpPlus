@@ -49,7 +49,7 @@ jobs:
       - name: Package Project
         run: |
           dotnet pack -c Release -o build
-          dotnet nuget push "build/*" --skip-duplicate -k ${{ steps.outputs.nuget-login.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
+          dotnet nuget push "build/*" --skip-duplicate -k ${{ steps.nuget-login.outputs.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
           LATEST_STABLE_VERSION=$(git describe --abbrev=0 --tags 2>/dev/null || echo '') dotnet run --project ./tools/AutoUpdateChannelDescription
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
