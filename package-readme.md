@@ -50,6 +50,18 @@ Package | Description
 
 Want to see your extension in the list above? Send a pull request or talk to us on Discord!
 
+## Natives
+
+DSharpPlus also provides a number of native libraries that power certain features or extensions:
+
+Package | Description
+:---:|:---:
+`DSharpPlus.Natives.Zstd` | Enables zstd compression for the gateway. DSharpPlus will pick up on this by default and use it.
+`DSharpPlus.Natives.Sodium` | Provides the required encryption support for VoiceNext and for `DSharpPlus.Http.AspNetCore`.
+`DSharpPlus.Natives.Opus` | Provides the native audio encoder for VoiceNext.
+
+These are simply native libraries packaged as nuget packages, so you can use them from anywhere, not only DSharpPlus bots. They provide the targets `{win, linux, linux-musl, osx}-{x64, arm64}`. Note that `x64` packages are built for `x86_64_v2`, which is any CPU newer than about 2008-2012: if you use an older CPU, you may need to build the native libraries yourself.
+
 ## I want to throw my money at you
 
 If you want to give us some money as a thank you gesture, you can do so using one of these links:
