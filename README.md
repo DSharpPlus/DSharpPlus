@@ -4,7 +4,7 @@
 
 An unofficial .NET wrapper for the Discord API, the continuation of [DiscordSharp](https://github.com/suicvne/DiscordSharp).
 
-[![Nightly Build Status](https://github.com/DSharpPlus/DSharpPlus/actions/workflows/publish_nightly_master.yml/badge.svg?branch=master)](https://github.com/DSharpPlus/DSharpPlus/actions/workflows/build-commit.yml)
+[![Nightly Build Status](https://github.com/DSharpPlus/DSharpPlus/actions/workflows/publish_nightly_master.yml/badge.svg?branch=master)](https://github.com/DSharpPlus/DSharpPlus/actions/workflows/build-commit.yml/badge.svg)
 [![Discord Server](https://img.shields.io/discord/379378609942560770.svg?label=Discord&color=506de2)](https://discord.gg/dsharpplus)
 [![NuGet](https://img.shields.io/nuget/v/DSharpPlus.svg?label=NuGet)](https://nuget.org/packages/DSharpPlus)
 [![NuGet Latest Nightly/Prerelease](https://img.shields.io/nuget/vpre/DSharpPlus?color=505050&label=NuGet%20Latest%20Nightly%2FPrerelease)](https://nuget.org/packages/DSharpPlus)
