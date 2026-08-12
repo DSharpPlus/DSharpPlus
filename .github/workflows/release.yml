@@ -29,6 +29,8 @@ jobs:
     name: Package Commit
     runs-on: ubuntu-latest
     needs: build-commit
+    permissions:
+      id-token: write # needed for trusted publishing
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -39,10 +41,15 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8
+      - name: Login to NuGet
+        uses: NuGet/login@v1
+        id: nuget-login
+        with:
+          user: ${{ secrets.NUGET_USER }}
       - name: Package Project
         run: |
           dotnet pack -c Release -o build
-          dotnet nuget push "build/*" --skip-duplicate -k ${{ secrets.NUGET_ORG_API_KEY }} -s https://api.nuget.org/v3/index.json
+          dotnet nuget push "build/*" --skip-duplicate -k ${{ steps.nuget-login.outputs.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
           LATEST_STABLE_VERSION=$(git describe --abbrev=0 --tags 2>/dev/null || echo '') dotnet run --project ./tools/AutoUpdateChannelDescription
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
