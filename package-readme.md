@@ -18,44 +18,6 @@ The documentation for the latest nightly version is available at [dsharpplus.git
 1. Nightly versions are available on [Nuget](https://www.nuget.org/packages/DSharpPlus/) as a pre-release. These versions contain the latest features, improvements and bugfixes. You should, as a rule, use these versions: despite not being marked as stable, they are held to high standards of quality and merely represent the latest, most up-to-date state of the library.
 2. Stable releases are available on NuGet. Important bugfixes will be backported to the latest stable release. Stable versions roughly follow [romantic versioning](https://github.com/romversioning/romver): major versions indicate very major changes to both the library surface and internals, minor versions indicate major additions or breaking changes as necessary and in limited scope, and the third version number indicates hotfixes or small features as necessary.
 
-## Installing locally or from a pull request
-
-You can install the library locally from following sources:
-
-1. The library can be directly referenced from your csproj file. Cloning the repository and referencing the library is as easy as:
-
-    ```sh
-    git clone https://github.com/DSharpPlus/DSharpPlus.git DSharpPlus-Repo
-    # you can switch to a pull request using
-    gh pr <number>
-    git checkout <branch-name>
-    ```
-
-    Edit MyProject.csproj and add the following line:
-
-    ```xml
-    <ProjectReference Include="../DSharpPlus-Repo/DSharpPlus/DSharpPlus.csproj" />
-    ```
-
-    This belongs in the ItemGroup tag with the rest of your dependencies. The library should not be in the same directory or subdirectory as your project. This method should only be used if you're making local changes to the library.
-
-2. Every commit on a pull request is built into packages that can be manually downloaded from GitHub and referenced locally:
-
-    1. Navigate to the pull request you are interested in, for example <https://github.com/DSharpPlus/DSharpPlus/pull/2455>.
-    2. Click the checkmark next to the latest commit hash, then `Details`.
-    3. Click on `Summary` and scroll all the way down. There, an artifact of the format `DSharpPlus-PR-<PR number>-<Incrementing build number>` can be downloaded.
-    4. Unzip it and add the folder as a package source:
-        
-        Via command:
-        ```sh
-        dotnet add package <package-name> --source "path/to/your/package/folder"
-        ```
-
-        Via csproj, in your PropertyGroup:
-        ```xml
-        <RestoreAdditionalPackageSources>path/to/your/package/folder</RestoreAdditionalPackageSources>
-        ```
-
 ## Resources
 
 The following resources apply only for the latest stable version of the library.
@@ -67,14 +29,6 @@ The following resources apply only for the latest stable version of the library.
 ### Example bots
 
 * [Example by OoLunar](https://github.com/DSharpPlus/Example-Bots)
-
-## Contributing
-
-We're very glad about contributions! Pull requests should generally be made against the `master` branch, which tracks the latest development state of the library, or against a specific feature branch if you wish to collaborate on the feature. Please review the [Contributing Guidelines](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md).
-
-By contributing to DSharpPlus, you agree to make your code available under the MIT License and that you can confer this license upon the code. Code from other people must be used in compliance with their license and clearly marked as such; AI-generated code cannot be submitted.
-
-We generally recommend you come talk to us first, in our [Discord server](https://discord.gg/dsharpplus) at **#lib-development** (the necessary role is available in onboarding or in Channels & Roles), to see whether we would take your changes as proposed before you do any unnecessary work. This is also where we can be reached about all sorts of questions regarding the library's development.
 
 ## Extensions
 
