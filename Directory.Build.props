@@ -28,7 +28,7 @@
     <PackageIcon>dsharpplus.png</PackageIcon>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/DSharpPlus/DSharpPlus</PackageProjectUrl>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReadmeFile>package-readme.md</PackageReadmeFile>
     <PackageTags>discord, discord-api, bots, discord-bots, chat, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp</PackageTags>
     <RepositoryType>Git</RepositoryType>
     <RepositoryUrl>https://github.com/DSharpPlus/DSharpPlus</RepositoryUrl>
@@ -39,7 +39,7 @@
   <!-- Resource Files -->
   <ItemGroup>
     <None Include="$(ProjectRoot)/LICENSE" Pack="true" PackagePath=""/>
-    <None Include="$(ProjectRoot)/README.md" Pack="true" PackagePath=""/>
+    <None Include="$(ProjectRoot)/package-readme.md" Pack="true" PackagePath=""/>
     <None Include="$(ProjectRoot)/logo/dsharpplus.png" Pack="true" PackagePath=""/>
     <!-- Remove the 'JSImportGenerator' analyzer by default to improve compilation time. +200ms is apparently enough to require this change. -->
     <RemoveAnalyzer Include="Microsoft.Interop.JavaScript.JSImportGenerator" />
