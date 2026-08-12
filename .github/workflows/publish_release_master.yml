@@ -14,6 +14,8 @@ jobs:
     name: Publish Release
     runs-on: "ubuntu-latest"
     if: "!contains(format('{0} {1}', github.event.head_commit.message, github.event.pull_request.title), '[ci-skip]')"
+    permissions:
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -23,10 +25,15 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 7.0.103
+      - name: Login to NuGet
+        uses: NuGet/login@v1
+        id: nuget-login
+        with:
+          user: ${{ secrets.NUGET_USER }}
       - name: Build NuGet packages
         run: "mkdir build && dotnet pack --include-symbols -p:SymbolPackageFormat=snupkg -c Release -o build"
       - name: Publish NuGet packages
-        run: "dotnet nuget push \"build/*\" -k ${{ secrets.NUGET_ORG_API_KEY }} -s https://api.nuget.org/v3/index.json"
+        run: "dotnet nuget push \"build/*\" -k ${{ steps.nuget-login.outputs.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json"
       - name: Upload NuGet packages to GitHub Actions
         uses: actions/upload-artifact@v4
         with:
@@ -41,15 +48,3 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           omitBodyDuringUpdate: true # We don't want to update the body of the release.
           omitNameDuringUpdate: true # We don't want to update the name of the release.
-      - name: Export latest tag
-        run: echo LATEST_STABLE_VERSION=$(git describe --tags $(git rev-list --tags --max-count=1)) >> $GITHUB_ENV
-      - name: Update Discord Channel Topic
-        run: "dotnet run --project ./tools/AutoUpdateChannelDescription -p:Nightly=$(printf \"%0*d\n\" 5 $(( 1195 + ${{ github.run_number }} ))"
-        env:
-          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
-          DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
-          DISCORD_CHANNEL_ID: ${{ secrets.DISCORD_CHANNEL_ID }}
-          DISCORD_CHANNEL_TOPIC: ${{ secrets.DISCORD_CHANNEL_TOPIC }}
-          NUGET_URL: ${{ secrets.NUGET_URL }}
-          GITHUB_URL : ${{ github.server_url }}/${{ github.repository }}
-          LATEST_STABLE_VERSION: ${{ env.LATEST_STABLE_VERSION }}
