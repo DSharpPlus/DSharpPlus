@@ -2867,9 +2867,16 @@ public sealed class DiscordRestApiClient
     public async ValueTask PinMessageAsync
     (
         ulong channelId,
-        ulong messageId
+        ulong messageId,
+        string reason
     )
     {
+        Dictionary<string, string> headers = [];
+        if (!string.IsNullOrWhiteSpace(reason))
+        {
+            headers[REASON_HEADER_NAME] = reason;
+        }
+
         string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.PINS}/:message_id";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.PINS}/{messageId}";
 
@@ -2877,7 +2884,8 @@ public sealed class DiscordRestApiClient
         {
             Route = route,
             Url = url,
-            Method = HttpMethod.Put
+            Method = HttpMethod.Put,
+            Headers = headers
         };
 
         await this.rest.ExecuteRequestAsync(request);
@@ -2886,9 +2894,16 @@ public sealed class DiscordRestApiClient
     public async ValueTask UnpinMessageAsync
     (
         ulong channelId,
-        ulong messageId
+        ulong messageId,
+        string reason
     )
     {
+        Dictionary<string, string> headers = [];
+        if (!string.IsNullOrWhiteSpace(reason))
+        {
+            headers[REASON_HEADER_NAME] = reason;
+        }
+
         string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.PINS}/:message_id";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.PINS}/{messageId}";
 
@@ -2896,7 +2911,8 @@ public sealed class DiscordRestApiClient
         {
             Route = route,
             Url = url,
-            Method = HttpMethod.Delete
+            Method = HttpMethod.Delete,
+            Headers = headers
         };
         await this.rest.ExecuteRequestAsync(request);
     }
