@@ -650,24 +650,26 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <summary>
     /// Pins the message in its channel.
     /// </summary>
+    /// <param name="reason">Reason for the Audit Log.</param>
     /// <returns></returns>
     /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageMessages"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task PinAsync()
-        => await this.Discord.ApiClient.PinMessageAsync(this.ChannelId, this.Id);
+    public async Task PinAsync(string? reason = null)
+        => await this.Discord.ApiClient.PinMessageAsync(this.ChannelId, this.Id, reason);
 
     /// <summary>
     /// Unpins the message in its channel.
     /// </summary>
+    /// <param name="reason">Reason for the Audit Log.</param>
     /// <returns></returns>
     /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageMessages"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task UnpinAsync()
-        => await this.Discord.ApiClient.UnpinMessageAsync(this.ChannelId, this.Id);
+    public async Task UnpinAsync(string? reason = null)
+        => await this.Discord.ApiClient.UnpinMessageAsync(this.ChannelId, this.Id, reason);
 
     /// <summary>
     /// Responds to the message. This produces a reply.
