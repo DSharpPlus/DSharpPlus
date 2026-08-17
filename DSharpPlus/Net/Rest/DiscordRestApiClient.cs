@@ -2868,7 +2868,7 @@ public sealed class DiscordRestApiClient
     (
         ulong channelId,
         ulong messageId,
-        string reason
+        string? reason = null
     )
     {
         Dictionary<string, string> headers = [];
@@ -2895,7 +2895,7 @@ public sealed class DiscordRestApiClient
     (
         ulong channelId,
         ulong messageId,
-        string reason
+        string? reason = null
     )
     {
         Dictionary<string, string> headers = [];
