@@ -1,0 +1,59 @@
+using System;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+
+namespace DSharpPlus;
+
+/// <summary>
+/// Represents the success or failure of an operation, and optionally the error returned.
+/// </summary>
+public readonly record struct Result
+{
+    /// <summary>
+    /// Returns a successful result.
+    /// </summary>
+    public static Result Success => default;
+
+    /// <summary>
+    /// The error this operation returned, if applicable.
+    /// </summary>
+    public ResultError? Error { get; private init; }
+
+    /// <summary>
+    /// Indicates whether this operation was successful.
+    /// </summary>
+    [MemberNotNullWhen(false, nameof(Error))]
+    public bool IsSuccess => this.Error is null;
+
+    /// <summary>
+    /// Constructs a new result from the specified failure case.
+    /// </summary>
+    /// <param name="error"></param>
+    public Result(ResultError error)
+        => this.Error = error;
+
+    public static implicit operator Result(ResultError error)
+        => new(error);
+
+    public static implicit operator bool(Result result)
+        => result.IsSuccess;
+
+    /// <summary>
+    /// Throws the result error as an exception according to the provided transform, if applicable.
+    /// </summary>
+    [DebuggerHidden]
+    [StackTraceHidden]
+    public void Expect(Func<ResultError, Exception> transform)
+    {
+        if (!this.IsSuccess)
+        {
+            throw transform(this.Error);
+        }
+    }
+
+    /// <summary>
+    /// Transforms the result error according to the provided function, returning either a successful result or the transformed result.
+    /// </summary>
+    public Result MapError(Func<ResultError, ResultError> transform)
+        => this.IsSuccess ? this : new(transform(this.Error));
+}

@@ -108,7 +108,11 @@
     - name: Receiving
       topicUid: articles.audio.voicenext.receive
 - name: Interactivity
-  topicUid: articles.interactivity
+  items:
+  - name: Introduction
+    topicUid: articles.interactivity.intro
+  - name: Interactive Messages
+    topicUid: articles.interactivity.interactive_messages
 - name: Slash Commands
   topicUid: articles.slash_commands
 - name: Advanced Topics
