@@ -11,6 +11,7 @@ using System.Threading.RateLimiting;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
+using DSharpPlus.Exceptions;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Gateway.Compression;
 using DSharpPlus.Net.Serialization;
@@ -328,6 +329,8 @@ public sealed class GatewayClient : IGatewayClient
     /// </summary>
     private async Task HandleEventsAsync(CancellationToken ct)
     {
+        int consecutiveInvalidEvents = 0;
+
         try
         {
             while (!ct.IsCancellationRequested)
@@ -344,7 +347,30 @@ public sealed class GatewayClient : IGatewayClient
                     continue;
                 }
 
-                GatewayPayload? payload = await ProcessAndDeserializeTransportFrameAsync(frame);
+                GatewayPayload? payload = null;
+                
+                try
+                {
+                    payload = await ProcessAndDeserializeTransportFrameAsync(frame);
+                    consecutiveInvalidEvents = 0;
+                }
+                catch (JsonException)
+                {
+                    if (frame.TryGetMessage(out byte[]? message))
+                    {
+                        this.logger.LogError("Received undeserializable gateway payload: {payload}", Encoding.UTF8.GetString(message));
+                        consecutiveInvalidEvents++;
+                    }
+                    else
+                    {
+                        throw;
+                    }
+
+                    if (consecutiveInvalidEvents > 5)
+                    {
+                        throw new InvalidGatewayStateException("Received over five consecutive invalid events, the connection likely entered an invalid state and should reconnect.");
+                    }
+                }
 
                 if (payload is null)
                 {
@@ -363,7 +389,8 @@ public sealed class GatewayClient : IGatewayClient
         }
     }
 
-    private async Task HandleEventCoreAsync(GatewayPayload payload)
+    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder))]
+    private async ValueTask HandleEventCoreAsync(GatewayPayload payload)
     {
         switch (payload.OpCode)
         {
@@ -451,7 +478,7 @@ public sealed class GatewayClient : IGatewayClient
     /// </summary>
     private async Task<bool> TryResumeAsync()
     {
-        if (this.resumeUrl is null || this.sessionId is null)
+        if (this.resumeUrl is null || this.sessionId is null || !this.IsConnected)
         {
             return false;
         }
@@ -581,7 +608,7 @@ public sealed class GatewayClient : IGatewayClient
             bool success = errorCode switch
             {
                 < 4000 => await HandleSystemErrorAsync(errorCode),
-                (>= 4000 and <= 4002) or 4005 or 4008 => await TryResumeAsync(),
+                (>= 4000 and <= 4002) or 4005 or 4008 or 5000 => await TryResumeAsync(),
                 _ => false
             };
 
