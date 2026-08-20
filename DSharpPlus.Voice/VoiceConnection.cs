@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.HighPerformance.Buffers;
 
 using DSharpPlus.Clients;
+using DSharpPlus.Net.Gateway;
 using DSharpPlus.Voice.AudioWriters;
 using DSharpPlus.Voice.Codec;
 using DSharpPlus.Voice.Cryptors;

@@ -27,7 +27,6 @@ public static class RegistrationExtensions
         public IServiceCollection AddVoiceExtension()
         {
             services.AddScoped<IMediaTransportService, MediaTransportService>()
-                .AddScoped<ITransportService, TransportService>()
                 .AddScoped<ICryptorFactory, DefaultCryptorFactory>()
                 .AddScoped<IAudioCodec, OpusCodec>()
                 .AddScoped<IAudioWriterFactory, DefaultAudioWriterFactory>()

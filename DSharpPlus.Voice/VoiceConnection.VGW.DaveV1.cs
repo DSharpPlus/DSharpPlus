@@ -3,8 +3,8 @@
 using System;
 using System.Buffers;
 using System.Buffers.Binary;
-using System.Diagnostics;
 using System.Net.WebSockets;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 using CommunityToolkit.HighPerformance;
@@ -13,7 +13,6 @@ using CommunityToolkit.HighPerformance.Buffers;
 using DSharpPlus.Voice.Protocol.Gateway;
 using DSharpPlus.Voice.Protocol.Gateway.Payloads.DaveV1.Clientbound;
 using DSharpPlus.Voice.Protocol.Gateway.Payloads.DaveV1.Serverbound;
-using DSharpPlus.Voice.Transport;
 
 using Microsoft.Extensions.Logging;
 
@@ -39,14 +38,14 @@ partial class VoiceConnection
                 this.pendingTransitionProtocolVersion = prepareTransition.ProtocolVersion;
 
                 // we're ready
-                await this.voiceGateway.SendTextAsync(new()
+                await this.voiceGateway.WriteAsync(JsonSerializer.SerializeToUtf8Bytes(new VoiceGatewayMessage()
                 {
                     Opcode = VoiceGatewayOpcode.TransitionReady,
                     Payload = new DaveTransitionReadyPayload
                     {
                         TransitionId = prepareTransition.TransitionId
                     }
-                });
+                }));
 
                 break;
 
@@ -97,25 +96,24 @@ partial class VoiceConnection
         }
     }
 
-    private async Task HandleDaveV1BinaryPayloadsAsync(VoiceGatewayTransportFrame frame)
+    private async Task HandleDaveV1BinaryPayloadsAsync(byte[] payload)
     {
-        Debug.Assert(frame.Type == WebSocketMessageType.Binary);
-
         // here, the sequence is guaranteed
-        this.lastSequence = BinaryPrimitives.ReadUInt16BigEndian(frame.Payload);
+        this.lastSequence = BinaryPrimitives.ReadUInt16BigEndian(payload);
+        VoiceGatewayOpcode opcode = (VoiceGatewayOpcode)payload[2];
 
-        switch (frame.Opcode)
+        switch (opcode)
         {
             case VoiceGatewayOpcode.MlsExternalSender:
                 
-                this.e2ee.SetExternalSender(frame.Payload.AsSpan(3));
+                this.e2ee.SetExternalSender(payload.AsSpan(3));
                 this.mlsReady?.TrySetResult();
 
                 break;
 
             case VoiceGatewayOpcode.MlsProposals:
 
-                byte[] response = this.e2ee.ProcessProposals(frame.Payload.AsSpan(3), [.. this.connectedUsers]);
+                byte[] response = this.e2ee.ProcessProposals(payload.AsSpan(3), [.. this.connectedUsers]);
 
                 if (response is { Length: > 0 })
                 {
@@ -126,11 +124,11 @@ partial class VoiceConnection
 
             case VoiceGatewayOpcode.MlsAnnounceCommitTransition:
 
-                if (frame.Payload.Length <= 5)
+                if (payload.Length <= 5)
                 {
                     this.logger.LogTrace("Received invalid commit transition, reinitializing");
 
-                    ushort transitionId = BinaryPrimitives.ReadUInt16BigEndian(frame.Payload.AsSpan(3));
+                    ushort transitionId = BinaryPrimitives.ReadUInt16BigEndian(payload.AsSpan(3));
                     await DaveV1SendInvalidCommitAsync(transitionId);
 
                     this.e2ee.ReinitializeE2EESession((ushort)this.daveVersion);
@@ -138,13 +136,13 @@ partial class VoiceConnection
                     await DaveV1AnnounceKeyPackageAsync();
                 }
 
-                bool success = this.e2ee.ProcessCommit(frame.Payload.AsSpan(5));
+                bool success = this.e2ee.ProcessCommit(payload.AsSpan(5));
 
                 if (!success)
                 {
                     this.logger.LogTrace("Failed to process commit transition, reinitializing");
 
-                    ushort transitionId = BinaryPrimitives.ReadUInt16BigEndian(frame.Payload.AsSpan(3));
+                    ushort transitionId = BinaryPrimitives.ReadUInt16BigEndian(payload.AsSpan(3));
                     await DaveV1SendInvalidCommitAsync(transitionId);
 
                     this.e2ee.ReinitializeE2EESession((ushort)this.daveVersion);
@@ -156,7 +154,7 @@ partial class VoiceConnection
 
             case VoiceGatewayOpcode.MlsWelcome:
 
-                this.e2ee.ProcessWelcome(frame.Payload.AsSpan(5), [.. this.connectedUsers]);
+                this.e2ee.ProcessWelcome(payload.AsSpan(5), [.. this.connectedUsers]);
                 this.mlsReady?.TrySetResult();
 
                 break;
@@ -164,7 +162,7 @@ partial class VoiceConnection
             default:
 
                 // we don't really need to reconnect here, discord tests in prod all the time
-                this.logger.LogWarning("Opcode {opcode} is not defined for DAVE v1.", frame.Opcode);
+                this.logger.LogWarning("Opcode {opcode} is not defined for DAVE v1.", opcode);
                 break;
         }
     }
@@ -176,7 +174,7 @@ partial class VoiceConnection
         writer.Write((byte)VoiceGatewayOpcode.MlsKeyPackage);
         this.e2ee.WriteKeyPackage(writer);
 
-        await this.voiceGateway.SendBinaryAsync(writer.WrittenMemory);
+        await this.voiceGateway.WriteAsync(writer.WrittenMemory, WebSocketMessageType.Binary);
     }
 
     private async Task DaveV1CommitWelcomeAsync(ReadOnlyMemory<byte> message)
@@ -186,7 +184,7 @@ partial class VoiceConnection
         writer.Write((byte)VoiceGatewayOpcode.MlsCommitWelcome);
         writer.Write(message.Span);
 
-        await this.voiceGateway.SendBinaryAsync(writer.WrittenMemory);
+        await this.voiceGateway.WriteAsync(writer.WrittenMemory, WebSocketMessageType.Binary);
     }
 
     private async Task DaveV1SendInvalidCommitAsync(ushort transitionId)
@@ -200,6 +198,6 @@ partial class VoiceConnection
             }
         };
 
-        await this.voiceGateway.SendTextAsync(message);
+        await this.voiceGateway.WriteAsync(JsonSerializer.SerializeToUtf8Bytes(message));
     }
 }
