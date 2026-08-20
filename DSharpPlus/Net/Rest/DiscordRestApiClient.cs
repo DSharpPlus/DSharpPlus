@@ -1274,10 +1274,10 @@ public sealed class DiscordRestApiClient
         return result;
     }
     
-    internal async ValueTask UpdateCurrentUserVoiceStateAsync
+    public async ValueTask UpdateCurrentUserVoiceStateAsync
     (
         ulong guildId,
-        ulong channelId,
+        ulong? channelId = null,
         bool? suppress = null,
         DateTimeOffset? requestToSpeakTimestamp = null
     )
@@ -1304,7 +1304,7 @@ public sealed class DiscordRestApiClient
     (
         ulong guildId,
         ulong userId,
-        ulong channelId,
+        ulong? channelId = null,
         bool? suppress = null
     )
     {
