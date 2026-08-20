@@ -16,6 +16,9 @@ public interface IVoiceConnectionRepository
     /// <summary>
     /// Registers a new voice connection.
     /// </summary>
+    /// <remarks>
+    /// Asynchronous implementations of this method must not throw exceptions.
+    /// </remarks>
     /// <param name="guildId">The guild ID this connection takes place in.</param>
     /// <param name="connection">The newly created connection.</param>
     public Task RegisterConnectionAsync(ulong guildId, VoiceConnection connection);

@@ -68,5 +68,19 @@ public static class RegistrationExtensions
             builder.ConfigureServices(s => s.Configure(configure));
             return builder;
         }
+
+        /// <summary>
+        /// Enables seamlessly connecting to a voice channel even if a connection to another voice channel in the same guild already exists.
+        /// </summary>
+        /// <remarks>
+        /// While it may simplify your code to not have to explicitly disconnect from the other voice channel, do note that this will silently 
+        /// invalidate the preexisting connection, with all consequences that entails.
+        /// </remarks>
+        /// <returns>The builder instance for chaining.</returns>
+        public DiscordClientBuilder EnableSeamlessVoiceReconnecting()
+        {
+            builder.ConfigureServices(s => s.Replace<IVoiceConnectionRepository, ImplicitlyReconnectingVoiceConnectionRepository>());
+            return builder;
+        }
     }
 }

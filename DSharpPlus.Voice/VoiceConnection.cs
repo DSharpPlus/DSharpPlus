@@ -111,7 +111,7 @@ public sealed partial class VoiceConnection : IAsyncDisposable
             options.ReceiverSetup(this.Receiver);
         }
 
-        this.repository.RegisterConnection(this.guildId, this);
+        this.repository.RegisterConnectionAsync(this.guildId, this);
     }
 
     // services and stuff we receive from DI for customization purposes
