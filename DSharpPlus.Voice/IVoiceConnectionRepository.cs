@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace DSharpPlus.Voice;
 
@@ -17,7 +18,7 @@ public interface IVoiceConnectionRepository
     /// </summary>
     /// <param name="guildId">The guild ID this connection takes place in.</param>
     /// <param name="connection">The newly created connection.</param>
-    public void RegisterConnection(ulong guildId, VoiceConnection connection);
+    public Task RegisterConnectionAsync(ulong guildId, VoiceConnection connection);
 
     /// <summary>
     /// Unregisters a connection.
