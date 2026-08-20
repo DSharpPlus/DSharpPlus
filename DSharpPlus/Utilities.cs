@@ -7,10 +7,9 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+
 using DSharpPlus.Entities;
 using DSharpPlus.Net;
-using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus;
 
@@ -53,47 +52,8 @@ public static partial class Utilities
     internal static string GetApiBaseUri()
         => Endpoints.BASE_URI;
 
-    internal static Uri GetApiUriFor(string path)
-        => new($"{GetApiBaseUri()}{path}");
-
-    internal static Uri GetApiUriFor(string path, string queryString)
-        => new($"{GetApiBaseUri()}{path}{queryString}");
-
-    internal static QueryUriBuilder GetApiUriBuilderFor(string path)
-        => new($"{GetApiBaseUri()}{path}");
-
     internal static string GetUserAgent()
         => VersionHeader;
-
-    internal static bool ContainsUserMentions(string message)
-    {
-        Regex regex = UserMentionRegex();
-        return regex.IsMatch(message);
-    }
-
-    internal static bool ContainsNicknameMentions(string message)
-    {
-        Regex regex = NicknameMentionRegex();
-        return regex.IsMatch(message);
-    }
-
-    internal static bool ContainsChannelMentions(string message)
-    {
-        Regex regex = ChannelMentionRegex();
-        return regex.IsMatch(message);
-    }
-
-    internal static bool ContainsRoleMentions(string message)
-    {
-        Regex regex = RoleMentionRegex();
-        return regex.IsMatch(message);
-    }
-
-    internal static bool ContainsEmojis(string message)
-    {
-        Regex regex = EmojiMentionRegex();
-        return regex.IsMatch(message);
-    }
 
     internal static IEnumerable<ulong> GetUserMentions(DiscordMessage message)
     {
@@ -124,16 +84,6 @@ public static partial class Utilities
         foreach (Match match in matches.Cast<Match>())
         {
             yield return ulong.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
-        }
-    }
-
-    internal static IEnumerable<ulong> GetEmojis(DiscordMessage message)
-    {
-        Regex regex = EmojiMentionRegex();
-        MatchCollection matches = regex.Matches(message.Content);
-        foreach (Match match in matches.Cast<Match>())
-        {
-            yield return ulong.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
         }
     }
 
@@ -200,60 +150,6 @@ public static partial class Utilities
         => (int)((guildId >> 22) % (ulong)shardCount);
 
     /// <summary>
-    /// Helper method to create a <see cref="DateTimeOffset"/> from Unix time seconds for targets that do not support this natively.
-    /// </summary>
-    /// <param name="unixTime">Unix time seconds to convert.</param>
-    /// <param name="shouldThrow">Whether the method should throw on failure. Defaults to true.</param>
-    /// <returns>Calculated <see cref="DateTimeOffset"/>.</returns>
-    public static DateTimeOffset GetDateTimeOffset(long unixTime, bool shouldThrow = true)
-    {
-        try
-        {
-            return DateTimeOffset.FromUnixTimeSeconds(unixTime);
-        }
-        catch (Exception)
-        {
-            if (shouldThrow)
-            {
-                throw;
-            }
-
-            return DateTimeOffset.MinValue;
-        }
-    }
-
-    /// <summary>
-    /// Helper method to create a <see cref="DateTimeOffset"/> from Unix time milliseconds for targets that do not support this natively.
-    /// </summary>
-    /// <param name="unixTime">Unix time milliseconds to convert.</param>
-    /// <param name="shouldThrow">Whether the method should throw on failure. Defaults to true.</param>
-    /// <returns>Calculated <see cref="DateTimeOffset"/>.</returns>
-    public static DateTimeOffset GetDateTimeOffsetFromMilliseconds(long unixTime, bool shouldThrow = true)
-    {
-        try
-        {
-            return DateTimeOffset.FromUnixTimeMilliseconds(unixTime);
-        }
-        catch (Exception)
-        {
-            if (shouldThrow)
-            {
-                throw;
-            }
-
-            return DateTimeOffset.MinValue;
-        }
-    }
-
-    /// <summary>
-    /// Helper method to calculate Unix time seconds from a <see cref="DateTimeOffset"/> for targets that do not support this natively.
-    /// </summary>
-    /// <param name="dto"><see cref="DateTimeOffset"/> to calculate Unix time for.</param>
-    /// <returns>Calculated Unix time.</returns>
-    public static long GetUnixTime(DateTimeOffset dto)
-        => dto.ToUnixTimeMilliseconds();
-
-    /// <summary>
     /// Computes a timestamp from a given snowflake.
     /// </summary>
     /// <param name="snowflake">Snowflake to compute a timestamp from.</param>
@@ -261,42 +157,6 @@ public static partial class Utilities
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static DateTimeOffset GetSnowflakeTime(this ulong snowflake)
         => DiscordClient.discordEpoch.AddMilliseconds(snowflake >> 22);
-
-    /// <summary>
-    /// Checks whether this string contains given characters.
-    /// </summary>
-    /// <param name="str">String to check.</param>
-    /// <param name="characters">Characters to check for.</param>
-    /// <returns>Whether the string contained these characters.</returns>
-    public static bool Contains(this string str, params char[] characters)
-    {
-        foreach (char xc in str)
-        {
-            if (characters.Contains(xc))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    internal static void LogTaskFault(this Task task, ILogger logger, LogLevel level, EventId eventId, string message)
-    {
-        ArgumentNullException.ThrowIfNull(task);
-        if (logger == null)
-        {
-            return;
-        }
-
-        task.ContinueWith(t => logger.Log(level, eventId, t.Exception, "{Message}", message), TaskContinuationOptions.OnlyOnFaulted);
-    }
-
-    internal static void Deconstruct<TKey, TValue>(this KeyValuePair<TKey, TValue> kvp, out TKey key, out TValue value)
-    {
-        key = kvp.Key;
-        value = kvp.Value;
-    }
 
     /// <summary>
     /// Creates a snowflake from a given <see cref="DateTimeOffset"/>. This can be used to provide "timestamps" for methods
@@ -313,17 +173,11 @@ public static partial class Utilities
     [GeneratedRegex("<@(\\d+)>", RegexOptions.ECMAScript)]
     private static partial Regex UserMentionRegex();
 
-    [GeneratedRegex("<@!(\\d+)>", RegexOptions.ECMAScript)]
-    private static partial Regex NicknameMentionRegex();
-
     [GeneratedRegex("<#(\\d+)>", RegexOptions.ECMAScript)]
     private static partial Regex ChannelMentionRegex();
 
     [GeneratedRegex("<@&(\\d+)>", RegexOptions.ECMAScript)]
     private static partial Regex RoleMentionRegex();
-
-    [GeneratedRegex("<a?:(.*):(\\d+)>", RegexOptions.ECMAScript)]
-    private static partial Regex EmojiMentionRegex();
 
     [GeneratedRegex("^[\\w-]{1,32}$")]
     private static partial Regex SlashCommandNameRegex();

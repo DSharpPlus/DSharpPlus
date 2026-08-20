@@ -118,7 +118,7 @@ internal sealed class RestGuildMemberAddPayload : IOAuth2Payload
     public string AccessToken { get; set; }
 
     [JsonProperty("nick", NullValueHandling = NullValueHandling.Ignore)]
-    public string Nickname { get; set; }
+    public string? Nickname { get; set; }
 
     [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
     public IEnumerable<ulong> Roles { get; set; }

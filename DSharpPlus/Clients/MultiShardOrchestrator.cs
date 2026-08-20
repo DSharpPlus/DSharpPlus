@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.RateLimiting;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
@@ -10,6 +12,7 @@ using DSharpPlus.Net.Gateway;
 using DSharpPlus.Net.Gateway.Compression;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace DSharpPlus.Clients;
@@ -19,18 +22,20 @@ namespace DSharpPlus.Clients;
 /// </summary>
 public sealed class MultiShardOrchestrator : IShardOrchestrator
 {
-    private IGatewayClient[]? shards;
+    private ConcurrentDictionary<int, IGatewayClient> shards;
     private readonly DiscordRestApiClient apiClient;
     private readonly ShardingOptions options;
     private readonly IServiceProvider serviceProvider;
     private readonly IPayloadDecompressor decompressor;
+    private readonly ILogger<IShardOrchestrator> logger;
+    private readonly ConcurrencyLimiter reconnectConcurrencyLimiter;
 
     private uint shardCount;
     private uint stride;
     private uint totalShards;
 
     /// <inheritdoc/>
-    public bool AllShardsConnected => this.shards?.All(shard => shard.IsConnected) == true;
+    public bool AllShardsConnected => this.shards?.Values.All(shard => shard.IsConnected) == true;
 
     /// <summary>
     /// <inheritdoc/>
@@ -55,13 +60,21 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
         IServiceProvider serviceProvider, 
         IOptions<ShardingOptions> options,
         DiscordRestApiClientFactory apiClientFactory,
-        IPayloadDecompressor decompressor
+        IPayloadDecompressor decompressor,
+        ILogger<IShardOrchestrator> logger
     )
     {
         this.apiClient = apiClientFactory.GetCurrentApplicationClient();
         this.options = options.Value;
         this.serviceProvider = serviceProvider;
         this.decompressor = decompressor;
+        this.logger = logger;
+
+        this.reconnectConcurrencyLimiter = new(new()
+        {
+            PermitLimit = 1,
+            QueueLimit = int.MaxValue
+        });
     }
 
     /// <inheritdoc/>
@@ -105,7 +118,7 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
             gwuri.AddParameter("compress", this.decompressor.Name);
         }
 
-        this.shards = new IGatewayClient[startShards];
+        this.shards = new(-1, (int)this.shardCount);
 
         // create all shard instances before starting any of them
         for (int i = 0; i < startShards; i++)
@@ -119,8 +132,9 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
 
             for (int j = i; j < i + info.SessionBucket.MaxConcurrency && j < startShards; j++)
             {
-                await this.shards[j].ConnectAsync
+                _ = RunGatewayAsync
                 (
+                    i,
                     gwuri.Build(),
                     activity,
                     status,
@@ -145,7 +159,7 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
     /// <inheritdoc/>
     public async ValueTask StopAsync()
     {
-        foreach (IGatewayClient client in this.shards)
+        foreach (IGatewayClient client in this.shards.Values)
         {
             await client.DisconnectAsync();
         }
@@ -157,7 +171,7 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
         ArgumentOutOfRangeException.ThrowIfLessThan(shardId, (int)this.stride);
         ArgumentOutOfRangeException.ThrowIfGreaterThan(shardId, (int)this.stride + this.shardCount);
 
-        return this.shards[shardId - this.stride].IsConnected;
+        return this.shards[(int)(shardId - this.stride)].IsConnected;
     }
 
     /// <inheritdoc/>
@@ -173,7 +187,7 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
         ArgumentOutOfRangeException.ThrowIfLessThan(shardId, (int)this.stride);
         ArgumentOutOfRangeException.ThrowIfGreaterThan(shardId, (int)this.stride + this.shardCount);
 
-        return this.shards[shardId - this.stride].Ping;
+        return this.shards[(int)(shardId - this.stride)].Ping;
     }
 
     /// <inheritdoc/>
@@ -190,7 +204,7 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
     public async ValueTask ReconnectAsync()
     {
         // don't parallelize this, we can't start shards too wildly out of order
-        foreach(IGatewayClient shard in this.shards)
+        foreach(IGatewayClient shard in this.shards.Values)
         {
             await shard.ReconnectAsync();
         }
@@ -209,7 +223,7 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
         ArgumentOutOfRangeException.ThrowIfLessThan(shardId, this.stride);
         ArgumentOutOfRangeException.ThrowIfGreaterThan(shardId, this.stride + this.shardCount);
 
-        await this.shards[shardId].WriteAsync(payload);
+        await this.shards[(int)shardId].WriteAsync(payload);
     }
 
     /// <inheritdoc/>
@@ -220,7 +234,34 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
             throw new InvalidOperationException("Broadcast is only possible when all shards are connected");
         }
 
-        await Parallel.ForEachAsync(this.shards, async (shard, _) => await shard.WriteAsync(payload));
+        await Parallel.ForEachAsync(this.shards, async (shard, _) => await shard.Value.WriteAsync(payload));
+    }
+
+    private async Task RunGatewayAsync(int shardNumber, string uri, DiscordActivity? activity, DiscordUserStatus? status, DateTimeOffset? idleSince, ShardInfo shardInfo)
+    {
+        Task<GatewayConnectionFrame> gatewayTask = this.shards[shardNumber].ConnectAsync(uri, activity, status, idleSince, shardInfo);
+
+        while (true)
+        {
+            GatewayConnectionFrame frame = await gatewayTask;
+
+            if (frame.DisconnectReason is GatewayDisconnectReason.UserRequested or GatewayDisconnectReason.IrrecoverableCloseCode)
+            {
+                this.logger.LogError
+                (
+                    frame.Exception,
+                    "Shard {shardId} exited with disconnect reason {reason} and close code {closeCode}, abandoning reconnecting.",
+                    frame.ShardId, 
+                    frame.DisconnectReason,
+                    frame.CloseCode ?? (GatewayCloseCode)1000
+                );
+                
+                break;
+            }
+
+            using RateLimitLease lease = await this.reconnectConcurrencyLimiter.AcquireAsync();
+            gatewayTask = this.shards[shardNumber].ReconnectAsync();
+        }
     }
 
     /// <inheritdoc/>

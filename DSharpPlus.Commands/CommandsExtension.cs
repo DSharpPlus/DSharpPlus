@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -533,10 +534,10 @@ public sealed class CommandsExtension
                 $"The following error occurred: ``{checksFailedException.Errors[0].ErrorMessage}``",
             ParameterChecksFailedException checksFailedException =>
                 $"The following context checks failed: ```\n{string.Join("\n- ", checksFailedException.Errors.Select(x => x.ErrorMessage)).Trim()}\n```.",
-            DiscordException discordException when discordException.Response is not null && (int)discordException.Response.StatusCode >= 500 && (int)discordException.Response.StatusCode < 600 =>
-                $"Discord API error {discordException.Response.StatusCode} occurred: {discordException.JsonMessage ?? "No further information was provided."}",
-            DiscordException discordException when discordException.Response is not null =>
-                $"Discord API error {discordException.Response.StatusCode} occurred: {discordException.JsonMessage ?? discordException.Message}",
+            DiscordException discordException when discordException.Response is { ResponseCode: >= (HttpStatusCode)500 and < (HttpStatusCode)600} =>
+                $"Discord API error {discordException.Response.ResponseCode} occurred: {discordException.JsonMessage ?? "No further information was provided."}",
+            DiscordException discordException =>
+                $"Discord API error {discordException.Response.ResponseCode} occurred: {discordException.JsonMessage ?? discordException.Message}",
             _ => $"An unexpected error occurred: {eventArgs.Exception.Message}",
         });
 

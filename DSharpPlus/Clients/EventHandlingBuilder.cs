@@ -953,4 +953,23 @@ public sealed class EventHandlingBuilder
         this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
+
+    /// <summary>
+    /// Fired when the client initially starts up. This is only safe for initializing state in user code; DSharpPlus might not yet have anything
+    /// initialized at this point. Calling methods on <see cref="DiscordClient"/> that don't translate to trivial rest calls is unsafe.
+    /// </summary>
+    public EventHandlingBuilder HandleClientStarted(Func<DiscordClient, ClientStartedEventArgs, Task> handler)
+    {
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
+        return this;
+    }
+
+    /// <summary>
+    /// Fired when the client shuts down.
+    /// </summary>
+    public EventHandlingBuilder HandleClientStopped(Func<DiscordClient, ClientStoppedEventArgs, Task> handler)
+    {
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
+        return this;
+    }
 }

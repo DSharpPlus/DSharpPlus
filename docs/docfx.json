@@ -79,7 +79,8 @@
     "fileMetadataFiles": [],
     "template": [
       "default",
-      "modern"
+      "modern",
+      "templates/dsharpplus"
     ],
     "postProcessors": [
       "ExtractSearchIndex"

@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.Entities.AuditLogs;
 using DSharpPlus.Exceptions;
-using DSharpPlus.Metrics;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Abstractions.Rest;
 using DSharpPlus.Net.Serialization;
@@ -42,10 +41,6 @@ public sealed class DiscordRestApiClient
     // This is for meta-clients, such as the webhook client
     internal DiscordRestApiClient(TimeSpan timeout, ILogger logger)
         => this.rest = new(new(), timeout, logger);
-
-    /// <inheritdoc cref="RestClient.GetRequestMetrics(bool)"/>
-    internal RequestMetricsCollection GetRequestMetrics(bool sinceLastCall = false)
-        => this.rest.GetRequestMetrics(sinceLastCall);
 
     internal void SetClient(BaseDiscordClient client)
         => this.discord = client;
@@ -677,7 +672,7 @@ public sealed class DiscordRestApiClient
         RestGuildMemberAddPayload payload = new()
         {
             AccessToken = accessToken,
-            Nickname = nick ?? "",
+            Nickname = nick,
             Roles = roles ?? [],
             Deaf = deafened ?? false,
             Mute = muted ?? false
@@ -2872,9 +2867,16 @@ public sealed class DiscordRestApiClient
     public async ValueTask PinMessageAsync
     (
         ulong channelId,
-        ulong messageId
+        ulong messageId,
+        string? reason = null
     )
     {
+        Dictionary<string, string> headers = [];
+        if (!string.IsNullOrWhiteSpace(reason))
+        {
+            headers[REASON_HEADER_NAME] = reason;
+        }
+
         string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.PINS}/:message_id";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.PINS}/{messageId}";
 
@@ -2882,7 +2884,8 @@ public sealed class DiscordRestApiClient
         {
             Route = route,
             Url = url,
-            Method = HttpMethod.Put
+            Method = HttpMethod.Put,
+            Headers = headers
         };
 
         await this.rest.ExecuteRequestAsync(request);
@@ -2891,9 +2894,16 @@ public sealed class DiscordRestApiClient
     public async ValueTask UnpinMessageAsync
     (
         ulong channelId,
-        ulong messageId
+        ulong messageId,
+        string? reason = null
     )
     {
+        Dictionary<string, string> headers = [];
+        if (!string.IsNullOrWhiteSpace(reason))
+        {
+            headers[REASON_HEADER_NAME] = reason;
+        }
+
         string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.PINS}/:message_id";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.PINS}/{messageId}";
 
@@ -2901,7 +2911,8 @@ public sealed class DiscordRestApiClient
         {
             Route = route,
             Url = url,
-            Method = HttpMethod.Delete
+            Method = HttpMethod.Delete,
+            Headers = headers
         };
         await this.rest.ExecuteRequestAsync(request);
     }

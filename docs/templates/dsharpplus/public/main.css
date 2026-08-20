@@ -1,0 +1,4 @@
+body:has(article[data-uid="apidocs"]) div#navbar > form#search,
+body:has(article[data-uid^="DSharpPlus"]) div#navbar > form#search {
+  display: none;
+}

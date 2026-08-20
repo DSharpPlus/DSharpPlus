@@ -1,6 +1,8 @@
 using System.Net.Http;
 using System.Text.Json;
 
+using DSharpPlus.Net;
+
 namespace DSharpPlus.Exceptions;
 
 /// <summary>
@@ -8,22 +10,18 @@ namespace DSharpPlus.Exceptions;
 /// </summary>
 public class ServerErrorException : DiscordException
 {
-    internal ServerErrorException(HttpRequestMessage request, HttpResponseMessage response, string content)
-        : base("Internal Server Error: " + response.StatusCode)
+    internal ServerErrorException(HttpRequestMessage request, RestResponse response)
+        : base("Internal Server Error: " + response.ResponseCode)
     {
         this.Request = request;
         this.Response = response;
 
         try
         {
-            using JsonDocument document = JsonDocument.Parse(content);
+            using JsonDocument document = JsonDocument.Parse(response.Response);
             JsonElement responseModel = document.RootElement;
 
-            if
-            (
-                responseModel.TryGetProperty("message", out JsonElement message)
-                && message.ValueKind == JsonValueKind.String
-            )
+            if (responseModel.TryGetProperty("message", out JsonElement message) && message.ValueKind == JsonValueKind.String)
             {
                 this.JsonMessage = message.GetString();
             }

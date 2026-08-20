@@ -557,7 +557,7 @@ public sealed partial class DiscordClient
                 }
 
                 ulong? guildId = (ulong?)dat["guild_id"];
-                await OnTypingStartEventAsync((ulong)dat["user_id"], cid, InternalGetCachedChannel(cid, guildId)!, guildId, Utilities.GetDateTimeOffset((long)dat["timestamp"]), mbr);
+                await OnTypingStartEventAsync((ulong)dat["user_id"], cid, InternalGetCachedChannel(cid, guildId)!, guildId, DateTimeOffset.FromUnixTimeSeconds((long)dat["timestamp"]), mbr);
                 break;
 
             case "webhooks_update":

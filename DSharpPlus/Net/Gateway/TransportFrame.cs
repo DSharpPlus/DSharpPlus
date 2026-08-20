@@ -1,6 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
+using System.Net.WebSockets;
 
 namespace DSharpPlus.Net.Gateway;
 
@@ -11,54 +11,23 @@ public readonly record struct TransportFrame
 {
     private readonly object value;
 
+    public readonly WebSocketMessageType MessageType { get; }
+
     /// <summary>
     /// Indicates whether reading this gateway frame was successful.
     /// </summary>
-    public readonly bool IsSuccess => this.value is string or MemoryStream;
+    public readonly bool IsSuccess => this.value is byte[];
 
     /// <summary>
     /// Attempts to retrieve the string message received.
     /// </summary>
-    public readonly bool TryGetMessage([NotNullWhen(true)] out string? message)
+    public readonly bool TryGetMessage([NotNullWhen(true)] out byte[]? message)
     {
         message = null;
 
-        if (this.value is string str)
+        if (this.value is byte[] value)
         {
-            message = str;
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// Attempts to retrieve a message wrapped in a MemoryStream. This is only permissible if the log level
-    /// is higher than Trace or if inbound gateway logging is disabled.
-    /// </summary>
-    public readonly bool TryGetStreamMessage([NotNullWhen(true)] out MemoryStream? message)
-    {
-        message = null;
-
-        if (this.value is MemoryStream str)
-        {
-            message = str;
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// Attempts to retrieve the exception thrown attempting to read this frame.
-    /// </summary>
-    public readonly bool TryGetException([NotNullWhen(true)] out Exception? exception)
-    {
-        exception = null;
-
-        if (this.value is Exception ex)
-        {
-            exception = ex;
+            message = value;
             return true;
         }
 
@@ -101,6 +70,9 @@ public readonly record struct TransportFrame
     /// <summary>
     /// Creates a new transport frame from the specified data.
     /// </summary>
-    public TransportFrame(object value) 
-        => this.value = value;
+    public TransportFrame(object value, WebSocketMessageType type)
+    {
+        this.value = value;
+        this.MessageType = type;
+    }
 }

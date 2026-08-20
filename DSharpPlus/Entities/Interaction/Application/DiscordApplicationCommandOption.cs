@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
+
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
@@ -45,31 +45,31 @@ public sealed class DiscordApplicationCommandOption
     /// Gets the optional choices for this command parameter. Not applicable for auto-complete options.
     /// </summary>
     [JsonProperty("choices", NullValueHandling = NullValueHandling.Ignore)]
-    public IReadOnlyList<DiscordApplicationCommandOptionChoice> Choices { get; internal set; }
+    public IReadOnlyList<DiscordApplicationCommandOptionChoice>? Choices { get; internal set; }
 
     /// <summary>
     /// Gets the optional subcommand parameters for this parameter.
     /// </summary>
     [JsonProperty("options", NullValueHandling = NullValueHandling.Ignore)]
-    public IReadOnlyList<DiscordApplicationCommandOption> Options { get; internal set; }
+    public IReadOnlyList<DiscordApplicationCommandOption>? Options { get; internal set; }
 
     /// <summary>
     /// Gets the channel types this command parameter is restricted to, if of type <see cref="DiscordApplicationCommandOptionType.Channel"/>..
     /// </summary>
     [JsonProperty("channel_types", NullValueHandling = NullValueHandling.Ignore)]
-    public IReadOnlyList<DiscordChannelType> ChannelTypes { get; internal set; }
+    public IReadOnlyList<DiscordChannelType>? ChannelTypes { get; internal set; }
 
     /// <summary>
     /// Gets the minimum value for this slash command parameter.
     /// </summary>
     [JsonProperty("min_value", NullValueHandling = NullValueHandling.Ignore)]
-    public object MinValue { get; internal set; }
+    public object? MinValue { get; internal set; }
 
     /// <summary>
     /// Gets the maximum value for this slash command parameter.
     /// </summary>
     [JsonProperty("max_value", NullValueHandling = NullValueHandling.Ignore)]
-    public object MaxValue { get; internal set; }
+    public object? MaxValue { get; internal set; }
 
     /// <summary>
     /// Gets the minimum allowed length for this slash command parameter.
@@ -87,13 +87,24 @@ public sealed class DiscordApplicationCommandOption
     /// Localized names for this option.
     /// </summary>
     [JsonProperty("name_localizations", NullValueHandling = NullValueHandling.Include)]
-    public IReadOnlyDictionary<string, string> NameLocalizations { get; internal set; }
+    public IReadOnlyDictionary<string, string>? NameLocalizations { get; internal set; }
 
     /// <summary>
     /// Localized descriptions for this option.
     /// </summary>
     [JsonProperty("description_localizations", NullValueHandling = NullValueHandling.Include)]
-    public IReadOnlyDictionary<string, string> DescriptionLocalizations { get; internal set; }
+    public IReadOnlyDictionary<string, string>? DescriptionLocalizations { get; internal set; }
+
+    /// <summary>
+    /// The file types permissible to upload using this component. This takes any dot-prefixed extensions, or one of the following values: <br/>
+    /// - <c>"image"</c>: png, gif, jpg, jpeg, jfif, webp, avif, <br/>
+    /// - <c>"video"</c>: mp4, mov, qt, webm, <br/>
+    /// - <c>"audio"</c>: mp3, m4a, wav, ogg, opus, flac <br/>
+    /// <br/>
+    /// Note that the above lists are not set in stone and should not be hardcoded.
+    /// </summary>
+    [JsonProperty("file_types", DefaultValueHandling = DefaultValueHandling.Ignore)]
+    public IReadOnlyList<string>? FileTypes { get; internal set; }
 
     /// <summary>
     /// Creates a new instance of a <see cref="DiscordApplicationCommandOption"/>.
@@ -112,7 +123,32 @@ public sealed class DiscordApplicationCommandOption
     /// <param name="description_localizations">Description localizations for this parameter.</param>
     /// <param name="minLength">The minimum allowed length for this parameter. Only valid for type <see cref="DiscordApplicationCommandOptionType.String"/>.</param>
     /// <param name="maxLength">The maximum allowed length for this parameter. Only valid for type <see cref="DiscordApplicationCommandOptionType.String"/>.</param>
-    public DiscordApplicationCommandOption(string name, string description, DiscordApplicationCommandOptionType type, bool? required = null, IEnumerable<DiscordApplicationCommandOptionChoice> choices = null, IEnumerable<DiscordApplicationCommandOption> options = null, IEnumerable<DiscordChannelType> channelTypes = null, bool? autocomplete = null, object minValue = null, object maxValue = null, IReadOnlyDictionary<string, string> name_localizations = null, IReadOnlyDictionary<string, string> description_localizations = null, int? minLength = null, int? maxLength = null)
+    /// <param name="fileTypes">
+    /// The file types permissible to upload using this component. This takes any dot-prefixed extensions, or one of the following values: <br/>
+    /// - <c>"image"</c>: png, gif, jpg, jpeg, jfif, webp, avif, <br/>
+    /// - <c>"video"</c>: mp4, mov, qt, webm, <br/>
+    /// - <c>"audio"</c>: mp3, m4a, wav, ogg, opus, flac <br/>
+    /// <br/>
+    /// Note that the above lists are not set in stone and should not be hardcoded.
+    /// </param>
+    public DiscordApplicationCommandOption
+    (
+        string name, 
+        string description, 
+        DiscordApplicationCommandOptionType type, 
+        bool? required = null, 
+        IEnumerable<DiscordApplicationCommandOptionChoice>? choices = null, 
+        IEnumerable<DiscordApplicationCommandOption>? options = null, 
+        IEnumerable<DiscordChannelType>? channelTypes = null, 
+        bool? autocomplete = null, 
+        object? minValue = null, 
+        object? maxValue = null, 
+        IReadOnlyDictionary<string, string>? name_localizations = null, 
+        IReadOnlyDictionary<string, string>? description_localizations = null, 
+        int? minLength = null, 
+        int? maxLength = null,
+        IReadOnlyList<string>? fileTypes = null
+    )
     {
         if (!Utilities.IsValidSlashCommandName(name))
         {
@@ -134,9 +170,9 @@ public sealed class DiscordApplicationCommandOption
             throw new InvalidOperationException("Auto-complete slash command options cannot provide choices.");
         }
 
-        IReadOnlyList<DiscordApplicationCommandOptionChoice>? choiceList = choices != null ? choices.ToList() : null;
-        IReadOnlyList<DiscordApplicationCommandOption>? optionList = options != null ? options.ToList() : null;
-        IReadOnlyList<DiscordChannelType>? channelTypeList = channelTypes != null ? channelTypes.ToList() : null;
+        IReadOnlyList<DiscordApplicationCommandOptionChoice>? choiceList = choices?.ToList();
+        IReadOnlyList<DiscordApplicationCommandOption>? optionList = options?.ToList();
+        IReadOnlyList<DiscordChannelType>? channelTypeList = channelTypes?.ToList();
 
         this.Name = name;
         this.Description = description;
@@ -152,5 +188,6 @@ public sealed class DiscordApplicationCommandOption
         this.MaxLength = maxLength;
         this.NameLocalizations = name_localizations;
         this.DescriptionLocalizations = description_localizations;
+        this.FileTypes = fileTypes;
     }
 }
