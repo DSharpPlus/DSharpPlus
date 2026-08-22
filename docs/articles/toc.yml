@@ -125,6 +125,8 @@
     topicUid: articles.advanced_topics.trace
   - name: Gateway Compression
     topicUid: articles.advanced_topics.compression
+  - name: HTTP Interactions and Webhook Events
+    topicUid: articles.advanced_topics.http_interactions_events
 - name: Hosting
   topicUid: articles.hosting
 - name: Version Migration
