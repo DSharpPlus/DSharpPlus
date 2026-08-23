@@ -31,11 +31,11 @@ You will then receive interactions and/or webhook events as per usual.
 
 ## Implementing HTTP interactions and webhook events for your own HTTP server
 
-DSharpPlus provides all necessary utilities to implement support for your favourite HTTP server:
+DSharpPlus provides all necessary utilities to implement support for your favourite HTTP server, directly in the core `DSharpPlus` nuget package:
 
 You need the verification key for the current application (obtainable via `DiscordClient.CurrentApplication.VerifyKey`) and `IInteractionTransportService` or `IWebhookTransportService` respectively.
 
-1. Upon receiving a payload, validate its integrity and decrypt it using `DiscordHeaders.VerifySignature`.
+1. Upon receiving a payload, validate its integrity and decrypt it using `DiscordHeaders.VerifySignature`. You must reject invalid payloads, Discord will only send events to you if your validation behaves correctly.
 2. Pass the decrypted payload to the respective transport service.
 3. If using HTTP interactions (not webhook events!), return the payload received from `IInteractionTransportService.HandleInteractionAsync` and the appropriate status code. This contains the initial response to the interaction.
 
