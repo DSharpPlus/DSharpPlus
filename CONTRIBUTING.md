@@ -119,9 +119,9 @@ In addition to these, we also have several preferences:
   * Static constructor.
   * Public constructors.
   * Non-public constructors.
-  * Public methods (with the exception of methods overriden from `System.Object`).
+  * Public methods (with the exception of methods overridden from `System.Object`).
   * Non-public methods.
-  * Methods overriden from `System.Object`.
+  * Methods overridden from `System.Object`.
   * Public static methods.
   * Non-public static methods.
   * Operator overloads.

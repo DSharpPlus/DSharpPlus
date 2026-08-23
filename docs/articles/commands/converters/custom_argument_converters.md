@@ -59,7 +59,7 @@ public class UlidArgumentConverter : ITextArgumentConverter<Ulid>, ISlashArgumen
 }
 ```
 
-Since there is no asynchronous operations occuring within the conversion methods, we use `Task.FromResult`. Another thing to note is that argument converters support constructor dependency injection. Lastly, you'll also notice the use of `Optional<T>` here. When executing an argument converter, there are three possible outcomes:
+Since there is no asynchronous operations occurring within the conversion methods, we use `Task.FromResult`. Another thing to note is that argument converters support constructor dependency injection. Lastly, you'll also notice the use of `Optional<T>` here. When executing an argument converter, there are three possible outcomes:
 
 1. The conversion was successful and the value is returned.
 2. The conversion was unsuccessful and the value is not returned.

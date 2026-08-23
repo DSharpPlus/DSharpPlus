@@ -21,7 +21,7 @@ The client now supports proxies for both WebSocket and HTTP traffic. To proxy yo
 
 ### Intents
 
-Due to a change by Discord on their V8 endpoint which DSharpPlus targets, in order to recieve events, intents will have
+Due to a change by Discord on their V8 endpoint which DSharpPlus targets, in order to receive events, intents will have
 to be enabled in both the @DSharpPlus.DiscordConfiguration and the Discord Application Portal. We have an [article][0]
 that covers all that has to be done to set this up.
 
