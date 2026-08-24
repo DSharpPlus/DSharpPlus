@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
@@ -33,10 +34,10 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the stickers contained in this pack.
         /// </summary>
-        public IReadOnlyDictionary<ulong, DiscordMessageSticker> Stickers => this._stickers;
+        public IReadOnlyDictionary<ulong, DiscordMessageSticker> Stickers => this._stickers.ToDictionary(x => x.Id);
 
         [JsonProperty("stickers")]
-        internal Dictionary<ulong, DiscordMessageSticker> _stickers = new();
+        internal List<DiscordMessageSticker> _stickers = new();
 
         /// <summary>
         /// Gets the name of this sticker pack.
