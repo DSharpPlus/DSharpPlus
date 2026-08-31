@@ -208,13 +208,17 @@ public sealed class GatewayClient : IGatewayClient
             {
                 TimeSpan delay = this.options.GetReconnectionDelay(i);
 
-                if (e is not WebSocketException { InnerException: HttpRequestException or SocketException })
+                if (e is WebSocketException { InnerException: HttpRequestException or SocketException })
                 {
-                    this.logger.LogError(exception: e, "Encountered an error while connecting, waiting for {delay} and retrying.", delay);
+                    this.logger.LogWarning("Severed internet connection detected, waiting for {delay} and retrying.", delay);
+                }
+                else if (e is WebSocketException { WebSocketErrorCode: WebSocketError.NotAWebSocket})
+                {
+                    this.logger.LogWarning("Discord outage detected, waiting for {delay} and retrying.", delay);
                 }
                 else
                 {
-                    this.logger.LogWarning("Severed internet connection detected, waiting for {delay} and retrying.", delay);
+                    this.logger.LogError(exception: e, "Encountered an error while connecting, waiting for {delay} and retrying.", delay);
                 }
 
                 await Task.Delay(delay);
@@ -570,6 +574,15 @@ public sealed class GatewayClient : IGatewayClient
         catch (WebSocketException e) when (e.InnerException is HttpRequestException or SocketException or WebSocketException)
         {
             this.logger.LogWarning("Internet connection interrupted.");
+            await TerminateCurrentFrameAsync(GatewayDisconnectReason.ConnectionSevered);
+            
+            return false;
+        }
+        // during outages, Discord gaslights us into thinking the websocket is not in fact a websocket. we want to reconnect
+        // and then initiate the backoff logic for as long as the outage lasts
+        catch (WebSocketException e) when (e.WebSocketErrorCode is WebSocketError.NotAWebSocket)
+        {
+            this.logger.LogWarning("Discord outage detected.");
             await TerminateCurrentFrameAsync(GatewayDisconnectReason.ConnectionSevered);
             
             return false;
