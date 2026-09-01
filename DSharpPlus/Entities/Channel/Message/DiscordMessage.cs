@@ -634,7 +634,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task ModifyEmbedSuppressionAsync(bool hideEmbeds)
-        => await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, default, default, default, [], hideEmbeds ? DiscordMessageFlags.SuppressEmbeds : null, default);
+        => await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, default, default, default, [], hideEmbeds ? this.Flags | DiscordMessageFlags.SuppressEmbeds : this.Flags & ~DiscordMessageFlags.SuppressEmbeds, default);
 
     /// <summary>
     /// Deletes the message.
