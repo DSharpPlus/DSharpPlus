@@ -272,7 +272,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// </summary>
     /// <param name="condition">The condition an event needs to match.</param>
     /// <param name="timeout">A timeout for this event waiter.</param>
-    public async Task<EventWaiterResult<T>> WaitForEventAsync<T>(Func<T, bool> condition, TimeSpan timeout)
+    /// <returns>A result containing the received event args if successful, or a <see cref="TimeoutError"/> if the timeout elapsed.</returns> 
+    public async Task<Result<T>> WaitForEventAsync<T>(Func<T, bool> condition, TimeSpan timeout)
         where T : DiscordEventArgs
     {
         EventWaiter<T> eventWaiter = this.dispatcher.CreateEventWaiter(condition, timeout);

@@ -15,5 +15,6 @@
   <ItemGroup>
     <ProjectReference Include="$(ProjectRoot)\DSharpPlus\DSharpPlus.csproj" />
     <ProjectReference Include="$(ProjectRoot)\DSharpPlus.Commands\DSharpPlus.Commands.csproj" />
+    <ProjectReference Include="$(ProjectRoot)\DSharpPlus.Interactivity\DSharpPlus.Interactivity.csproj" />
   </ItemGroup>
 </Project>
