@@ -18,6 +18,12 @@ public sealed class GatewayClientOptions
         = (num) => TimeSpan.FromSeconds(double.Pow(2, uint.Min(num, 10)));
 
     /// <summary>
+    /// Specifies a timeout for how long we are willing to wait for the HELLO event. If HELLO is not received within 
+    /// that timespan, the shard is forced to reconnect. Defaults to 15 seconds.
+    /// </summary>
+    public TimeSpan HelloEventTimeout { get; set; } = TimeSpan.FromSeconds(15);
+
+    /// <summary>
     /// Specifies the maximum amount of reconnects to attempt consecutively. The counter resets if a connection is
     /// successfully established. Defaults to <see cref="uint.MaxValue"/>.
     /// </summary>
@@ -45,4 +51,19 @@ public sealed class GatewayClientOptions
     /// effect during Discord outages and if your internet connection is slow or prone to spikes in latency.
     /// </remarks>
     public TimeSpan SendingTimeout { get; set; } = TimeSpan.FromSeconds(5);
+
+    /// <summary>
+    /// Specifies the amount of heartbeats to let go unanswered before assuming the connection zombied and restarting.
+    /// </summary>
+    /// <remarks>
+    /// Defaults to 5. The exact timespan this represents is contingent on the heartbeat interval for the connection and
+    /// not predictable.
+    /// </remarks>
+    public uint ZombiedThreshold { get; set; } = 5;
+
+    /// <summary>
+    /// Specifies the amount of heartbeats to tolerate sending before receiving READY. Once this amount is exceeded,
+    /// DSharpPlus assumes something has gone wrong and reconnects
+    /// </summary>
+    public uint HeartbeatsBeforeReadyThreshold { get; set; } = 5;
 }

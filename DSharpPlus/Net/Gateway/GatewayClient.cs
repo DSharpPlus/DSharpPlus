@@ -41,6 +41,7 @@ public sealed class GatewayClient : IGatewayClient
 
     private DateTimeOffset lastSentHeartbeat = DateTimeOffset.UtcNow;
     private int pendingHeartbeats;
+    private int heartbeatsSinceAttemptingToConnect;
 
     private int lastReceivedSequence = 0;
     private string? resumeUrl;
@@ -137,7 +138,10 @@ public sealed class GatewayClient : IGatewayClient
                 this.gatewayTokenSource = new();
                 await this.transportService.ConnectAsync(url);
 
-                TransportFrame initialFrame = await this.transportService.ReadAsync();
+                CancellationTokenSource helloTokenSource = new();
+                helloTokenSource.CancelAfter((int)this.options.HelloEventTimeout.TotalMilliseconds);
+
+                TransportFrame initialFrame = await this.transportService.ReadAsync(helloTokenSource.Token);
                 GatewayPayload? helloEvent = await ProcessAndDeserializeTransportFrameAsync(initialFrame);
 
                 if (helloEvent is not { OpCode: GatewayOpCode.Hello })
@@ -206,6 +210,8 @@ public sealed class GatewayClient : IGatewayClient
             }
             catch (Exception e)
             {
+                this.gatewayTokenSource?.Cancel();
+
                 TimeSpan delay = this.options.GetReconnectionDelay(i);
 
                 if (e is WebSocketException { InnerException: HttpRequestException or SocketException })
@@ -281,12 +287,18 @@ public sealed class GatewayClient : IGatewayClient
             {
                 await SendSingleHeartbeatAsync();
 
-                if (this.pendingHeartbeats > 5)
+                if (this.pendingHeartbeats > this.options.ZombiedThreshold)
                 {
                     this.logger.LogInformation("The connection zombied, attempting to resume");
                     await TryResumeAsync();
 
                     return;
+                }
+
+                if (!this.IsConnected && this.heartbeatsSinceAttemptingToConnect++ > this.options.HeartbeatsBeforeReadyThreshold)
+                {
+                    this.logger.LogWarning("Discord failed to send READY, reconnecting.");
+                    await TerminateCurrentFrameAsync(GatewayDisconnectReason.NoSessionEstablished);
                 }
             }
             catch (WebSocketException e)
@@ -425,6 +437,7 @@ public sealed class GatewayClient : IGatewayClient
                 };
 
                 this.IsConnected = true;
+                this.heartbeatsSinceAttemptingToConnect = 0;
 
                 this.logger.LogDebug("Received READY, the gateway is now operational.");
 
@@ -498,12 +511,15 @@ public sealed class GatewayClient : IGatewayClient
             await this.transportService.DisconnectAsync((WebSocketCloseStatus)4000);
             await this.transportService.ConnectAsync(this.resumeUrl);
 
-            TransportFrame helloFrame = await this.transportService.ReadAsync();
+            CancellationTokenSource helloTokenSource = new();
+            helloTokenSource.CancelAfter((int)this.options.HelloEventTimeout.TotalMilliseconds);
+
+            TransportFrame helloFrame = await this.transportService.ReadAsync(helloTokenSource.Token);
             GatewayPayload? helloPayload = await ProcessAndDeserializeTransportFrameAsync(helloFrame);
 
             if (helloPayload is not { OpCode: GatewayOpCode.Hello })
             {
-                this.logger.LogWarning("Received invalid opcode {op} while resuming", helloPayload.OpCode);
+                this.logger.LogWarning("Received invalid opcode {op} while resuming", helloPayload?.OpCode);
                 await TerminateCurrentFrameAsync(GatewayDisconnectReason.UnknownError);
 
                 return false;
