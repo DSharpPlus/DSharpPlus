@@ -46,7 +46,7 @@ Select the `Browse` tab towards the top left, then type `DSharpPlus` into the se
 
 ![NuGet Package Search][7]
 
-The first results should be the eight DSharpPlus packages.
+The first results should be the DSharpPlus packages.
 
 ![Search Results][8]
 
@@ -57,9 +57,7 @@ Package                    | Description
 `DSharpPlus.CommandsNext`  | Add-on which provides a command framework. Scheduled for obsoletion.
 `DSharpPlus.SlashCommands` | Add-on which provides an application command framework. Obsolete.
 `DSharpPlus.Interactivity` | Add-on which allows for interactive commands.
-`DSharpPlus.Lavalink`      | Client implementation for [Lavalink][9]. Defunct.
-`DSharpPlus.VoiceNext`     | Add-on which enables connectivity to Discord voice channels.
-`DSharpPlus.Rest`          | REST-only Discord client.
+`DSharpPlus.Voice`         | Add-on which enables connecting to Discord voice channels.
 
 We'll only need the `DSharpPlus` package for the basic bot we'll be writing in this article. Select it from the list
 then click the `Install` button to the right (after verifing that you will be installing the **latest version**).

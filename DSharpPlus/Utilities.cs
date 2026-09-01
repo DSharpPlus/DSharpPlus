@@ -19,7 +19,7 @@ namespace DSharpPlus;
 public static partial class Utilities
 {
     /// <summary>
-    /// Gets the version of the library
+    /// Gets the version user agent header of the library
     /// </summary>
     private static string VersionHeader { get; set; }
 

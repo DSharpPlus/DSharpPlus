@@ -1,5 +1,4 @@
 using System;
-using DSharpPlus.Net.Udp;
 
 namespace DSharpPlus;
 
@@ -29,18 +28,6 @@ public sealed class DiscordConfiguration
     /// accessed.
     /// </summary>
     public TimeSpan SlidingMessageCacheExpiration { internal get; set; } = TimeSpan.FromMinutes(30);
-    
-    /// <summary>
-    /// <para>Sets the factory method used to create instances of UDP clients.</para>
-    /// <para>Use <see cref="DspUdpClient.CreateNew"/> and equivalents on other implementations to switch out client implementations.</para>
-    /// <para>Defaults to <see cref="DspUdpClient.CreateNew"/>.</para>
-    /// </summary>
-    public UdpClientFactoryDelegate UdpClientFactory
-    {
-        internal get => this.udpClientFactory;
-        set => this.udpClientFactory = value ?? throw new InvalidOperationException("You need to supply a valid UDP client factory method.");
-    }
-    private UdpClientFactoryDelegate udpClientFactory = DspUdpClient.CreateNew;
 
     /// <summary>
     /// Whether to log unknown events or not. Defaults to true.
@@ -51,21 +38,4 @@ public sealed class DiscordConfiguration
     /// Whether to log unknown auditlog types and change keys or not. Defaults to true.
     /// </summary>
     public bool LogUnknownAuditlogs { internal get; set; } = true;
-
-    /// <summary>
-    /// Creates a new configuration with default values.
-    /// </summary>
-    public DiscordConfiguration()
-    { }
-
-    /// <summary>
-    /// Creates a clone of another discord configuration.
-    /// </summary>
-    /// <param name="other">Client configuration to clone.</param>
-    public DiscordConfiguration(DiscordConfiguration other)
-    {
-        this.UdpClientFactory = other.UdpClientFactory;
-        this.LogUnknownEvents = other.LogUnknownEvents;
-        this.LogUnknownAuditlogs = other.LogUnknownAuditlogs;
-    }
 }
