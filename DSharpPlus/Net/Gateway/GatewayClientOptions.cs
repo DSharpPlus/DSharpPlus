@@ -66,4 +66,17 @@ public sealed class GatewayClientOptions
     /// DSharpPlus assumes something has gone wrong and reconnects
     /// </summary>
     public uint HeartbeatsBeforeReadyThreshold { get; set; } = 5;
+
+    /// <summary>
+    /// Specifies a delay to use when retrying sending a gateway message. This is only invoked if WriteAsync was called
+    /// during a resume procedure and would have failed as a result of the otherwise transparent resumption. Defaults to
+    /// 250ms.
+    /// </summary>
+    public TimeSpan WriteRetryDelay { get; set; } = TimeSpan.FromMilliseconds(250);
+
+    /// <summary>
+    /// Specifies the amount of times a write may be reattempted. This is only invoked if WriteAsync was called during a
+    /// resume procedure and would have failed as a result of the otherwise transparent resumption. Defaults to 5 attempts.
+    /// </summary>
+    public int WriteRetryAttempts { get; set; } = 5;
 }

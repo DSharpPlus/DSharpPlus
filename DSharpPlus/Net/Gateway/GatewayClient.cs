@@ -23,6 +23,9 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+using Polly;
+using Polly.Retry;
+
 namespace DSharpPlus.Net.Gateway;
 
 /// <inheritdoc cref="IGatewayClient"/>
@@ -35,6 +38,7 @@ public sealed class GatewayClient : IGatewayClient
     private readonly ILoggerFactory factory;
     private readonly RateLimiter ratelimiter;
     private readonly IPayloadDecompressor decompressor;
+    private readonly ResiliencePipeline writePipeline;
 
     private readonly string token;
     private readonly bool compress;
@@ -96,6 +100,15 @@ public sealed class GatewayClient : IGatewayClient
         });
 
         this.logger = factory.CreateLogger("DSharpPlus.Net.Gateway.IGatewayClient - invalid shard");
+
+        RetryStrategyOptions writeRetryOptions = new()
+        {
+            ShouldHandle = new PredicateBuilder().Handle<WebSocketException>(),
+            MaxRetryAttempts = this.options.WriteRetryAttempts,
+            Delay = this.options.WriteRetryDelay
+        };
+
+        this.writePipeline = new ResiliencePipelineBuilder().AddRetry(writeRetryOptions).Build();
     }
 
     /// <inheritdoc/>
@@ -249,7 +262,7 @@ public sealed class GatewayClient : IGatewayClient
 
         try
         {
-            await this.transportService.WriteAsync(payload);
+            await this.writePipeline.ExecuteAsync(_ => this.transportService.WriteAsync(payload), this.gatewayTokenSource.Token);
         }
         catch (ObjectDisposedException) 
         {
