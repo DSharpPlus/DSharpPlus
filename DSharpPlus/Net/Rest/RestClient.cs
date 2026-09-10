@@ -27,7 +27,7 @@ public sealed partial class RestClient : IDisposable
     private readonly AsyncManualResetEvent globalRateLimitEvent;
     private readonly ResiliencePipeline<HttpResponseMessage> pipeline;
     private readonly RateLimitStrategy rateLimitStrategy;
-    private readonly RestMetricsContainer metrics;
+    private readonly RestMetricsContainer? metrics;
     private readonly TimeSpan timeout;
 
     private string token;
@@ -171,7 +171,7 @@ public sealed partial class RestClient : IDisposable
                 this.logger.LogTrace("Request {TraceId}: {Content}", traceId, anonymized);
             }
 
-            this.metrics.RegisterRestRequestOutcome(response.StatusCode, response.Headers);
+            this.metrics?.RegisterRestRequestOutcome(response.StatusCode, response.Headers);
 
             RestResponse returnValue = new RestResponse()
             {

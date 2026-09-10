@@ -18,3 +18,10 @@ Rest metrics are contained in the `DSharpPlus` meter.
 Metrics on the gateway can be obtained through `DiscordClient.GetGatewayMetrics` or through the `GatewayMetricsContainer` service. They specify the amount of payloads sent and received, the amount of bytes sent, received and received after decompressing and information about connections.
 
 Gateway metrics are contained in the `DSharpPlus` meter.
+
+## Voice Metrics
+
+Voice provides metrics via `VoiceConnection.GetVoiceMetrics` detailing the amount of payloads and data sent, and any issues with receiving, if applicable. 
+
+Voice metrics are contained in the `DSharpPlus.Voice` meter.
+

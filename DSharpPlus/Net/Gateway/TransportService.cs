@@ -3,6 +3,7 @@ using System.IO;
 using System.Net.WebSockets;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Unicode;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -124,6 +125,7 @@ internal sealed class TransportService : ITransportService
                 }
                 catch (WebSocketException) { }
                 catch (OperationCanceledException) { }
+                catch (InvalidOperationException) { }
 
                 break;
         }
@@ -166,6 +168,11 @@ internal sealed class TransportService : ITransportService
 
         this.metrics.RecordGatewayEventReceived(this.writer.WrittenCount);
 
+        if (this.socket.CloseStatus is not null || this.writer.WrittenCount == 0)
+        {
+            return new(((int?)this.socket.CloseStatus) ?? 5000, WebSocketMessageType.Close);
+        }
+
         if (!this.decompressor.TryDecompress(this.writer.WrittenSpan, this.decompressedWriter))
         {
             throw new InvalidDataException("Failed to decompress a gateway payload.");
@@ -175,7 +182,7 @@ internal sealed class TransportService : ITransportService
 
         if (this.logger.IsEnabled(LogLevel.Trace) && RuntimeFeatures.EnableInboundGatewayLogging)
         {
-            if (receiveResult.MessageType == WebSocketMessageType.Text)
+            if (receiveResult.MessageType == WebSocketMessageType.Text || Utf8.IsValid(this.decompressedWriter.WrittenSpan))
             {
                 string result = Encoding.UTF8.GetString(this.decompressedWriter.WrittenSpan);
 
@@ -201,7 +208,7 @@ internal sealed class TransportService : ITransportService
 
         return receiveResult.MessageType is WebSocketMessageType.Text or WebSocketMessageType.Binary
             ? new(this.decompressedWriter.WrittenSpan.ToArray(), receiveResult.MessageType)
-            : new(this.socket.CloseStatus!, WebSocketMessageType.Close);
+            : new((int)this.socket.CloseStatus!, WebSocketMessageType.Close);
     }
 
     /// <inheritdoc/>
@@ -227,6 +234,10 @@ internal sealed class TransportService : ITransportService
                 }
 
                 this.logger.LogTrace("Payload for the last outbound gateway event (length: {length}): {event}", payload.Length, anonymized);
+            }
+            else
+            {
+                this.logger.LogTrace("Sent outbound binary gateway event with length {length}", payload.Length);
             }
         }
 

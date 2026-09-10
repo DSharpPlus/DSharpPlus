@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
@@ -26,6 +27,17 @@ public sealed class DiscordFileUploadComponent : DiscordComponent
     public bool IsRequired { get; internal set; }
 
     /// <summary>
+    /// The file types permissible to upload using this component. This takes any dot-prefixed extensions, or one of the following values: <br/>
+    /// - <c>"image"</c>: png, gif, jpg, jpeg, jfif, webp, avif, <br/>
+    /// - <c>"video"</c>: mp4, mov, qt, webm, <br/>
+    /// - <c>"audio"</c>: mp3, m4a, wav, ogg, opus, flac <br/>
+    /// <br/>
+    /// Note that the above lists are not set in stone and should not be hardcoded.
+    /// </summary>
+    [JsonProperty("file_types", DefaultValueHandling = DefaultValueHandling.Ignore)]
+    public IReadOnlyList<string>? FileTypes { get; internal set; }
+
+    /// <summary>
     /// Internally used for handling responses.
     /// </summary>
     [JsonProperty("values")]
@@ -33,12 +45,13 @@ public sealed class DiscordFileUploadComponent : DiscordComponent
 
     internal DiscordFileUploadComponent() => this.Type = DiscordComponentType.FileUpload;
 
-    public DiscordFileUploadComponent(string customId, int? minValues = null, int? maxValues = null, bool isRequired = true)
+    public DiscordFileUploadComponent(string customId, int? minValues = null, int? maxValues = null, bool isRequired = true, IReadOnlyList<string>? fileTypes = null)
         : this()
     {
         this.CustomId = customId;
         this.MinValues = minValues;
         this.MaxValues = maxValues;
         this.IsRequired = isRequired;
+        this.FileTypes = fileTypes;
     }
 }

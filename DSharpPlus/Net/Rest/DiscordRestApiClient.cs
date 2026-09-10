@@ -1274,10 +1274,10 @@ public sealed class DiscordRestApiClient
         return result;
     }
     
-    internal async ValueTask UpdateCurrentUserVoiceStateAsync
+    public async ValueTask UpdateCurrentUserVoiceStateAsync
     (
         ulong guildId,
-        ulong channelId,
+        ulong? channelId = null,
         bool? suppress = null,
         DateTimeOffset? requestToSpeakTimestamp = null
     )
@@ -1304,7 +1304,7 @@ public sealed class DiscordRestApiClient
     (
         ulong guildId,
         ulong userId,
-        ulong channelId,
+        ulong? channelId = null,
         bool? suppress = null
     )
     {
@@ -2867,9 +2867,16 @@ public sealed class DiscordRestApiClient
     public async ValueTask PinMessageAsync
     (
         ulong channelId,
-        ulong messageId
+        ulong messageId,
+        string? reason = null
     )
     {
+        Dictionary<string, string> headers = [];
+        if (!string.IsNullOrWhiteSpace(reason))
+        {
+            headers[REASON_HEADER_NAME] = reason;
+        }
+
         string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.PINS}/:message_id";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.PINS}/{messageId}";
 
@@ -2877,7 +2884,8 @@ public sealed class DiscordRestApiClient
         {
             Route = route,
             Url = url,
-            Method = HttpMethod.Put
+            Method = HttpMethod.Put,
+            Headers = headers
         };
 
         await this.rest.ExecuteRequestAsync(request);
@@ -2886,9 +2894,16 @@ public sealed class DiscordRestApiClient
     public async ValueTask UnpinMessageAsync
     (
         ulong channelId,
-        ulong messageId
+        ulong messageId,
+        string? reason = null
     )
     {
+        Dictionary<string, string> headers = [];
+        if (!string.IsNullOrWhiteSpace(reason))
+        {
+            headers[REASON_HEADER_NAME] = reason;
+        }
+
         string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.PINS}/:message_id";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.PINS}/{messageId}";
 
@@ -2896,7 +2911,8 @@ public sealed class DiscordRestApiClient
         {
             Route = route,
             Url = url,
-            Method = HttpMethod.Delete
+            Method = HttpMethod.Delete,
+            Headers = headers
         };
         await this.rest.ExecuteRequestAsync(request);
     }

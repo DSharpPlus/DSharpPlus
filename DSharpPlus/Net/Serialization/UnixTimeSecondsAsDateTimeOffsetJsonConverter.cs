@@ -17,8 +17,8 @@ internal sealed class UnixTimeSecondsAsDateTimeOffsetJsonConverter : JsonConvert
     {
         JToken jr = JToken.Load(reader);
 
-        long unixTimestamp = jr.ToObject<long>();
-        return DateTimeOffset.FromUnixTimeSeconds(unixTimestamp);
+        long? unixTimestamp = jr.ToObject<long?>();
+        return unixTimestamp.HasValue ? DateTimeOffset.FromUnixTimeSeconds(unixTimestamp.Value) : DateTimeOffset.MinValue;
     }
 
     public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)

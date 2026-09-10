@@ -21,8 +21,6 @@ public sealed class SingleShardOrchestrator : IShardOrchestrator
     private readonly IPayloadDecompressor decompressor;
     private readonly ILogger<IShardOrchestrator> logger;
 
-    private Task<GatewayConnectionFrame> gatewayTask;
-
     /// <summary>
     /// Creates a new instance of this type.
     /// </summary>
@@ -100,24 +98,31 @@ public sealed class SingleShardOrchestrator : IShardOrchestrator
             gwuri.AddParameter("compress", this.decompressor.Name);
         }
 
-        this.gatewayTask = this.gatewayClient.ConnectAsync(gwuri.Build(), activity, status, idleSince);
-
-        _ = RunGatewayAsync();
+        _ = RunGatewayAsync(gwuri.Build(), activity, status, idleSince);
     }
 
-    private async Task RunGatewayAsync()
+    private async Task RunGatewayAsync(string uri, DiscordActivity? activity, DiscordUserStatus? status, DateTimeOffset? idleSince)
     {
+        Task<GatewayConnectionFrame> gatewayTask = this.gatewayClient.ConnectAsync(uri, activity, status, idleSince);
+
         while (true)
         {
-            GatewayConnectionFrame frame = await this.gatewayTask;
+            GatewayConnectionFrame frame = await gatewayTask;
 
             if (frame.DisconnectReason is GatewayDisconnectReason.UserRequested or GatewayDisconnectReason.IrrecoverableCloseCode)
             {
-                this.logger.LogInformation("The gateway exited with disconnect reason {reason}, abandoning reconnecting.", frame.DisconnectReason);
+                this.logger.LogError
+                (
+                    frame.Exception,
+                    "The gateway exited with disconnect reason {reason} and close code {closeCode}, abandoning reconnecting.", 
+                    frame.DisconnectReason,
+                    frame.CloseCode ?? (GatewayCloseCode)1000
+                );
+
                 break;
             }
 
-            this.gatewayTask = this.gatewayClient.ReconnectAsync();
+            gatewayTask = this.gatewayClient.ReconnectAsync();
         }
     }
 
