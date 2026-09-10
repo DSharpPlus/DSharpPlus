@@ -9,7 +9,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-using DSharpPlus.Clients;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Net.Gateway;
 using DSharpPlus.Net.Gateway.Compression;
@@ -44,13 +43,13 @@ partial class VoiceConnection
         this.logger.LogTrace("Retrieving voice server information from the main gateway.");
 
         // set up our machinery for receiving events from the main gateway
-        Task<EventWaiterResult<VoiceStateUpdatedEventArgs>> voiceStateUpdateTask = this.dispatcher.CreateEventWaiter<VoiceStateUpdatedEventArgs>
+        Task<Result<VoiceStateUpdatedEventArgs>> voiceStateUpdateTask = this.dispatcher.CreateEventWaiter<VoiceStateUpdatedEventArgs>
         (
             x => x.ChannelId == channelId,
             TimeSpan.FromSeconds(15)
         ).Task;
 
-        Task<EventWaiterResult<VoiceServerUpdatedEventArgs>> voiceServerUpdateTask = this.dispatcher.CreateEventWaiter<VoiceServerUpdatedEventArgs>
+        Task<Result<VoiceServerUpdatedEventArgs>> voiceServerUpdateTask = this.dispatcher.CreateEventWaiter<VoiceServerUpdatedEventArgs>
         (
             x => x.Guild.Id == guildId,
             TimeSpan.FromSeconds(15)
@@ -71,7 +70,7 @@ partial class VoiceConnection
         await Task.WhenAll(voiceStateUpdateTask, voiceServerUpdateTask);
 
         // if one (or both) of our events timed out, abandon ship
-        if (voiceStateUpdateTask.Result.TimedOut || voiceServerUpdateTask.Result.TimedOut)
+        if (voiceStateUpdateTask.Result is { Error: TimeoutError } || voiceServerUpdateTask.Result is { Error: TimeoutError })
         {
             throw new ConnectingFailedException("Failed to open a connection to the voice gateway because Discord did not provide the necessary information.");
         }
@@ -210,7 +209,7 @@ partial class VoiceConnection
             break;
         }
 
-        Task<EventWaiterResult<ChannelInfoEventArgs>> voiceChannelStartTimeTask = this.dispatcher.CreateEventWaiter<ChannelInfoEventArgs>
+        Task<Result<ChannelInfoEventArgs>> voiceChannelStartTimeTask = this.dispatcher.CreateEventWaiter<ChannelInfoEventArgs>
         (
             eventArgs => eventArgs.Guild.Id == this.guildId,
             TimeSpan.FromSeconds(15)
@@ -239,9 +238,9 @@ partial class VoiceConnection
             _ => LogErrorAndReconnectAsync("Invalid DAVE version {daveVersion}.", this.daveVersion)
         });
 
-        EventWaiterResult<ChannelInfoEventArgs> voiceChannelStartTime = await voiceChannelStartTimeTask;
+        Result<ChannelInfoEventArgs> voiceChannelStartTime = await voiceChannelStartTimeTask;
 
-        this.metrics.SetSessionStartTime(voiceChannelStartTime.TimedOut
+        this.metrics.SetSessionStartTime(voiceChannelStartTime is { Error: TimeoutError }
             ? connectionStartTime
             : voiceChannelStartTime.Value.ChannelInfo.First(x => x.Id == this.ChannelId).StartTime.Value);
 
