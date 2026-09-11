@@ -1,5 +1,5 @@
 ---
-uid: articles.advanced_topics.trace
+uid: articles.basics.logging.trace
 title: Trace Logging
 ---
 
@@ -46,6 +46,6 @@ Each of these options defaults to `true` - by default, DSharpPlus logs as much i
 
 Trace logs contain huge amounts of potentially sensitive data, such as user IDs, message contents and tokens - everything Discord sends us, and everything we send to Discord. DSharpPlus offers additional feature switches to restrict sensitive information ending up in trace logs:
 
-First, `DSharpPlus.Trace.AnonymizeTokens`. This switch is enabled by default and will hide your bot and webhook tokens in trace logs. As a library consumer, you should typically not turn this off.
+First, `DSharpPlus.Trace.AnonymizeTokens`. This switch is enabled by default and will hide your IP address and bot and webhook tokens in trace logs. As a library consumer, you should typically not turn this off.
 
 Second, `DSharpPlus.Trace.AnonymizeContents`. This switch is disabled by default and will hide snowflake IDs, message contents and usernames in your logs. Since this significantly reduces the quality of debug information in your trace logs, you should evaluate whether you should use this switch on a case-by-case basis.

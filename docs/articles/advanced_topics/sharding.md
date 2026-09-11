@@ -1,5 +1,5 @@
 ---
-uid: articles.beyond_basics.sharding
+uid: articles.advanced_topics.sharding
 title: Sharding
 ---
 
