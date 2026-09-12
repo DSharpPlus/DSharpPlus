@@ -37,7 +37,7 @@ Package                      | Description
 :---------------------------:|:---:
 `DSharpPlus.Commands`        | An extension that provides a command framework for both messages and application commands.
 `DSharpPlus.Interactivity`   | An extension that provides utilities for interactive flows with your users..
-`DSharpPlus.Voice`       | An extension that enables connecting to Discord voice channels.
+`DSharpPlus.Voice`           | An extension that enables connecting to Discord voice channels.
 `DSharpPlus.Http.AspNetCore` | An extension that provides support for HTTP interactions and webhook events.
 
 Additionally, the following third party extensions and packages are available and are considered by us to be good enough to recommend in good faith:
