@@ -5,7 +5,7 @@ namespace DSharpPlus.Entities;
 /// Represents a button's style/color.
 /// </summary>
 /// <remarks>
-/// Link buttons are represented by <see cref="DiscordLinkButtonComponent"/>. Premium buttons are not implemented yet.
+/// Link buttons are represented by <see cref="DiscordLinkButtonComponent"/>.
 /// </remarks>
 public enum DiscordButtonStyle : int
 {
