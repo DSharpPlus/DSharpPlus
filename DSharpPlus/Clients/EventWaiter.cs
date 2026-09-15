@@ -28,12 +28,12 @@ public sealed record EventWaiter<T>
     /// <remarks>
     /// Do not manipulate this manually - it is exposed for implementers of <see cref="IEventDispatcher"/>. 
     /// </remarks>
-    public required TaskCompletionSource<EventWaiterResult<T>> CompletionSource { get; init; }
+    public required TaskCompletionSource<Result<T>> CompletionSource { get; init; }
 
     /// <summary>
     /// An awaitable task for this event waiter.
     /// </summary>
-    public Task<EventWaiterResult<T>> Task => this.CompletionSource.Task;
+    public Task<Result<T>> Task => this.CompletionSource.Task;
 
     /// <summary>
     /// The timeout for this event waiter.
