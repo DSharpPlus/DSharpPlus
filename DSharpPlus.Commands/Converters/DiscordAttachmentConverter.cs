@@ -52,11 +52,13 @@ public class AttachmentConverter : ISlashArgumentConverter<DiscordAttachment>, I
         else if (context is InteractionConverterContext interactionConverterContext
             // Resolved can be null on autocomplete contexts
             && interactionConverterContext.Interaction.Data.Resolved is not null
-            // Check if we have enough attachments to fetch the current attachment
-            && interactionConverterContext.Interaction.Data.Options.Count(argument => argument.Type == DiscordApplicationCommandOptionType.Attachment) >= currentAttachmentArgumentIndex
-            // Check if we can parse the attachment ID (this should be guaranteed by Discord)
+            // Then, we check if any attachments exist at all. This should be guaranteed by Discord though.
+            && interactionConverterContext.Interaction.Data.Resolved.Attachments is not null
+            // Then, check if the attachment index is within bounds. Once again, should be guaranteed by Discord.
+            && interactionConverterContext.Interaction.Data.Resolved.Attachments.Count >= currentAttachmentArgumentIndex
+            // Check if we can parse the attachment ID (this should again be guaranteed by Discord)
             && ulong.TryParse(interactionConverterContext.Argument?.RawValue, CultureInfo.InvariantCulture, out ulong attachmentId)
-            // Check if the attachment exists
+            // Check if the attachment exists (guess what?)
             && interactionConverterContext.Interaction.Data.Resolved.Attachments.TryGetValue(attachmentId, out DiscordAttachment? attachment))
         {
             return Task.FromResult(Optional.FromValue(attachment));
