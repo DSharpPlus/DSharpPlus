@@ -1,15 +1,13 @@
 ---
-uid: articles.beyond_basics.events
+uid: articles.basics.events
 title: DSharpPlus Events
 ---
 
 # Consuming Events
 
-DSharpPlus makes use of *asynchronous events* which will execute each handler asynchronously and in parallel. This
-event system will require event handlers have a `Task` return type and take two parameters.
+DSharpPlus makes use of *asynchronous events* which will execute each handler asynchronously and in parallel. This event system will require event handlers have a `Task` return type and take two parameters.
 
-The first parameter will contain an instance of the object which fired the event. The second parameter will contain an
-arguments object for the specific event you're handling.
+The first parameter will contain the active `DiscordClient` associated with the event. The second parameter will contain an arguments object for the specific event you're handling.
 
 Below is a snippet demonstrating this with a lambda expression.
 
@@ -87,24 +85,6 @@ public class MyEventHandler : IEventHandler<GuildMemberAddedEventArgs>, IEventHa
 
 ## Usage of the right events
 
-We advise against the use of the `SessionCreated`, as it does not necessarily mean that the client
-is ready for use. If the goal is to obtain  `DiscordMember`/`DiscordGuild` information, this event should not be used. Instead,
-the `GuildDownloadCompleted` event should be used. The `SessionCreated` event is only meant to signal that the client has
-finished the initial handshake with the gateway and is prepared to begin sending payloads.
+We advise against the use of the `SessionCreated`, as it does not necessarily mean that the client is ready for use. If the goal is to obtain `DiscordMember`/`DiscordGuild` information, this event should not be used. Instead, the `GuildDownloadCompleted` event should be used. The `SessionCreated` event is only meant to signal that a shard has finished the initial handshake with the gateway and is prepared to begin sending payloads.
 
-## Migrating to parallel events
-
-In D#+ v4.4.0, events were changed from executing sequentially (each event runs its registered handlers one by one) to
-executing in parallel (each event throws all its handlers onto the thread pool). This change has a few benefits, from
-mitigating deadlocks previously occurring with certain interactivity-commandsnext interactions to allowing EventArgs
-objets to be garbage collected sooner.
-
-For end users, this change should not cause any problems, **unless:**
-- **IF** you previously had an event handler for `ComponentInteractionCreated` that indiscriminately responded to all
-   interactions while also using button interactivity, your code will break. Make sure you only respond to events you
-   actually handle.
-- **IF** you previously had two different event handlers on the same event relying on one completing before the other,
-   your code will break. Either register only one event handler dealing with all your logic, or manage state yourself.
-
-This change also means that there is no longer a timeout on event handlers, and your event handler is free to take however
-long it needs to. There is no longer a reason to wrap your events in a `_ = Task.Run(async () => // logic);`.
+If all you need is an event for when DSharpPlus begins its startup process and starts interacting with the API, use `ClientStarted`. `ClientStarted` is fired precisely once when starting, even in the face of multiple shards, and is a consistent point for startup code.
