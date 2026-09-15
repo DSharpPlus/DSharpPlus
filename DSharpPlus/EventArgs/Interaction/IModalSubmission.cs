@@ -4,6 +4,7 @@ namespace DSharpPlus.EventArgs;
 
 /// <summary>
 /// Represents the values submitted to a component from a modal. Cast this object to a typed *ModalSubmission to access the submitted data.
+/// The helpers <see cref="As"/> and <see cref="Is"/> are provided for checking and retrieving the exact ModalSubmission.
 /// </summary>
 public interface IModalSubmission
 {
