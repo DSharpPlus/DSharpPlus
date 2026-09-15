@@ -58,7 +58,7 @@ internal sealed class TransportService : ITransportService
     }
 
     /// <inheritdoc/>
-    public async ValueTask ConnectAsync(string url)
+    public async ValueTask ConnectAsync(string url, CancellationToken ct = default)
     {
         this.socket = new();
 
@@ -70,14 +70,14 @@ internal sealed class TransportService : ITransportService
 
         this.logger.LogTrace("Connecting to the Discord gateway.");
 
-        await this.socket.ConnectAsync(new(url), CancellationToken.None);
+        await this.socket.ConnectAsync(new(url), ct);
         this.isConnected = true;
 
         this.logger.LogDebug("Connected to the Discord gateway at {url}, using {compression} compression.", url, this.decompressor.Name);
     }
 
     /// <inheritdoc/>
-    public async ValueTask DisconnectAsync(WebSocketCloseStatus closeStatus)
+    public async ValueTask DisconnectAsync(WebSocketCloseStatus closeStatus, CancellationToken ct = default)
     {
         this.logger.LogTrace("Disconnect requested: {CloseStatus}", closeStatus.ToString());
 
@@ -116,12 +116,7 @@ internal sealed class TransportService : ITransportService
 
                 try
                 {
-                    await this.socket.CloseAsync
-                    (
-                        closeStatus,
-                        null,
-                        CancellationToken.None
-                    );
+                    await this.socket.CloseAsync(closeStatus, null, ct);
                 }
                 catch (WebSocketException) { }
                 catch (OperationCanceledException) { }
@@ -136,7 +131,7 @@ internal sealed class TransportService : ITransportService
 
     /// <inheritdoc/>
     [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder<>))]
-    public async ValueTask<TransportFrame> ReadAsync()
+    public async ValueTask<TransportFrame> ReadAsync(CancellationToken ct = default)
     {
         ObjectDisposedException.ThrowIf(this.isDisposed, this);
 
@@ -154,7 +149,7 @@ internal sealed class TransportService : ITransportService
         {
             do
             {
-                receiveResult = await this.socket.ReceiveAsync(this.writer.GetMemory(), CancellationToken.None);
+                receiveResult = await this.socket.ReceiveAsync(this.writer.GetMemory(), ct);
 
                 this.writer.Advance(receiveResult.Count);
 
