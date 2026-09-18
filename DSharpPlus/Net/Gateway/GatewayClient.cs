@@ -273,14 +273,14 @@ public sealed class GatewayClient : IGatewayClient
         {
             // something perished. try reconnecting?
             this.logger.LogDebug("The connection entered an invalid state, reconnecting.");
-            await TryResumeAsync();
+            await ResumeOrReconnectAsync();
         }
         catch (OperationCanceledException)
         {
             // either discord is being slow (this might be bad but in an outage all bets are off) or we got disconnected,
             // reconnect
             this.logger.LogWarning("The connection is excessively slow or dropped, reconnecting.");
-            await TryResumeAsync();
+            await ResumeOrReconnectAsync();
         }
     }
 
@@ -303,7 +303,7 @@ public sealed class GatewayClient : IGatewayClient
                 if (this.pendingHeartbeats > this.options.ZombiedThreshold)
                 {
                     this.logger.LogInformation("The connection zombied, attempting to resume");
-                    await TryResumeAsync();
+                    await ResumeOrReconnectAsync();
 
                     return;
                 }
@@ -317,7 +317,7 @@ public sealed class GatewayClient : IGatewayClient
             catch (WebSocketException e)
             {
                 this.logger.LogWarning("The connection died or entered an invalid state, reconnecting. Exception: {ExceptionMessage}", e.Message);
-                await TryResumeAsync();
+                await ResumeOrReconnectAsync();
 
                 return;
             }
@@ -495,7 +495,7 @@ public sealed class GatewayClient : IGatewayClient
             case GatewayOpCode.Reconnect:
 
                 this.logger.LogDebug("Received RECONNECT, attempting to resume");
-                await TryResumeAsync();
+                await ResumeOrReconnectAsync();
 
                 return;
         }
@@ -627,7 +627,7 @@ public sealed class GatewayClient : IGatewayClient
 
     private async Task HandleErrorAndAttemptToResumeAsync(TransportFrame frame)
     {
-        if(this.closureRequested)
+        if (this.closureRequested)
         {
             this.logger.LogDebug("Connection was requested to be closed, ignoring any errors.");
             return;
@@ -635,7 +635,7 @@ public sealed class GatewayClient : IGatewayClient
 
         if (frame.TryGetException<WebSocketException>(out _))
         {
-            await TryResumeAsync();
+            await ResumeOrReconnectAsync();
         }
         else if (frame.TryGetErrorCode(out int errorCode))
         {
@@ -711,7 +711,8 @@ public sealed class GatewayClient : IGatewayClient
         // else, try to reconnect if so requested
         if (!this.closureRequested)
         {
-            return await TryResumeAsync();
+            await ResumeOrReconnectAsync();
+            return true;
         }
 
         this.logger.LogDebug("Gateway shutdown in progress, not reconnecting on recoverable close code {CloseCode}", errorCode);
@@ -733,6 +734,14 @@ public sealed class GatewayClient : IGatewayClient
         this.closureRequested = true;
         this.IsConnected = false;
         await this.gatewayTokenSource.CancelAsync();
+    }
+
+    private async Task ResumeOrReconnectAsync()
+    {
+        if (!await TryResumeAsync())
+        {
+            await ReconnectAsync();
+        }
     }
 
     /// <inheritdoc/>
