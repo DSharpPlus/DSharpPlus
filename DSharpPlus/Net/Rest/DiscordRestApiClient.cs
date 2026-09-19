@@ -2521,7 +2521,7 @@ public sealed class DiscordRestApiClient
             HasContent = content.HasValue,
             Content = content.HasValue ? (string)content : null,
             HasEmbed = embeds.HasValue && (embeds.Value?.Any() ?? false),
-            Embeds = embeds.HasValue && (embeds.Value?.Any() ?? false) ? embeds.Value : null,
+            Embeds = embeds.HasValue && (embeds.Value?.Any() ?? false) ? embeds.Value : [],
             Components = components,
             Flags = flags,
             Attachments = attachments,

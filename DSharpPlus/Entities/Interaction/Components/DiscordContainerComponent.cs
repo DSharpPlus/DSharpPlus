@@ -14,6 +14,7 @@ public class DiscordContainerComponent : DiscordComponent
     /// <summary>
     /// The accent color for this container, similar to an embed.
     /// </summary>
+    [JsonIgnore]
     public DiscordColor? Color
     {
         get
