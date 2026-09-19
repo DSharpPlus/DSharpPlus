@@ -602,7 +602,20 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     public async Task<DiscordMessage> ModifyAsync(DiscordMessageBuilder builder, bool suppressEmbeds = false, IEnumerable<DiscordAttachment>? attachments = default)
     {
         builder.Validate();
-        return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), builder.mentions, builder.Components, builder.Files, suppressEmbeds ? DiscordMessageFlags.SuppressEmbeds : null, attachments);
+        DiscordMessageFlags flags = builder.Flags | (suppressEmbeds ? DiscordMessageFlags.SuppressEmbeds : 0);
+
+        return await this.Discord.ApiClient.EditMessageAsync
+        (
+            this.ChannelId, 
+            this.Id, 
+            builder.Content, 
+            new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), 
+            builder.mentions, 
+            builder.Components, 
+            builder.Files, 
+            flags == 0 ? null : flags, 
+            attachments
+        );
     }
 
     /// <summary>
@@ -620,8 +633,22 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     {
         DiscordMessageBuilder builder = new(this);
         action(builder);
+        
         builder.Validate();
-        return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), builder.mentions, builder.Components, builder.Files, suppressEmbeds ? DiscordMessageFlags.SuppressEmbeds : null, attachments);
+        DiscordMessageFlags flags = builder.Flags | (suppressEmbeds ? DiscordMessageFlags.SuppressEmbeds : 0);
+        
+        return await this.Discord.ApiClient.EditMessageAsync
+        (
+            this.ChannelId, 
+            this.Id, 
+            builder.Content, 
+            new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), 
+            builder.mentions, 
+            builder.Components, 
+            builder.Files, 
+            flags == 0 ? null : flags, 
+            attachments
+        );
     }
 
     /// <summary>
