@@ -59,7 +59,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <returns>The builder to chain calls with.</returns>
     public T EnableV2Components()
     {
-        bool isAnyContentSet = this.Content is not null || this.Embeds is not [];
+        bool isAnyContentSet = !string.IsNullOrWhiteSpace(this.Content) || this.Embeds is not [];
 
         if (isAnyContentSet)
         {
