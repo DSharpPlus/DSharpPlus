@@ -4697,6 +4697,78 @@ public sealed class DiscordRestApiClient
 
         return JsonConvert.DeserializeObject<DiscordInviteTargetUsersJobStatus>(response.Response!);
     }
+
+    public async ValueTask AddInviteTargetUserAsync
+    (
+        string inviteCode,
+        ulong userId
+    )
+    {
+        RestRequest request = new()
+        {
+            Route = $"{Endpoints.INVITES}/:invite_code/{Endpoints.TARGET_USERS}/:user_id",
+            Url = $"{Endpoints.INVITES}/{inviteCode}/{Endpoints.TARGET_USERS}/{userId}",
+            Method = HttpMethod.Put
+        };
+
+        await this.rest.ExecuteRequestAsync(request);
+    }
+
+    public async ValueTask RemoveInviteTargetUserAsync
+    (
+        string inviteCode,
+        ulong userId
+    )
+    {
+        RestRequest request = new()
+        {
+            Route = $"{Endpoints.INVITES}/:invite_code/{Endpoints.TARGET_USERS}/:user_id",
+            Url = $"{Endpoints.INVITES}/{inviteCode}/{Endpoints.TARGET_USERS}/{userId}",
+            Method = HttpMethod.Delete
+        };
+
+        await this.rest.ExecuteRequestAsync(request);
+    }
+
+    public async ValueTask BulkAddInviteTargetUsersAsync
+    (
+        string inviteCode,
+        IEnumerable<ulong> userIds
+    )
+    {
+        RestRequest request = new()
+        {
+            Route = $"{Endpoints.INVITES}/:invite_code/{Endpoints.TARGET_USERS}/{Endpoints.BULK_ADD}",
+            Url = $"{Endpoints.INVITES}/{inviteCode}/{Endpoints.TARGET_USERS}/{Endpoints.BULK_ADD}",
+            Method = HttpMethod.Post,
+            Payload = DiscordJson.SerializeObject(new
+            {
+                user_ids = userIds
+            })
+        };
+
+        await this.rest.ExecuteRequestAsync(request);
+    }
+
+    public async ValueTask BulkDeleteInviteTargetUsersAsync
+    (
+        string inviteCode,
+        IEnumerable<ulong> userIds
+    )
+    {
+        RestRequest request = new()
+        {
+            Route = $"{Endpoints.INVITES}/:invite_code/{Endpoints.TARGET_USERS}/{Endpoints.BULK_DELETE}",
+            Url = $"{Endpoints.INVITES}/{inviteCode}/{Endpoints.TARGET_USERS}/{Endpoints.BULK_DELETE}",
+            Method = HttpMethod.Post,
+            Payload = DiscordJson.SerializeObject(new
+            {
+                user_ids = userIds
+            })
+        };
+
+        await this.rest.ExecuteRequestAsync(request);
+    }
     #endregion
 
     #region Connections

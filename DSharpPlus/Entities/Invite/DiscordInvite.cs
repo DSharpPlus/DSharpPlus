@@ -175,6 +175,44 @@ public class DiscordInvite
     public async Task<DiscordInviteTargetUsersJobStatus> GetTargetUsersJobStatusAsync()
         => await this.Discord.ApiClient.GetInviteTargetUserJobStatusAsync(this.Code);
 
+    /// <summary>
+    /// Adds a target user to an existing invite.
+    /// </summary>
+    /// <param name="userId">The ID of the user to add as a target user to the invite.</param>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client is not the creator of the invite and
+    /// does not have the <see cref="DiscordPermission.ManageGuild"/> permission.</exception>
+    public async Task AddTargetUserAsync(ulong userId)
+        => await this.Discord.ApiClient.AddInviteTargetUserAsync(this.Code, userId);
+
+    /// <summary>
+    /// Removes a target user from an existing invite.
+    /// </summary>
+    /// <param name="userId">The ID of the target user to remove from the invite.</param>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client is not the creator of the invite and
+    /// does not have the <see cref="DiscordPermission.ManageGuild"/> permission.</exception>
+    public async Task RemoveTargetUserAsync(ulong userId)
+        => await this.Discord.ApiClient.RemoveInviteTargetUserAsync(this.Code, userId);
+
+    /// <summary>
+    /// Adds multiple target users to an existing invite.
+    /// </summary>
+    /// <param name="userIds">The IDs of the users to add to the invite target users.</param>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client is not the creator of the invite and
+    /// does not have the <see cref="DiscordPermission.ManageGuild"/> permission.</exception>
+    /// <remarks>A maximum of 1000 users can be added in a single request.</remarks>
+    public async Task BulkAddTargetUsersAsync(IEnumerable<ulong> userIds)
+        => await this.Discord.ApiClient.BulkAddInviteTargetUsersAsync(this.Code, userIds);
+
+    /// <summary>
+    /// Removes multiple target users from an existing invite.
+    /// </summary>
+    /// <param name="userIds">The IDs of the users to remove from the invite target users.</param>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client is not the creator of the invite and
+    /// does not have the <see cref="DiscordPermission.ManageGuild"/> permission.</exception>
+    /// <remarks>A maximum of 1000 users can be removed in a single request.</remarks>
+    public async Task BulkDeleteTargetUsersAsync(IEnumerable<ulong> userIds)
+        => await this.Discord.ApiClient.BulkDeleteInviteTargetUsersAsync(this.Code, userIds);
+
     /*
      * Disabled due to API restrictions.
      *
