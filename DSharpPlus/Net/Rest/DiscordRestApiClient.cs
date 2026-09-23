@@ -2521,9 +2521,14 @@ public sealed class DiscordRestApiClient
             HasContent = content.HasValue,
             Content = content.HasValue ? (string)content : null,
             HasEmbed = embeds.HasValue && (embeds.Value?.Any() ?? false),
+
+            // embeds are weird. when editing a message, the default value of embeds is [] (and null is folded into removing the field from the payload),
+            // which requires us to explicitly set [] if the payload logically touches embeds (even if it doesn't actively set embeds), HOWEVER, when
+            // editing user messages (for suppressing embeds), different rules apply, and we must not send the field at all. therefore, we do. this.
             Embeds = embeds.HasValue 
                 ? (embeds.Value?.Any() ?? false) ? embeds.Value : [] 
                 : null,
+
             Components = components,
             Flags = flags,
             Attachments = attachments,
