@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Channels;
@@ -23,6 +24,9 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+using Polly;
+using Polly.Retry;
+
 namespace DSharpPlus.Net.Gateway;
 
 /// <inheritdoc cref="IGatewayClient"/>
@@ -35,12 +39,14 @@ public sealed class GatewayClient : IGatewayClient
     private readonly ILoggerFactory factory;
     private readonly RateLimiter ratelimiter;
     private readonly IPayloadDecompressor decompressor;
+    private readonly ResiliencePipeline writePipeline;
 
     private readonly string token;
     private readonly bool compress;
 
     private DateTimeOffset lastSentHeartbeat = DateTimeOffset.UtcNow;
     private int pendingHeartbeats;
+    private int heartbeatsSinceAttemptingToConnect;
 
     private int lastReceivedSequence = 0;
     private string? resumeUrl;
@@ -95,6 +101,15 @@ public sealed class GatewayClient : IGatewayClient
         });
 
         this.logger = factory.CreateLogger("DSharpPlus.Net.Gateway.IGatewayClient - invalid shard");
+
+        RetryStrategyOptions writeRetryOptions = new()
+        {
+            ShouldHandle = new PredicateBuilder().Handle<WebSocketException>(),
+            MaxRetryAttempts = this.options.WriteRetryAttempts,
+            Delay = this.options.WriteRetryDelay
+        };
+
+        this.writePipeline = new ResiliencePipelineBuilder().AddRetry(writeRetryOptions).Build();
     }
 
     /// <inheritdoc/>
@@ -111,8 +126,6 @@ public sealed class GatewayClient : IGatewayClient
         this.activity = activity;
         this.status = status;
         this.idleSince = idleSince;
-
-        this.closureRequested = false;
 
         this.gatewayTask = new();
 
@@ -137,13 +150,17 @@ public sealed class GatewayClient : IGatewayClient
                 this.gatewayTokenSource = new();
                 await this.transportService.ConnectAsync(url);
 
-                TransportFrame initialFrame = await this.transportService.ReadAsync();
+                this.closureRequested = false;
+
+                CancellationTokenSource helloTokenSource = new();
+                helloTokenSource.CancelAfter((int)this.options.HelloEventTimeout.TotalMilliseconds);
+
+                TransportFrame initialFrame = await this.transportService.ReadAsync(helloTokenSource.Token);
                 GatewayPayload? helloEvent = await ProcessAndDeserializeTransportFrameAsync(initialFrame);
 
                 if (helloEvent is not { OpCode: GatewayOpCode.Hello })
                 {
-                    this.logger.LogWarning("Expected HELLO payload from Discord");
-                    continue;
+                    throw new DiscordOutageException($"Received {helloEvent?.OpCode} instead of HELLO.");
                 }
 
                 GatewayHello helloPayload = ((JObject)helloEvent.Data).ToDiscordObject<GatewayHello>();
@@ -206,15 +223,21 @@ public sealed class GatewayClient : IGatewayClient
             }
             catch (Exception e)
             {
+                this.gatewayTokenSource?.Cancel();
+
                 TimeSpan delay = this.options.GetReconnectionDelay(i);
 
-                if (e is not WebSocketException { InnerException: HttpRequestException or SocketException })
+                if (e is WebSocketException { InnerException: HttpRequestException or SocketException })
                 {
-                    this.logger.LogError(exception: e, "Encountered an error while connecting, waiting for {delay} and retrying.", delay);
+                    this.logger.LogWarning("Severed internet connection detected, waiting for {delay} and retrying.", delay);
+                }
+                else if (e is WebSocketException { WebSocketErrorCode: WebSocketError.NotAWebSocket} or DiscordOutageException)
+                {
+                    this.logger.LogWarning(exception: e, "Discord outage detected, waiting for {delay} and retrying.", delay);
                 }
                 else
                 {
-                    this.logger.LogWarning("Severed internet connection detected, waiting for {delay} and retrying.", delay);
+                    this.logger.LogError(exception: e, "Encountered an error while connecting, waiting for {delay} and retrying.", delay);
                 }
 
                 await Task.Delay(delay);
@@ -239,7 +262,7 @@ public sealed class GatewayClient : IGatewayClient
 
         try
         {
-            await this.transportService.WriteAsync(payload);
+            await this.writePipeline.ExecuteAsync(_ => this.transportService.WriteAsync(payload), this.gatewayTokenSource.Token);
         }
         catch (ObjectDisposedException) 
         {
@@ -250,14 +273,14 @@ public sealed class GatewayClient : IGatewayClient
         {
             // something perished. try reconnecting?
             this.logger.LogDebug("The connection entered an invalid state, reconnecting.");
-            await TryResumeAsync();
+            await ResumeOrReconnectAsync();
         }
         catch (OperationCanceledException)
         {
             // either discord is being slow (this might be bad but in an outage all bets are off) or we got disconnected,
             // reconnect
             this.logger.LogWarning("The connection is excessively slow or dropped, reconnecting.");
-            await TryResumeAsync();
+            await ResumeOrReconnectAsync();
         }
     }
 
@@ -277,18 +300,24 @@ public sealed class GatewayClient : IGatewayClient
             {
                 await SendSingleHeartbeatAsync();
 
-                if (this.pendingHeartbeats > 5)
+                if (this.pendingHeartbeats > this.options.ZombiedThreshold)
                 {
                     this.logger.LogInformation("The connection zombied, attempting to resume");
-                    await TryResumeAsync();
+                    await ResumeOrReconnectAsync();
 
                     return;
+                }
+
+                if (!this.IsConnected && this.heartbeatsSinceAttemptingToConnect++ > this.options.HeartbeatsBeforeReadyThreshold)
+                {
+                    this.logger.LogWarning("Discord failed to send READY, reconnecting.");
+                    await TerminateCurrentFrameAsync(GatewayDisconnectReason.NoSessionEstablished);
                 }
             }
             catch (WebSocketException e)
             {
                 this.logger.LogWarning("The connection died or entered an invalid state, reconnecting. Exception: {ExceptionMessage}", e.Message);
-                await TryResumeAsync();
+                await ResumeOrReconnectAsync();
 
                 return;
             }
@@ -421,6 +450,7 @@ public sealed class GatewayClient : IGatewayClient
                 };
 
                 this.IsConnected = true;
+                this.heartbeatsSinceAttemptingToConnect = 0;
 
                 this.logger.LogDebug("Received READY, the gateway is now operational.");
 
@@ -465,7 +495,7 @@ public sealed class GatewayClient : IGatewayClient
             case GatewayOpCode.Reconnect:
 
                 this.logger.LogDebug("Received RECONNECT, attempting to resume");
-                await TryResumeAsync();
+                await ResumeOrReconnectAsync();
 
                 return;
         }
@@ -494,12 +524,15 @@ public sealed class GatewayClient : IGatewayClient
             await this.transportService.DisconnectAsync((WebSocketCloseStatus)4000);
             await this.transportService.ConnectAsync(this.resumeUrl);
 
-            TransportFrame helloFrame = await this.transportService.ReadAsync();
+            CancellationTokenSource helloTokenSource = new();
+            helloTokenSource.CancelAfter((int)this.options.HelloEventTimeout.TotalMilliseconds);
+
+            TransportFrame helloFrame = await this.transportService.ReadAsync(helloTokenSource.Token);
             GatewayPayload? helloPayload = await ProcessAndDeserializeTransportFrameAsync(helloFrame);
 
             if (helloPayload is not { OpCode: GatewayOpCode.Hello })
             {
-                this.logger.LogWarning("Received invalid opcode {op} while resuming", helloPayload.OpCode);
+                this.logger.LogWarning("Received invalid opcode {op} while resuming", helloPayload?.OpCode);
                 await TerminateCurrentFrameAsync(GatewayDisconnectReason.UnknownError);
 
                 return false;
@@ -574,6 +607,15 @@ public sealed class GatewayClient : IGatewayClient
             
             return false;
         }
+        // during outages, Discord gaslights us into thinking the websocket is not in fact a websocket. we want to reconnect
+        // and then initiate the backoff logic for as long as the outage lasts
+        catch (WebSocketException e) when (e.WebSocketErrorCode is WebSocketError.NotAWebSocket)
+        {
+            this.logger.LogWarning("Discord outage detected.");
+            await TerminateCurrentFrameAsync(GatewayDisconnectReason.ConnectionSevered);
+            
+            return false;
+        }
         catch (Exception e)
         {
             this.logger.LogError(e, "Failed to resume an existing gateway session.");
@@ -585,7 +627,7 @@ public sealed class GatewayClient : IGatewayClient
 
     private async Task HandleErrorAndAttemptToResumeAsync(TransportFrame frame)
     {
-        if(this.closureRequested)
+        if (this.closureRequested)
         {
             this.logger.LogDebug("Connection was requested to be closed, ignoring any errors.");
             return;
@@ -593,7 +635,7 @@ public sealed class GatewayClient : IGatewayClient
 
         if (frame.TryGetException<WebSocketException>(out _))
         {
-            await TryResumeAsync();
+            await ResumeOrReconnectAsync();
         }
         else if (frame.TryGetErrorCode(out int errorCode))
         {
@@ -669,7 +711,8 @@ public sealed class GatewayClient : IGatewayClient
         // else, try to reconnect if so requested
         if (!this.closureRequested)
         {
-            return await TryResumeAsync();
+            await ResumeOrReconnectAsync();
+            return true;
         }
 
         this.logger.LogDebug("Gateway shutdown in progress, not reconnecting on recoverable close code {CloseCode}", errorCode);
@@ -680,6 +723,22 @@ public sealed class GatewayClient : IGatewayClient
     // this can be called however often we want in one teardown, only the first TrySetResult will succeed
     private async Task TerminateCurrentFrameAsync(GatewayDisconnectReason reason, Exception? exception = null, GatewayCloseCode? closeCode = null)
     {
+        if (!this.IsConnected)
+        {
+            if (exception is not null)
+            {
+                ExceptionDispatchInfo.Capture(exception).Throw();
+            }
+            else
+            {
+                throw new GatewayConnectionException
+                (
+                    $"The gateway encountered a fatal error while attempting to connect or following a similar procedure. "
+                    + $"Stated disconnection reason: {reason}, stated close code: {closeCode}. Please see the stacktrace for more information."
+                );
+            }
+        }
+
         this.gatewayTask.TrySetResult(new()
         {
             DisconnectReason = reason,
@@ -691,6 +750,14 @@ public sealed class GatewayClient : IGatewayClient
         this.closureRequested = true;
         this.IsConnected = false;
         await this.gatewayTokenSource.CancelAsync();
+    }
+
+    private async Task ResumeOrReconnectAsync()
+    {
+        if (!await TryResumeAsync())
+        {
+            await ReconnectAsync();
+        }
     }
 
     /// <inheritdoc/>
