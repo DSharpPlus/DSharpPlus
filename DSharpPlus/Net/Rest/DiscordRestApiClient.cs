@@ -4736,15 +4736,17 @@ public sealed class DiscordRestApiClient
         IEnumerable<ulong> userIds
     )
     {
+        RestInviteTargetUserBulkUpdatePayload payload = new()
+        {
+            UserIds = userIds
+        };
+
         RestRequest request = new()
         {
             Route = $"{Endpoints.INVITES}/:invite_code/{Endpoints.TARGET_USERS}/{Endpoints.BULK_ADD}",
             Url = $"{Endpoints.INVITES}/{inviteCode}/{Endpoints.TARGET_USERS}/{Endpoints.BULK_ADD}",
             Method = HttpMethod.Post,
-            Payload = DiscordJson.SerializeObject(new
-            {
-                user_ids = userIds
-            })
+            Payload = DiscordJson.SerializeObject(payload)
         };
 
         await this.rest.ExecuteRequestAsync(request);
@@ -4756,15 +4758,17 @@ public sealed class DiscordRestApiClient
         IEnumerable<ulong> userIds
     )
     {
+        RestInviteTargetUserBulkUpdatePayload payload = new()
+        {
+            UserIds = userIds
+        };
+
         RestRequest request = new()
         {
             Route = $"{Endpoints.INVITES}/:invite_code/{Endpoints.TARGET_USERS}/{Endpoints.BULK_DELETE}",
             Url = $"{Endpoints.INVITES}/{inviteCode}/{Endpoints.TARGET_USERS}/{Endpoints.BULK_DELETE}",
             Method = HttpMethod.Post,
-            Payload = DiscordJson.SerializeObject(new
-            {
-                user_ids = userIds
-            })
+            Payload = DiscordJson.SerializeObject(payload)
         };
 
         await this.rest.ExecuteRequestAsync(request);
