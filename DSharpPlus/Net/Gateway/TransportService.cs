@@ -230,6 +230,10 @@ internal sealed class TransportService : ITransportService
 
                 this.logger.LogTrace("Payload for the last outbound gateway event (length: {length}): {event}", payload.Length, anonymized);
             }
+            else
+            {
+                this.logger.LogTrace("Sent outbound binary gateway event with length {length}", payload.Length);
+            }
         }
 
         this.metrics.RecordGatewayEventSent(payload.Length);

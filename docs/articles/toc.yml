@@ -6,27 +6,32 @@
     topicUid: articles.basics.bot_account
   - name: Writing Your First Bot
     topicUid: articles.basics.first_bot
-- name: Beyond Basics
-  items:
   - name: Events
-    topicUid: articles.beyond_basics.events
+    topicUid: articles.basics.events
+  - name: Intents
+    topicUid: articles.basics.intents
+  - name: Message Builder
+    topicUid: articles.basics.messagebuilder
+  - name: Interactions
+    topicUid: articles.basics.interactions
+    items:
+    - name: Introduction into Interactions
+      topicUid: articles.basics.interactions.overview
+    - name: Buttons
+      topicUid: articles.basics.interactions.buttons
+    - name: Select Menus
+      topicUid: articles.basics.interactions.selects
   - name: Logging
-    topicUid: articles.beyond_basics.logging.default
+    topicUid: articles.basics.logging.default
     items:
     - name: The Default Logger
-      topicUid: articles.beyond_basics.logging.default
+      topicUid: articles.basics.logging.default
     - name: Third Party Loggers
-      topicUid: articles.beyond_basics.logging.third_party
-  - name: Intents
-    topicUid: articles.beyond_basics.intents
-  - name: Sharding
-    topicUid: articles.beyond_basics.sharding
-  - name: Message Builder
-    topicUid: articles.beyond_basics.messagebuilder
-  - name: Interactions
-    topicUid: articles.beyond_basics.interactions
+      topicUid: articles.basics.logging.third_party
+    - name: Trace Logging
+      topicUid: articles.basics.logging.trace
   - name: Permissions
-    topicUid: articles.beyond_basics.permissions
+    topicUid: articles.basics.permissions
 - name: Commands
   items:
   - name: Introduction
@@ -89,40 +94,26 @@
       topicUid: articles.commands_next.argument_converters
     - name: Command Handler
       topicUid: articles.commands_next.command_handler
-- name: Audio
+- name: Voice
   items:
-  - name: Lavalink
-    items:
-    - name: Setup
-      topicUid: articles.audio.lavalink.setup
-    - name: Configuration
-      topicUid: articles.audio.lavalink.configuration
-    - name: Music Commands
-      topicUid: articles.audio.lavalink.music_commands
-  - name: VoiceNext
-    items:
-    - name: Prerequisites
-      topicUid: articles.audio.voicenext.prerequisites
-    - name: Transmitting
-      topicUid: articles.audio.voicenext.transmit
-    - name: Receiving
-      topicUid: articles.audio.voicenext.receive
+  - name: Introduction to Voice
+    topicUid: articles.voice.introduction
+  - name: Sending Audio
+    topicUid: articles.voice.sending
+  - name: Receiving Audio
+    topicUid: articles.voice.receiving
 - name: Interactivity
   topicUid: articles.interactivity
 - name: Slash Commands
   topicUid: articles.slash_commands
 - name: Advanced Topics
   items:
-  - name: Buttons
-    topicUid: articles.advanced_topics.buttons
-  - name: Select Menus
-    topicUid: articles.advanced_topics.selects
   - name: Generic Host
     topicUid: articles.advanced_topics.generic_host
+  - name: Sharding
+    topicUid: articles.advanced_topics.sharding
   - name: Metrics and Profiling
     topicUid: articles.advanced_topics.metrics_profiling
-  - name: Trace Logging
-    topicUid: articles.advanced_topics.trace
   - name: Gateway Compression
     topicUid: articles.advanced_topics.compression
   - name: HTTP Interactions and Webhook Events

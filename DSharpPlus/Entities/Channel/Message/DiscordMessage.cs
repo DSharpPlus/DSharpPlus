@@ -602,7 +602,20 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     public async Task<DiscordMessage> ModifyAsync(DiscordMessageBuilder builder, bool suppressEmbeds = false, IEnumerable<DiscordAttachment>? attachments = default)
     {
         builder.Validate();
-        return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), builder.mentions, builder.Components, builder.Files, suppressEmbeds ? DiscordMessageFlags.SuppressEmbeds : null, attachments);
+        DiscordMessageFlags flags = builder.Flags | (suppressEmbeds ? DiscordMessageFlags.SuppressEmbeds : 0);
+
+        return await this.Discord.ApiClient.EditMessageAsync
+        (
+            this.ChannelId, 
+            this.Id, 
+            builder.Content, 
+            new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), 
+            builder.mentions, 
+            builder.Components, 
+            builder.Files, 
+            flags == 0 ? null : flags, 
+            attachments
+        );
     }
 
     /// <summary>
@@ -620,8 +633,22 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     {
         DiscordMessageBuilder builder = new(this);
         action(builder);
+        
         builder.Validate();
-        return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), builder.mentions, builder.Components, builder.Files, suppressEmbeds ? DiscordMessageFlags.SuppressEmbeds : null, attachments);
+        DiscordMessageFlags flags = builder.Flags | (suppressEmbeds ? DiscordMessageFlags.SuppressEmbeds : 0);
+        
+        return await this.Discord.ApiClient.EditMessageAsync
+        (
+            this.ChannelId, 
+            this.Id, 
+            builder.Content, 
+            new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), 
+            builder.mentions, 
+            builder.Components, 
+            builder.Files, 
+            flags == 0 ? null : flags, 
+            attachments
+        );
     }
 
     /// <summary>
@@ -634,7 +661,24 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task ModifyEmbedSuppressionAsync(bool hideEmbeds)
-        => await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, default, default, default, [], hideEmbeds ? DiscordMessageFlags.SuppressEmbeds : null, default);
+    {
+        // when suppressing embeds on another user's message, setting other flags in the payload, even when it's just conserving preexisting flags,
+        // is erroneously interpreted as trying to make an illegal edit to another user's message and rejected by discord
+        DiscordMessageFlags baseFlags = this.Author?.Id == this.Discord.CurrentUser.Id ? this.Flags.GetValueOrDefault() : 0;
+
+        await this.Discord.ApiClient.EditMessageAsync
+        (
+            this.ChannelId,
+            this.Id,
+            default,
+            default,
+            default,
+            default,
+            [],
+            hideEmbeds ? baseFlags | DiscordMessageFlags.SuppressEmbeds : baseFlags & ~DiscordMessageFlags.SuppressEmbeds,
+            default
+        );
+    }
 
     /// <summary>
     /// Deletes the message.

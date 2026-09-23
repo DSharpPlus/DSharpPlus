@@ -1,0 +1,34 @@
+using System;
+
+using CommunityToolkit.HighPerformance.Buffers;
+
+using DSharpPlus.Voice.Protocol.RTP;
+
+namespace DSharpPlus.Voice.Cryptors;
+
+/// <summary>
+/// Represents a mechanism for encrypting and decrypting audio frames.
+/// </summary>
+public interface ICryptor
+{
+    /// <summary>
+    /// Encrypts the given frame into the buffer writer.
+    /// </summary>
+    public void Encrypt(ReadOnlySpan<byte> frame, ArrayPoolBufferWriter<byte> encrypted);
+
+    /// <summary>
+    /// Decrypts the given frame into the buffer writer.
+    /// </summary>
+    /// <returns>A value indicating whether decryption was successful.</returns>
+    public bool Decrypt(ReadOnlySpan<byte> encryptedFrame, ArrayPoolBufferWriter<byte> decrypted, out RTPFrameInfo frameInfo);
+
+    /// <summary>
+    /// Gets the maximum length of an encrypted packet, given an unencrypted size.
+    /// </summary>
+    public int GetMaxEncryptedLength(int unencrypted);
+
+    /// <summary>
+    /// Gets the encryption mode supported by this cryptor.
+    /// </summary>
+    public string EncryptionMode { get; }
+}

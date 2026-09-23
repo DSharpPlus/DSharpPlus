@@ -10,10 +10,14 @@ internal static partial class AnonymizationUtilities
     [GeneratedRegex(@"\/webhooks\/[0-9]+\/[a-zA-Z0-9\-\. ]+\/")]
     private static partial Regex GetWebhookPathRegex();
 
+    [GeneratedRegex(@"""(?:ip|address)"":""[0-9a-fA-F\.\:]+""")]
+    private static partial Regex GetIPRegex();
+
     public static string AnonymizeTokens(string input)
     {
         string intermediate = GetJsonEncodedTokenRegex().Replace(input, "\"token\":\"<redacted>\"");
         intermediate = GetWebhookPathRegex().Replace(intermediate, "/webhooks/<id>/<token>");
+        intermediate = GetIPRegex().Replace(intermediate, "\"ip\":\"<redacted>\"");
         return intermediate;
     }
 
