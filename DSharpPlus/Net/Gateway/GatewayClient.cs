@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Channels;
@@ -126,8 +127,6 @@ public sealed class GatewayClient : IGatewayClient
         this.status = status;
         this.idleSince = idleSince;
 
-        this.closureRequested = false;
-
         this.gatewayTask = new();
 
         this.logger = shardInfo is null
@@ -151,6 +150,8 @@ public sealed class GatewayClient : IGatewayClient
                 this.gatewayTokenSource = new();
                 await this.transportService.ConnectAsync(url);
 
+                this.closureRequested = false;
+
                 CancellationTokenSource helloTokenSource = new();
                 helloTokenSource.CancelAfter((int)this.options.HelloEventTimeout.TotalMilliseconds);
 
@@ -159,8 +160,7 @@ public sealed class GatewayClient : IGatewayClient
 
                 if (helloEvent is not { OpCode: GatewayOpCode.Hello })
                 {
-                    this.logger.LogWarning("Expected HELLO payload from Discord");
-                    continue;
+                    throw new DiscordOutageException($"Received {helloEvent?.OpCode} instead of HELLO.");
                 }
 
                 GatewayHello helloPayload = ((JObject)helloEvent.Data).ToDiscordObject<GatewayHello>();
@@ -231,9 +231,9 @@ public sealed class GatewayClient : IGatewayClient
                 {
                     this.logger.LogWarning("Severed internet connection detected, waiting for {delay} and retrying.", delay);
                 }
-                else if (e is WebSocketException { WebSocketErrorCode: WebSocketError.NotAWebSocket})
+                else if (e is WebSocketException { WebSocketErrorCode: WebSocketError.NotAWebSocket} or DiscordOutageException)
                 {
-                    this.logger.LogWarning("Discord outage detected, waiting for {delay} and retrying.", delay);
+                    this.logger.LogWarning(exception: e, "Discord outage detected, waiting for {delay} and retrying.", delay);
                 }
                 else
                 {
@@ -723,6 +723,22 @@ public sealed class GatewayClient : IGatewayClient
     // this can be called however often we want in one teardown, only the first TrySetResult will succeed
     private async Task TerminateCurrentFrameAsync(GatewayDisconnectReason reason, Exception? exception = null, GatewayCloseCode? closeCode = null)
     {
+        if (!this.IsConnected)
+        {
+            if (exception is not null)
+            {
+                ExceptionDispatchInfo.Capture(exception).Throw();
+            }
+            else
+            {
+                throw new GatewayConnectionException
+                (
+                    $"The gateway encountered a fatal error while attempting to connect or following a similar procedure. "
+                    + $"Stated disconnection reason: {reason}, stated close code: {closeCode}. Please see the stacktrace for more information."
+                );
+            }
+        }
+
         this.gatewayTask.TrySetResult(new()
         {
             DisconnectReason = reason,
