@@ -661,7 +661,24 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task ModifyEmbedSuppressionAsync(bool hideEmbeds)
-        => await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, default, default, default, [], hideEmbeds ? this.Flags | DiscordMessageFlags.SuppressEmbeds : this.Flags & ~DiscordMessageFlags.SuppressEmbeds, default);
+    {
+        // when suppressing embeds on another user's message, setting other flags in the payload, even when it's just conserving preexisting flags,
+        // is erroneously interpreted as trying to make an illegal edit to another user's message and rejected by discord
+        DiscordMessageFlags baseFlags = this.Author?.Id == this.Discord.CurrentUser.Id ? this.Flags.GetValueOrDefault() : 0;
+
+        await this.Discord.ApiClient.EditMessageAsync
+        (
+            this.ChannelId,
+            this.Id,
+            default,
+            default,
+            default,
+            default,
+            [],
+            hideEmbeds ? baseFlags | DiscordMessageFlags.SuppressEmbeds : baseFlags & ~DiscordMessageFlags.SuppressEmbeds,
+            default
+        );
+    }
 
     /// <summary>
     /// Deletes the message.

@@ -175,7 +175,7 @@ internal class RestChannelMessageEditPayload
     [JsonIgnore]
     public bool HasContent { get; set; }
 
-    [JsonProperty("embeds")]
+    [JsonProperty("embeds", NullValueHandling = NullValueHandling.Ignore)]
     public IEnumerable<DiscordEmbed> Embeds { get; set; }
 
     [JsonProperty("allowed_mentions", NullValueHandling = NullValueHandling.Ignore)]
