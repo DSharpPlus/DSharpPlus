@@ -1233,9 +1233,9 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         await discordClient.SendPayloadAsync(GatewayOpCode.RequestChannelInfo, request, this.GuildId.Value);
 #pragma warning restore DSP0004
 
-        EventWaiterResult<ChannelInfoEventArgs> result = await eventWaiter.Task;
+        Result<ChannelInfoEventArgs> result = await eventWaiter.Task;
 
-        if (result.TimedOut)
+        if (result is { Error: TimeoutError })
         {
             throw new TimeoutException("The request for voice channel info timed out.");
         }
