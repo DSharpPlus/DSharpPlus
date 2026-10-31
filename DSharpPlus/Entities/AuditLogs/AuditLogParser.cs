@@ -281,12 +281,12 @@ internal static class AuditLogParser
                         messageEntry.MessageCount = auditLogAction.Options.Count;
                     }
 
-                    if (messageEntry.Channel is not null)
+                    if (auditLogAction.TargetId is not null)
                     {
-                        guild.Discord.UserCache.TryGetValue(auditLogAction.UserId.Value, out DiscordUser? user);
+                        guild.Discord.UserCache.TryGetValue(auditLogAction.TargetId.Value, out DiscordUser? user);
                         messageEntry.Target = user ?? new DiscordUser
                         {
-                            Id = auditLogAction.UserId.Value,
+                            Id = auditLogAction.TargetId.Value,
                             Discord = guild.Discord
                         };
                     }
