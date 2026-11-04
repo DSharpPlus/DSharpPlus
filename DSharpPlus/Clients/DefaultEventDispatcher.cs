@@ -71,7 +71,7 @@ public sealed class DefaultEventDispatcher : IEventDispatcher, IDisposable
                 if (reason == EvictionReason.Expired)
                 {
                     this.inFlightWaiters.Remove((Ulid)key, out _);
-                    ((EventWaiter<T>)value!).CompletionSource.SetResult(EventWaiterResult<T>.FromTimedOut());
+                    ((EventWaiter<T>)value!).CompletionSource.SetResult(new Result<T>(new TimeoutError()));
                 }
             })
             .Dispose();
@@ -136,11 +136,7 @@ public sealed class DefaultEventDispatcher : IEventDispatcher, IDisposable
 
             EventWaiter<T>? fullWaiter = this.cache.Get<EventWaiter<T>>(waiter.Id);
 
-            fullWaiter?.CompletionSource.SetResult(new()
-            {
-                TimedOut = false,
-                Value = eventArgs
-            });
+            fullWaiter?.CompletionSource.SetResult(new(eventArgs));
 
             this.inFlightWaiters.Remove(waiter.Id, out _);
             this.cache.Remove(waiter.Id);
