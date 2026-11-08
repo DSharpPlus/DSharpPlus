@@ -201,13 +201,13 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     public bool IsNSFW { get; internal set; }
 
     [JsonProperty("rtc_region", NullValueHandling = NullValueHandling.Ignore)]
-    internal string RtcRegionId { get; set; }
+    internal string? RtcRegionId { get; set; }
 
     /// <summary>
     /// Gets this channel's region override (if voice channel).
     /// </summary>
     [JsonIgnore]
-    public DiscordVoiceRegion RtcRegion
+    public DiscordVoiceRegion? RtcRegion
         => this.RtcRegionId != null ? this.Discord.VoiceRegions[this.RtcRegionId] : null;
 
     /// <summary>
@@ -411,7 +411,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
             mdl.Bitrate,
             mdl.Userlimit,
             mdl.PerUserRateLimit,
-            mdl.RtcRegion.IfPresent(r => r.Id),
+            mdl.RtcRegion.IfPresent(r => r?.Id),
             mdl.QualityMode,
             mdl.Type,
             mdl.PermissionOverwrites,

@@ -52,7 +52,7 @@ public class ChannelEditModel : BaseEditModel
     /// <para>Sets the voice channel's region override.</para>
     /// <para>Setting this to null will set it to automatic.</para>
     /// </summary>
-    public Optional<DiscordVoiceRegion> RtcRegion { internal get; set; }
+    public Optional<DiscordVoiceRegion?> RtcRegion { internal get; set; }
 
     /// <summary>
     /// <para>Sets the voice channel's video quality.</para>
