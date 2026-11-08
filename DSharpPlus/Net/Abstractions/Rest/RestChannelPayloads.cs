@@ -86,7 +86,7 @@ internal sealed class RestChannelModifyPayload
     public Optional<int?> PerUserRateLimit { get; set; }
 
     [JsonProperty("rtc_region")]
-    public Optional<string> RtcRegion { get; set; }
+    public Optional<string?> RtcRegion { get; set; }
 
     [JsonProperty("video_quality_mode", NullValueHandling = NullValueHandling.Ignore)]
     public DiscordVideoQualityMode? QualityMode { get; set; }
