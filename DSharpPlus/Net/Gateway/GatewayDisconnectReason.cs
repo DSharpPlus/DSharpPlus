@@ -43,5 +43,10 @@ public enum GatewayDisconnectReason
     /// <summary>
     /// The internet connection was severed.
     /// </summary>
-    ConnectionSevered
+    ConnectionSevered,
+
+    /// <summary>
+    /// Discord failed to establish a valid session with us.
+    /// </summary>
+    NoSessionEstablished
 }
