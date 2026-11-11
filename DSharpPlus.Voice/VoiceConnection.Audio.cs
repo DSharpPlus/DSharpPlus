@@ -145,7 +145,7 @@ partial class VoiceConnection
 
             TimeSpan duration = this.codec.CalculatePacketLength(audio);
 
-            await this.Receiver.ProcessAudioAsync(frameInfo.SSRC, normalizedSequence, new(normalizedTimestamp), duration, audio[..finalDecryptedLength]);
+            await this.Receiver.ProcessAudioAsync(userId, normalizedSequence, new(normalizedTimestamp), duration, audio[..finalDecryptedLength]);
 
             ArrayPool<byte>.Shared.Return(audio);
         }
