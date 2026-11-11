@@ -40,7 +40,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 10
+          dotnet-version: 11
       - name: Login to NuGet
         uses: NuGet/login@v1
         id: nuget-login

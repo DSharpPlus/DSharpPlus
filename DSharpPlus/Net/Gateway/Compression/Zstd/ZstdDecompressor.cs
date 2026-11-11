@@ -1,6 +1,7 @@
 using System;
+using System.Buffers;
+using System.IO.Compression;
 
-using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace DSharpPlus.Net.Gateway.Compression.Zstd;
@@ -10,7 +11,7 @@ namespace DSharpPlus.Net.Gateway.Compression.Zstd;
 /// </summary>
 public sealed class ZstdDecompressor : IPayloadDecompressor
 {
-    private ZstdInterop wrapper;
+    private ZstandardDecoder decoder;
     private bool isInitialized = false;
 
     /// <inheritdoc/>
@@ -27,14 +28,26 @@ public sealed class ZstdDecompressor : IPayloadDecompressor
             return false;
         }
 
-        // the magic header goes missing, we have to try it anyway - all explodes if we fix the magic header up :ioa:
-        if (!this.wrapper.TryDecompress(compressed, decompressed))
+        OperationStatus status;
+
+        do
+        {
+            status = this.decoder.Decompress(compressed, decompressed.GetSpan(), out int consumed, out int written);
+            compressed = compressed[consumed..];
+            decompressed.Advance(written);
+        } 
+        while (status == OperationStatus.DestinationTooSmall);
+
+        // discord still strips the magic bytes, so NeedMoreData is (ideally) also successful. if it isn't it'll be caught by serialization throwing
+        if (status is OperationStatus.Done or OperationStatus.NeedMoreData)
+        {
+            return true;
+        }
+        else
         {
             decompressed.Clear();
-            decompressed.Write(compressed);
+            return false;
         }
-
-        return true;
     }
 
     /// <inheritdoc/>
@@ -42,7 +55,7 @@ public sealed class ZstdDecompressor : IPayloadDecompressor
     {
         if (this.isInitialized)
         {
-            this.wrapper.Dispose();
+            this.decoder.Dispose();
         }
 
         GC.SuppressFinalize(this);
@@ -51,7 +64,7 @@ public sealed class ZstdDecompressor : IPayloadDecompressor
     /// <inheritdoc/>
     public void Reset()
     {
-        this.wrapper.Dispose();
+        this.decoder.Dispose();
         this.isInitialized = false;
     }
 
@@ -63,18 +76,7 @@ public sealed class ZstdDecompressor : IPayloadDecompressor
             Reset();
         }
 
-        this.wrapper = new();
+        this.decoder = new();
         this.isInitialized = true;
-    }
-
-    /// <summary>
-    /// Frees the unmanaged zstd stream.
-    /// </summary>
-    ~ZstdDecompressor()
-    {
-        if (this.isInitialized)
-        {
-            this.wrapper.Dispose();
-        }
     }
 }
