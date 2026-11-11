@@ -2,7 +2,7 @@
 
 DSharpPlus, for the most part, is just like any other `dotnet` library. You will need the latest .NET SDK installed, either explicitly or bundled by the latest version of your IDE, and you will need to simply run `dotnet build`, `dotnet publish` or `dotnet pack` depending on whether you aim to create a dev-time build, prod builds or local package files.
 
-Optionally, DSharpPlus can use zstd for its gateway compression and sodium for receiving [interactions](https://discord.com/developers/docs/interactions/overview#preparing-for-interactions) or [other events](https://discord.com/developers/docs/events/webhook-events). Both of those libraries are provided for platforms `{win, osx, linux, linux-musl}-{x64, arm64}` via the NuGet packages `DSharpPlus.Natives.Zstd` and `DSharpPlus.Natives.Sodium`. On other operating systems or other CPU architectures, you have to provide the libraries yourself.
+Optionally, DSharpPlus can use libsodium for receiving [interactions](https://discord.com/developers/docs/interactions/overview#preparing-for-interactions) or [other events](https://discord.com/developers/docs/events/webhook-events). This library is provided for platforms `{win, osx, linux, linux-musl}-{x64, arm64}` via the NuGet package `DSharpPlus.Natives.Sodium`. On other operating systems or other CPU architectures, you have to provide the libraries yourself.
 
 DSharpPlus does not support NativeAOT compilation or trimming.
 
@@ -22,6 +22,3 @@ DSharpPlus' voice implementation is a bit more finicky. On platforms `{win, osx,
    - Fourth, if you built OpenSSL yourself, you may have to provide libcrypto to your bot as well, in the same way.
 
 We may not accept bug reports only reproducible on unsupported platforms, and we may not be able to help with building for unsupported platforms. General experience with using cmake is highly recommended.
-
->[!NOTE]
-> Our native builds for x86-64 target `x86-64-v2`, which is any CPU that supports SSE4.2, LAHF-SAHF, POPCNT and CMPXCHG16B at the very least, or any Intel/AMD CPU built after 2008. If you are using an older CPU that does not support these features, you will also need to self-build the natives according to the above instructions. Additionally, you must remove the native libraries provided by DSharpPlus, since they will be incompatible with your CPU.

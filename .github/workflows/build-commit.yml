@@ -34,7 +34,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 10
+          dotnet-version: 11
       - name: Build Project
         run: dotnet build
       - name: Test Changes
@@ -101,7 +101,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9
+          dotnet-version: 11
       - name: Build Project
         run: |
           dotnet build

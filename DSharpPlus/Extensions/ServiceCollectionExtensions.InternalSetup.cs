@@ -1,6 +1,4 @@
 using System;
-using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Channels;
 
@@ -12,7 +10,6 @@ using DSharpPlus.Net.Gateway;
 using DSharpPlus.Net.InboundWebhooks;
 using DSharpPlus.Net.InboundWebhooks.Transport;
 using DSharpPlus.Net.Gateway.Compression;
-using DSharpPlus.Net.Gateway.Compression.Zlib;
 using DSharpPlus.Net.Gateway.Compression.Zstd;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -67,7 +64,7 @@ public static partial class ServiceCollectionExtensions
             .AddTransient<ITransportService, TransportService>()
             .AddTransient<IGatewayClient, GatewayClient>()
             .AddSingleton<GatewayMetricsContainer>()
-            .RegisterBestDecompressor()
+            .AddTransient<IPayloadDecompressor, ZstdDecompressor>()
             .AddSingleton<IEventDispatcher, DefaultEventDispatcher>()
             .AddSingleton<DiscordClient>();
 
@@ -78,19 +75,5 @@ public static partial class ServiceCollectionExtensions
             .AddSingleton<IWebhookTransportService, WebhookEventTransportService>();
 
         return serviceCollection;
-    }
-
-    private static IServiceCollection RegisterBestDecompressor(this IServiceCollection services)
-    {
-        if (NativeLibrary.TryLoad("libzstd", Assembly.GetEntryAssembly(), default, out _))
-        {
-            services.AddTransient<IPayloadDecompressor, ZstdDecompressor>();
-        }
-        else
-        {
-            services.AddTransient<IPayloadDecompressor, ZlibStreamDecompressor>();
-        }
-
-        return services;
     }
 }

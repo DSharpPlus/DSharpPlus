@@ -55,13 +55,12 @@ DSharpPlus also provides a number of native libraries that power certain feature
 
 Package | Description
 :---:|:---:
-`DSharpPlus.Natives.Zstd` | Enables zstd compression for the gateway. DSharpPlus will pick up on this by default and use it.
 `DSharpPlus.Natives.Sodium` | Provides the required encryption support for Voice and for `DSharpPlus.Http.AspNetCore`.
 `DSharpPlus.Natives.Opus` | Provides the native audio encoder for Voice.
 `DSharpPlus.Natives.Speex` | Provides resampling support for Voice.
 `DSharpPlus.Natives.Koana` | Provides the required end-to-end encryption support for Voice.
 
-These are simply native libraries packaged as nuget packages, so you can use them from anywhere, not only DSharpPlus bots. They provide the targets `{win, linux, linux-musl, osx}-{x64, arm64}`. Note that `x64` packages are built for `x86_64_v2`, which is any CPU newer than about 2008-2012: if you use an older CPU, you may need to build the native libraries yourself.
+These are simply native libraries packaged as nuget packages, so you can use them from anywhere, not only DSharpPlus bots. They provide the targets `{win, linux, linux-musl, osx}-{x64, arm64}`. 
 
 ## I want to throw my money at you
 

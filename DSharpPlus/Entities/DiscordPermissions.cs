@@ -144,7 +144,7 @@ public partial struct DiscordPermissions
 
     [UnscopedRef]
     private readonly ReadOnlySpan<byte> AsSpan
-        => MemoryMarshal.Cast<uint, byte>(this.data);
+        => MemoryMarshal.Cast<uint, byte>(MemoryMarshal.CreateReadOnlySpan(in this.data[0], ContainerElementCount));
 
     private readonly bool GetFlag(int index)
         => this.data.HasFlag(index);

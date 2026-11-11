@@ -14,9 +14,6 @@ DSharpPlus provides an extension for sending and receiving audio, DSharpPlus.Voi
 If you haven't been convinced to use Lavalink, it's time to set up for DSharpPlus.Voice. The extension requires a number of native libraries to work, which are provided out of the box on the following platforms: `win-x64`, `win-arm64`, `linux-x64`, `linux-musl-x64`, `linux-arm64`, `linux-musl-arm64`, `osx-x64` and `osx-arm64`. If you are not running on one of those platforms, you will have to provide the libraries manually: refer to the [BUILDING.md](https://github.com/DSharpPlus/DSharpPlus/blob/master/BUILDING.md) file for more information.
 
 >[!NOTE]
-> Our native builds for x86-64 target `x86-64-v2`, which is any CPU that supports SSE4.2, POPCNT and CMPXCHG16B at the very least, or any Intel/AMD CPU built after 2008. If you are using an older CPU that does not support these features, you will also need to self-build the natives according to the above instructions. Additionally, you must remove the native libraries provided by DSharpPlus, since they will be incompatible with your CPU. With .NET 11, .NET will require the same baseline.
-
->[!NOTE]
 > We do not test whether DSharpPlus.Voice works on 32-bit platforms and we do not take bug reports if something is incorrect on 32-bit, nor on any other platform save the supported eight.
 
 Now equipped with the necessary native libraries, we can set up DSharpPlus.Voice in code:
