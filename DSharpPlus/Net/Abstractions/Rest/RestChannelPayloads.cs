@@ -337,3 +337,9 @@ internal sealed class RestSetVoiceChannelStatusPayload
     [JsonProperty("status")]
     public string? Status { get; set; }
 }
+
+internal sealed class RestPermissionsResponsePayload
+{
+    [JsonProperty("permissions")]
+    public DiscordPermissions Permissions { get; set; }
+}

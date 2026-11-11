@@ -1042,11 +1042,27 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         => await this.Discord.ApiClient.DeleteStageInstanceAsync(this.Id, reason);
 
     /// <summary>
+    /// Calculates the permissions in this channel for a given member.
+    /// </summary>
+    /// <param name="member">The member to calculate permissions for.</param>
+    /// <param name="skipCache">Whether to skip relying on local cache and always fetch from Discord.</param>
+    public async Task<DiscordPermissions> GetPermissionsForMemberAsync(DiscordMember member, bool skipCache = false)
+        => skipCache ? await this.Discord.ApiClient.GetChannelMemberPermissionsAsync(this.Id, member.Id) : PermissionsFor(member);
+
+    /// <summary>
+    /// Calculates the permissions in this channel for a given role.
+    /// </summary>
+    /// <param name="role">The role to calculate permissions for.</param>
+    /// <param name="skipCache">Whether to skip relying on local cache and always fetch from Discord.</param>
+    public async Task<DiscordPermissions> GetPermissionsForRoleAsync(DiscordRole role, bool skipCache = false)
+        => skipCache ? await this.Discord.ApiClient.GetChannelRolePermissionsAsync(this.Id, role.Id) : PermissionsFor(role);
+
+    /// <summary>
     /// Calculates permissions for a given member.
     /// </summary>
     /// <param name="mbr">Member to calculate permissions for.</param>
     /// <returns>Calculated permissions for a given member.</returns>
-    public DiscordPermissions PermissionsFor(DiscordMember mbr)
+    internal DiscordPermissions PermissionsFor(DiscordMember mbr)
     {
         // future note: might be able to simplify @everyone role checks to just check any role... but I'm not sure
         // xoxo, ~uwx
@@ -1086,10 +1102,10 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         perms = everyoneRole.Permissions;
 
         // roles that member is in
-        DiscordRole[] mbRoles = mbr.Roles.Where(xr => xr.Id != everyoneRole.Id).ToArray();
+        IEnumerable<DiscordRole> mbRoles = mbr.Roles.Where(xr => xr.Id != everyoneRole.Id).ToArray();
 
         // assign permissions from member's roles (in order)
-        perms |= mbRoles.Aggregate(DiscordPermissions.None, (c, role) => c | role.Permissions);
+        perms += mbRoles.Aggregate(DiscordPermissions.None, (c, role) => c + role.Permissions);
 
         // Administrator grants all permissions and cannot be overridden
         if (perms.HasPermission(DiscordPermission.Administrator))
@@ -1098,23 +1114,22 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         }
 
         // channel overrides for roles that member is in
-        List<DiscordOverwrite?> mbRoleOverrides = mbRoles
+        IEnumerable<DiscordOverwrite?> mbRoleOverrides = mbRoles
             .Select(xr => this.permissionOverwrites.FirstOrDefault(xo => xo.Id == xr.Id))
-            .Where(xo => xo != null)
-            .ToList();
+            .Where(xo => xo != null);
 
         // assign channel permission overwrites for @everyone pseudo-role
         DiscordOverwrite? everyoneOverwrites = this.permissionOverwrites.FirstOrDefault(xo => xo.Id == everyoneRole.Id);
         if (everyoneOverwrites != null)
         {
-            perms &= ~everyoneOverwrites.Denied;
-            perms |= everyoneOverwrites.Allowed;
+            perms -= everyoneOverwrites.Denied;
+            perms += everyoneOverwrites.Allowed;
         }
 
         // assign channel permission overwrites for member's roles (explicit deny)
-        perms &= ~mbRoleOverrides.Aggregate(DiscordPermissions.None, (c, overs) => c | overs.Denied);
+        perms -= mbRoleOverrides.Aggregate(DiscordPermissions.None, (c, overs) => c + overs.Denied);
         // assign channel permission overwrites for member's roles (explicit allow)
-        perms |= mbRoleOverrides.Aggregate(DiscordPermissions.None, (c, overs) => c | overs.Allowed);
+        perms += mbRoleOverrides.Aggregate(DiscordPermissions.None, (c, overs) => c + overs.Allowed);
 
         // channel overrides for just this member
         DiscordOverwrite? mbOverrides = this.permissionOverwrites.FirstOrDefault(xo => xo.Id == mbr.Id);
@@ -1124,8 +1139,8 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         }
 
         // assign channel permission overwrites for just this member
-        perms &= ~mbOverrides.Denied;
-        perms |= mbOverrides.Allowed;
+        perms -= mbOverrides.Denied;
+        perms += mbOverrides.Allowed;
 
         return perms;
     }
@@ -1135,7 +1150,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// </summary>
     /// <param name="role">Role to calculate permissions for.</param>
     /// <returns>Calculated permissions for a given role.</returns>
-    public DiscordPermissions PermissionsFor(DiscordRole role)
+    internal DiscordPermissions PermissionsFor(DiscordRole role)
     {
         if (this.IsThread)
         {
@@ -1159,7 +1174,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         perms = everyoneRole.Permissions;
 
         // add role permissions
-        perms |= role.Permissions;
+        perms += role.Permissions;
 
         // Administrator grants all permissions and cannot be overridden
         if (perms.HasPermission(DiscordPermission.Administrator))
@@ -1172,10 +1187,10 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         if (everyoneRoleOverwrites is not null)
         {
             // assign channel permission overwrites for the role (explicit deny)
-            perms &= ~everyoneRoleOverwrites.Denied;
+            perms -= everyoneRoleOverwrites.Denied;
 
             // assign channel permission overwrites for the role (explicit allow)
-            perms |= everyoneRoleOverwrites.Allowed;
+            perms += everyoneRoleOverwrites.Allowed;
         }
 
         // channel overrides for the role
@@ -1189,14 +1204,14 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
 
         if (everyoneRoleOverwrites is not null)
         {
-            roleDenied &= ~everyoneRoleOverwrites.Allowed;
+            roleDenied -= everyoneRoleOverwrites.Allowed;
         }
 
         // assign channel permission overwrites for the role (explicit deny)
-        perms &= ~roleDenied;
+        perms -= roleDenied;
 
         // assign channel permission overwrites for the role (explicit allow)
-        perms |= roleOverwrites.Allowed;
+        perms += roleOverwrites.Allowed;
 
         return perms;
     }

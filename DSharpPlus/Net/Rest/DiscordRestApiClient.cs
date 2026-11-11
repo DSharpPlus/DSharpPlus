@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -12,7 +11,6 @@ using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
 using DSharpPlus.Entities.AuditLogs;
-using DSharpPlus.Exceptions;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Abstractions.Rest;
 using DSharpPlus.Net.Serialization;
@@ -1324,6 +1322,43 @@ public sealed class DiscordRestApiClient
 
         _ = await this.rest.ExecuteRequestAsync(request);
     }
+
+    public async ValueTask<DiscordPermissions> GetGuildMemberPermissionsAsync(ulong guildId, ulong userId)
+    {
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.PERMISSIONS}/{Endpoints.MEMBER}/:user-id";
+        string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.PERMISSIONS}/{Endpoints.MEMBER}/{userId}";
+
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Get
+        };
+
+        RestResponse response = await this.rest.ExecuteRequestAsync(request);
+
+        RestPermissionsResponsePayload permissions = JsonConvert.DeserializeObject<RestPermissionsResponsePayload>(response.Response!)!;
+        return permissions.Permissions;
+    }
+
+    public async ValueTask<DiscordPermissions> GetGuildRolePermissionsAsync(ulong guildId, ulong roleId)
+    {
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.PERMISSIONS}/{Endpoints.ROLE}/:role-id";
+        string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.PERMISSIONS}/{Endpoints.ROLE}/{roleId}";
+
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Get
+        };
+
+        RestResponse response = await this.rest.ExecuteRequestAsync(request);
+
+        RestPermissionsResponsePayload permissions = JsonConvert.DeserializeObject<RestPermissionsResponsePayload>(response.Response!)!;
+        return permissions.Permissions;
+    }
+
     #endregion
 
     #region Stickers
@@ -3273,6 +3308,52 @@ public sealed class DiscordRestApiClient
         };
 
         await this.rest.ExecuteRequestAsync(request);
+    }
+
+    public async ValueTask<DiscordPermissions> GetChannelMemberPermissionsAsync(ulong channelId, ulong userId, bool? implicitPermissionMasking = true)
+    {
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.PERMISSIONS}/{Endpoints.MEMBER}/:user-id";
+        QueryUriBuilder url = new($"{Endpoints.CHANNELS}/{channelId}/{Endpoints.PERMISSIONS}/{Endpoints.MEMBER}/{userId}");
+
+        if (implicitPermissionMasking is not null)
+        {
+            url.AddParameter("implicit", implicitPermissionMasking.ToString());
+        }
+
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url.Build(),
+            Method = HttpMethod.Get
+        };
+
+        RestResponse response = await this.rest.ExecuteRequestAsync(request);
+
+        RestPermissionsResponsePayload permissions = JsonConvert.DeserializeObject<RestPermissionsResponsePayload>(response.Response!)!;
+        return permissions.Permissions;
+    }
+
+    public async ValueTask<DiscordPermissions> GetChannelRolePermissionsAsync(ulong channelId, ulong roleId, bool? implicitPermissionMasking = true)
+    {
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.PERMISSIONS}/{Endpoints.ROLE}/:role-id";
+        QueryUriBuilder url = new($"{Endpoints.CHANNELS}/{channelId}/{Endpoints.PERMISSIONS}/{Endpoints.ROLE}/{roleId}");
+
+        if (implicitPermissionMasking is not null)
+        {
+            url.AddParameter("implicit", implicitPermissionMasking.ToString());
+        }
+
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url.Build(),
+            Method = HttpMethod.Get
+        };
+
+        RestResponse response = await this.rest.ExecuteRequestAsync(request);
+
+        RestPermissionsResponsePayload permissions = JsonConvert.DeserializeObject<RestPermissionsResponsePayload>(response.Response!)!;
+        return permissions.Permissions;
     }
 
     #endregion
