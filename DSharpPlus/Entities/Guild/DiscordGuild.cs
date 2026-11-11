@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
-using DSharpPlus.Clients;
+
 using DSharpPlus.Entities.AuditLogs;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
@@ -17,6 +17,7 @@ using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Abstractions.Rest;
 using DSharpPlus.Net.Models;
 using DSharpPlus.Net.Serialization;
+
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
@@ -2603,6 +2604,18 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             return null;
         }
     }
+
+    /// <summary>
+    /// Gets the total permissions of this member in this guild.
+    /// </summary>
+    public async Task<DiscordPermissions> GetPermissionsForMemberAsync(ulong memberId)
+        => await this.Discord.ApiClient.GetGuildMemberPermissionsAsync(this.Id, memberId);
+
+    /// <summary>
+    /// Gets the permissions of this role in this guild.
+    /// </summary>
+    public async Task<DiscordPermissions> GetPermissionsForRoleAsync(ulong roleId)
+        => await this.Discord.ApiClient.GetGuildRolePermissionsAsync(this.Id, roleId);
 
     #endregion
 
