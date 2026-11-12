@@ -103,7 +103,11 @@
   - name: Receiving Audio
     topicUid: articles.voice.receiving
 - name: Interactivity
-  topicUid: articles.interactivity
+  items:
+  - name: Introduction
+    topicUid: articles.interactivity.intro
+  - name: Interactive Messages
+    topicUid: articles.interactivity.interactive_messages
 - name: Slash Commands
   topicUid: articles.slash_commands
 - name: Advanced Topics
