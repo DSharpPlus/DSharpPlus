@@ -68,6 +68,14 @@ The following resources apply only for the latest stable version of the library.
 
 * [Example by OoLunar](https://github.com/DSharpPlus/Example-Bots)
 
+## Opening Issues
+
+If you think you found a bug, have an idea for a feature or simply want to make us aware of something, do not hesitate to open an issue.
+
+Please take care to write the issue yourself, to include the steps that led to you encountering the issue, what you expected and what actually happened. Fully or partially LLM-generated issue, PR, or comment bodies are NOT allowed, and reports with incomplete information may be closed if we cannot reproduce0 them.
+
+If the issue pertains to the documentation, please also include what is presently documented and how the library or Discord actually behave. Note that code snippets in the documentation are illustrative and not meant to be copy-pasted.
+
 ## Contributing
 
 We're very glad about contributions! Pull requests should generally be made against the `master` branch, which tracks the latest development state of the library, or against a specific feature branch if you wish to collaborate on the feature. Please review the [Contributing Guidelines](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md).
