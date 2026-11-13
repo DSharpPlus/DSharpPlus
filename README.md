@@ -72,7 +72,7 @@ The following resources apply only for the latest stable version of the library.
 
 If you think you found a bug, have an idea for a feature or simply want to make us aware of something, do not hesitate to open an issue.
 
-Please take care to write the issue yourself, to include the steps that led to you encountering the issue, what you expected and what actually happened. Fully or partially LLM-generated issue, PR, or comment bodies are NOT allowed, and reports with incomplete information may be closed if we cannot reproduce0 them.
+Please take care to write the issue yourself, to include the steps that led to you encountering the issue, what you expected and what actually happened. Fully or partially LLM-generated issue, PR, or comment bodies are NOT allowed, and reports with incomplete information may be closed if we cannot reproduce them.
 
 If the issue pertains to the documentation, please also include what is presently documented and how the library or Discord actually behave. Note that code snippets in the documentation are illustrative and not meant to be copy-pasted.
 
