@@ -58,7 +58,8 @@ public sealed class GatewayClient : IGatewayClient
     private DiscordUserStatus? status = null;
     private DateTimeOffset? idleSince = null;
 
-    private CancellationTokenSource gatewayTokenSource;
+    private CancellationTokenSource singleConnectionCts;
+    private CancellationTokenSource fullGatewayCts;
     private TaskCompletionSource<GatewayConnectionFrame> gatewayTask;
     private bool closureRequested = false;
 
@@ -87,7 +88,7 @@ public sealed class GatewayClient : IGatewayClient
         this.eventWriter = eventChannel.Writer;
         this.factory = factory;
         this.token = tokenContainer.Value.GetToken();
-        this.gatewayTokenSource = null!;
+        this.singleConnectionCts = null!;
         this.compress = !decompressor.IsTransportCompression;
         this.decompressor = decompressor;
         this.options = options.Value;
@@ -128,6 +129,7 @@ public sealed class GatewayClient : IGatewayClient
         this.idleSince = idleSince;
 
         this.gatewayTask = new();
+        this.fullGatewayCts = new();
 
         this.logger = shardInfo is null
             ? this.factory.CreateLogger("DSharpPlus.Net.Gateway.IGatewayClient")
@@ -147,7 +149,7 @@ public sealed class GatewayClient : IGatewayClient
         {
             try
             {
-                this.gatewayTokenSource = new();
+                this.singleConnectionCts = new();
                 await this.transportService.ConnectAsync(url);
 
                 this.closureRequested = false;
@@ -171,8 +173,8 @@ public sealed class GatewayClient : IGatewayClient
                     TimeSpan.FromMilliseconds(helloPayload.HeartbeatInterval)
                 );
 
-                _ = HeartbeatAsync(helloPayload.HeartbeatInterval, this.gatewayTokenSource.Token);
-                _ = HandleEventsAsync(this.gatewayTokenSource.Token);
+                _ = HeartbeatAsync(helloPayload.HeartbeatInterval, this.singleConnectionCts.Token);
+                _ = HandleEventsAsync(this.singleConnectionCts.Token);
 
                 StatusUpdate? statusUpdate;
 
@@ -223,7 +225,7 @@ public sealed class GatewayClient : IGatewayClient
             }
             catch (Exception e)
             {
-                this.gatewayTokenSource?.Cancel();
+                this.singleConnectionCts?.Cancel();
 
                 TimeSpan delay = this.options.GetReconnectionDelay(i);
 
@@ -262,7 +264,7 @@ public sealed class GatewayClient : IGatewayClient
 
         try
         {
-            await this.writePipeline.ExecuteAsync(_ => this.transportService.WriteAsync(payload), this.gatewayTokenSource.Token);
+            await this.writePipeline.ExecuteAsync(_ => this.transportService.WriteAsync(payload), this.fullGatewayCts.Token);
         }
         catch (ObjectDisposedException) 
         {
@@ -515,9 +517,9 @@ public sealed class GatewayClient : IGatewayClient
 
         try
         {
-            await this.gatewayTokenSource.CancelAsync();
+            await this.singleConnectionCts.CancelAsync();
 
-            this.gatewayTokenSource = new();
+            this.singleConnectionCts = new();
 
             this.logger.LogDebug("Attempting to resume an existing gateway session.");
 
@@ -546,7 +548,7 @@ public sealed class GatewayClient : IGatewayClient
                 TimeSpan.FromMilliseconds(hello.HeartbeatInterval)
             );
 
-            _ = HeartbeatAsync(hello.HeartbeatInterval, this.gatewayTokenSource.Token);
+            _ = HeartbeatAsync(hello.HeartbeatInterval, this.singleConnectionCts.Token);
 
             await WriteAsync
             (
@@ -584,7 +586,7 @@ public sealed class GatewayClient : IGatewayClient
                 {
                     this.logger.LogDebug("Successfully resumed the previous gateway session.");
 
-                    _ = HandleEventsAsync(this.gatewayTokenSource.Token);
+                    _ = HandleEventsAsync(this.singleConnectionCts.Token);
 
                     return true;
                 }
@@ -749,12 +751,13 @@ public sealed class GatewayClient : IGatewayClient
 
         this.closureRequested = true;
         this.IsConnected = false;
-        await this.gatewayTokenSource.CancelAsync();
+        await this.singleConnectionCts.CancelAsync();
+        await this.fullGatewayCts.CancelAsync();
     }
 
     private async Task ResumeOrReconnectAsync()
     {
-        if (!await TryResumeAsync())
+        if (!await TryResumeAsync() && this.IsConnected)
         {
             await ReconnectAsync();
         }
