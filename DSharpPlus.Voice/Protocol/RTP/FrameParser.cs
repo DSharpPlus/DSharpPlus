@@ -25,12 +25,11 @@ internal static class FrameParser
 
         if (BitHelper.HasFlag(frame[0], 4))
         {
-            Span<byte> extensionWords = stackalloc byte[2];
-            frame[2..4].CopyTo(extensionWords);
-            ushort extensionLength = BinaryPrimitives.ReadUInt16BigEndian(extensionWords);
+            ReadOnlySpan<byte> extensionWords = frame.Slice(headerLength + 2, 2);
+            int extensionLength = BinaryPrimitives.ReadUInt16BigEndian(extensionWords);
 
             extensionLength *= 4;
-
+            
             // the extension header itself is encrypted along with the opus packet, so we have overlapping headers and ciphertext. it's very fun.
 
             // the header length is the base header length + magic 0xBEDE + the length of the extension header. we need to skip the extension header
