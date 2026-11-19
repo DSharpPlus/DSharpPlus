@@ -120,7 +120,7 @@ partial class VoiceConnection
             // handle rtp padding
             int audioBytes = decryptedWriter.WrittenCount;
 
-            if (BitHelper.HasFlag(receiveWriter.WrittenSpan[0], 3))
+            if (BitHelper.HasFlag(receiveWriter.WrittenSpan[0], 5))
             {
                 int paddingBytes = decryptedWriter.WrittenSpan[^1];
                 audioBytes -= paddingBytes;
