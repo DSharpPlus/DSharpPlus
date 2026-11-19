@@ -171,7 +171,7 @@ internal static unsafe partial class OpusInterop
         fixed (short* pPcm = pcm)
         fixed (byte* pBuffer = buffer)
         {
-            result = opus_decode(decoder, pBuffer, buffer.Length, pPcm, samples, 1);
+            result = opus_decode(decoder, pBuffer, buffer.Length, pPcm, samples, 0);
         }
 
         if (result < 0)
@@ -197,7 +197,7 @@ internal static unsafe partial class OpusInterop
         fixed (float* pPcm = pcm)
         fixed (byte* pBuffer = buffer)
         {
-            result = opus_decode_float(decoder, pBuffer, buffer.Length, pPcm, samples, 1);
+            result = opus_decode_float(decoder, pBuffer, buffer.Length, pPcm, samples, 0);
         }
 
         if (result < 0)
