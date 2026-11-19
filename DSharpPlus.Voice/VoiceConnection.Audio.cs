@@ -59,7 +59,7 @@ partial class VoiceConnection
             {
                 UpdateAverageRTCPPacketSize(receiveWriter.WrittenCount);
 
-                IReadOnlyList<IRTCPPacket> rtcpPackets = RTCPSerializer.Deserialize(receiveWriter.WrittenSpan);
+                IReadOnlyList<IRTCPPacket> rtcpPackets = RTCPSerializer.Deserialize(receiveWriter.WrittenSpan, this.logger);
 
                 this.metrics.RecordControlPacketReceived(receiveWriter.WrittenCount, rtcpPackets.Count);
                 

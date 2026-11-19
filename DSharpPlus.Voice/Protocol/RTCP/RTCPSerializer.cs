@@ -7,6 +7,8 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 using DSharpPlus.Voice.Protocol.RTCP.Payloads;
 
+using Microsoft.Extensions.Logging;
+
 namespace DSharpPlus.Voice.Protocol.RTCP;
 
 /// <summary>
@@ -14,6 +16,9 @@ namespace DSharpPlus.Voice.Protocol.RTCP;
 /// </summary>
 internal static partial class RTCPSerializer
 {
+    private const byte VersionMask = 0b1100_0000;
+    private const byte RTPVersion = 0b1000_0000;
+
     public static void Serialize(IRTCPPacket packet, ArrayPoolBufferWriter<byte> writer)
     {
         switch (packet.Type)
@@ -43,31 +48,56 @@ internal static partial class RTCPSerializer
         }
     }
 
-    public static IReadOnlyList<IRTCPPacket> Deserialize(ReadOnlySpan<byte> buffer)
+    public static IReadOnlyList<IRTCPPacket> Deserialize(ReadOnlySpan<byte> buffer, ILogger logger)
     {
         List<IRTCPPacket> packets = [];
 
         // 4 is the absolute minimum length of a valid RTCP packet, even if it's not meaningful
         while (buffer.Length >= 4)
         {
+            if (!IsValidRTCPPacketVersion(buffer[0]))
+            {
+                break;
+            }
+
             ushort specifiedLength = BinaryPrimitives.ReadUInt16BigEndian(buffer[2..]);
             int effectiveLength = (specifiedLength + 1) * 4;
 
-            ReadOnlySpan<byte> packet = buffer[..effectiveLength];
-            int consumed;
+            if (effectiveLength > buffer.Length)
+            {
+                if (logger.IsEnabled(LogLevel.Warning))
+                {
+                    logger.LogWarning(
+                        "Malformed RTCP packet: packet length set to {specifiedLength}, which is larger than buffer length {bufferLength}.",
+                        effectiveLength, buffer.Length
+                    );
+                }
+                break;
+            }
 
-            IRTCPPacket deserialized = (RTCPPacketType)packet[1] switch
+            ReadOnlySpan<byte> packet = buffer[..effectiveLength];
+            int consumed = effectiveLength;
+
+            IRTCPPacket? deserialized = (RTCPPacketType)packet[1] switch
             {
                 RTCPPacketType.SenderReport => DeserializeSenderReport(packet, out consumed),
                 RTCPPacketType.ReceiverReport => DeserializeReceiverReport(packet, out consumed),
                 RTCPPacketType.SourceDescription => DeserializeSourceDescription(packet, out consumed),
                 RTCPPacketType.Goodbye => DeserializeGoodbye(packet, out consumed),
                 RTCPPacketType.ApplicationDefined => DeserializeApplicationDefinedPacket(packet, out consumed),
-                _ => throw new NotImplementedException($"The RTCP packet type {(RTCPPacketType)packet[1]} is not supported.")
+                _ => null,
+                    
             };
 
-            Debug.Assert(consumed == effectiveLength);
-            packets.Add(deserialized);
+            if (deserialized is not null)
+            {
+                Debug.Assert(consumed == effectiveLength);
+                packets.Add(deserialized);
+            }
+            else if (logger.IsEnabled(LogLevel.Warning))
+            {
+                logger.LogWarning("The RTCP packet type {RtcpPacketType} is not supported.", (RTCPPacketType)packet[1]);
+            }
 
             buffer = buffer[effectiveLength..];
         }
@@ -84,7 +114,7 @@ internal static partial class RTCPSerializer
         }
 
         // invalid version
-        if ((buffer[0] & 0b1100_0000) != 0b1000_0000)
+        if (!IsValidRTCPPacketVersion(buffer[0]))
         {
             return false;
         }
@@ -97,4 +127,7 @@ internal static partial class RTCPSerializer
 
         return true;
     }
+
+    private static bool IsValidRTCPPacketVersion(byte versionByte)
+        => (versionByte & VersionMask) == RTPVersion;
 }
