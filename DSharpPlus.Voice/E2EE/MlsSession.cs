@@ -14,6 +14,7 @@ public sealed class MlsSession : IE2EESession, IDisposable
 {
     private KoanaInterop koana;
     private Lock mlsLock;
+    private bool groupEstablished;
 
     private uint ssrc;
     private ushort protocolVersion;
@@ -37,6 +38,7 @@ public sealed class MlsSession : IE2EESession, IDisposable
         {
             this.koana.ReinitializeSession(protocolVersion);
             this.protocolVersion = protocolVersion;
+            this.groupEstablished = false;
         }
     }
 
@@ -70,7 +72,9 @@ public sealed class MlsSession : IE2EESession, IDisposable
         lock (this.mlsLock)
         {
             KoanaError result = this.koana.ProcessCommit(payload);
-            return result != KoanaError.MlsCommitResetError;
+            bool success = result != KoanaError.MlsCommitResetError;
+            this.groupEstablished |= success;
+            return success;
         }
     }
 
@@ -82,6 +86,7 @@ public sealed class MlsSession : IE2EESession, IDisposable
         lock (this.mlsLock)
         {
             this.koana.ProcessWelcome(payload, roster);
+            this.groupEstablished = true;
         }
     }
 
@@ -102,6 +107,11 @@ public sealed class MlsSession : IE2EESession, IDisposable
     {
         lock (this.mlsLock)
         {
+            if (!this.groupEstablished)
+            {
+                return 0;
+            }
+
             return this.koana.DecryptFrame(userId, encryptedFrame, decryptedFrame);
         }
     }
@@ -116,6 +126,11 @@ public sealed class MlsSession : IE2EESession, IDisposable
     {
         lock (this.mlsLock)
         {
+            if (!this.groupEstablished)
+            {
+                return false;
+            }
+
             int maxEncryptedSize = this.koana.GetMaxEncryptedSize(unencryptedFrame.Length);
             bool success = this.koana.EncryptFrame(unencryptedFrame, encryptedFrame.GetSpan(maxEncryptedSize), this.ssrc, out int written);
             encryptedFrame.Advance(written);
