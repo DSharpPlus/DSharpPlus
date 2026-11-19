@@ -100,7 +100,10 @@ public sealed class DefaultAudioReceiver : AudioReceiver
             // we don't want to re-trigger when it increases, that would be bad
             if (this.consecutivelyReceivedSilenceFrames[speakingUserId] == 5)
             {
-                await this.UserStoppedSpeaking?.Invoke(speakingUserId);
+                if (this.UserStoppedSpeaking?.Invoke(speakingUserId) is {} stopped)
+                {
+                    await stopped;
+                }
                 receiver.IsSpeaking = false;
             }
         }
@@ -108,7 +111,10 @@ public sealed class DefaultAudioReceiver : AudioReceiver
         {
             if (receiver.IsSpeaking != true)
             {
-                await this.UserStartedSpeaking?.Invoke(speakingUserId);
+                if (this.UserStartedSpeaking?.Invoke(speakingUserId) is {} started)
+                {
+                    await started;
+                }
                 receiver.IsSpeaking = true;
             }
 
@@ -142,7 +148,10 @@ public sealed class DefaultAudioReceiver : AudioReceiver
 
         this.receivers.TryAdd(id, receiver);
 
-        await this.UserJoined?.Invoke(id);
+        if (this.UserJoined?.Invoke(id) is {} task)
+        {
+            await task;
+        }
     }
 
     /// <inheritdoc/>
@@ -153,7 +162,10 @@ public sealed class DefaultAudioReceiver : AudioReceiver
 
         receiver?.Close();
 
-        await this.UserLeft?.Invoke(id);
+        if (this.UserLeft?.Invoke(id) is {} task)
+        {
+            await task;
+        }
     }
 
     /// <inheritdoc/>
@@ -163,7 +175,10 @@ public sealed class DefaultAudioReceiver : AudioReceiver
 
         receiver?.IsSpeaking = true;
 
-        await this.UserStartedSpeaking?.Invoke(id);
+        if (this.UserStartedSpeaking?.Invoke(id) is {} task)
+        {
+            await task;
+        }
     }
 
     /// <inheritdoc/>
@@ -173,7 +188,10 @@ public sealed class DefaultAudioReceiver : AudioReceiver
 
         receiver?.IsSpeaking = false;
 
-        await this.UserStoppedSpeaking?.Invoke(id);
+        if (this.UserStoppedSpeaking?.Invoke(id) is {} task)
+        {
+            await task;
+        }
     }
 
     private UserAudioReceiver CreateNewReceiver(UserAudioReceiveMode mode)
