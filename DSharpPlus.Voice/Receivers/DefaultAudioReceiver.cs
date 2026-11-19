@@ -121,7 +121,11 @@ public sealed class DefaultAudioReceiver : AudioReceiver
             this.consecutivelyReceivedSilenceFrames.AddOrUpdate(speakingUserId, 0, (_, _) => 0);
         }
 
-        receiver?.Ingest(sequence, timestamp, duration, audio);
+        
+        if (receiver is {} task)
+        {
+            await task.IngestAsync(sequence, timestamp, duration, audio);
+        }
 
         return;
     }
