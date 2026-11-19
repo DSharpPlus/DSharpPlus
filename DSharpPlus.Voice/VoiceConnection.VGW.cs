@@ -1,6 +1,7 @@
 #pragma warning disable IDE0040
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.WebSockets;
@@ -110,46 +111,37 @@ partial class VoiceConnection
         bool helloReceived = false, readyReceived = false;
         string selectedEncryptionMode = default;
         IPEndPoint remoteUdpEndpoint = default;
+        List<TransportFrame> earlyFrames = [];
 
         while (!helloReceived || !readyReceived)
         {
-            TransportFrame frame = await this.voiceGateway.ReadAsync();
+            (VoiceGatewayMessage? message, int closeCode) = await ReadExpectedAsync(earlyFrames, [VoiceGatewayOpcode.Ready, VoiceGatewayOpcode.Hello]);
 
-            if (frame.TryGetErrorCode(out int errorCode))
+            if (closeCode is not 0)
             {
-                await HandleCloseCodeAsync((VoiceGatewayCloseCode)errorCode);
+                await HandleCloseCodeAsync((VoiceGatewayCloseCode)closeCode);
+                continue;
             }
-            else
+
+            if (message!.Opcode == VoiceGatewayOpcode.Ready)
             {
-                if (frame.MessageType == WebSocketMessageType.Text && frame.TryGetMessage(out byte[]? payload))
-                {
-                    VoiceGatewayMessage message = JsonSerializer.Deserialize<VoiceGatewayMessage>(payload)!;
+                readyReceived = true;
 
-                    if (message.Opcode == VoiceGatewayOpcode.Ready)
-                    {
-                        readyReceived = true;
-                        
-                        VoiceReadyPayload ready = (VoiceReadyPayload)message.Payload;
+                VoiceReadyPayload ready = (VoiceReadyPayload)message.Payload;
 
-                        remoteUdpEndpoint = new(IPAddress.Parse(ready.IPAddress), ready.Port);
-                        this.ssrc = ready.SSRC;
-                        selectedEncryptionMode = this.cryptorFactory.SelectPreferredEncryptionMode(ready.EncryptionModes);
+                remoteUdpEndpoint = new(IPAddress.Parse(ready.IPAddress), ready.Port);
+                this.ssrc = ready.SSRC;
+                selectedEncryptionMode = this.cryptorFactory.SelectPreferredEncryptionMode(ready.EncryptionModes);
 
-                        this.lastSequence = message.Sequence;
-                    }
-                    else if (message.Opcode == VoiceGatewayOpcode.Hello)
-                    {
-                        helloReceived = true;
-                
-                        VoiceHelloPayload hello = (VoiceHelloPayload)message.Payload;
+                this.lastSequence = message.Sequence;
+            }
+            else if (message.Opcode == VoiceGatewayOpcode.Hello)
+            {
+                helloReceived = true;
 
-                        _ = HeartbeatAsync(hello.HeartbeatInterval, this.heartbeatCancellation.Token);
-                    }
-                }
-                else
-                {
-                    await HandleReceivedEventAsync(frame);
-                }
+                VoiceHelloPayload hello = (VoiceHelloPayload)message.Payload;
+
+                _ = HeartbeatAsync(hello.HeartbeatInterval, this.heartbeatCancellation.Token);
             }
         }
 
@@ -175,27 +167,15 @@ partial class VoiceConnection
 
         while (true)
         {
-            TransportFrame sessionDescriptionFrame = await this.voiceGateway.ReadAsync();
+            (VoiceGatewayMessage? message, int closeCode) = await ReadExpectedAsync(earlyFrames, [VoiceGatewayOpcode.SessionDescription]);
 
-            if (sessionDescriptionFrame.TryGetErrorCode(out int errorCode))
+            if (closeCode is not 0)
             {
-                await HandleCloseCodeAsync((VoiceGatewayCloseCode)errorCode);
-            }
-
-            if (sessionDescriptionFrame.MessageType != WebSocketMessageType.Text || !sessionDescriptionFrame.TryGetMessage(out byte[]? payload))
-            {
-                // something silly happened
+                await HandleCloseCodeAsync((VoiceGatewayCloseCode)closeCode);
                 continue;
             }
 
-            VoiceGatewayMessage sessionDescription = JsonSerializer.Deserialize<VoiceGatewayMessage>(payload);
-
-            if (sessionDescription.Opcode != VoiceGatewayOpcode.SessionDescription)
-            {
-                continue;
-            }
-
-            VoiceSessionDescriptionPayload sd = (VoiceSessionDescriptionPayload)sessionDescription.Payload;
+            VoiceSessionDescriptionPayload sd = (VoiceSessionDescriptionPayload)message!.Payload;
 
             if (selectedEncryptionMode != sd.EncryptionMode)
             {
@@ -229,6 +209,12 @@ partial class VoiceConnection
         await this.Receiver.Initialize([..this.connectedUsers]);
 
         this.e2ee.Initialize((ushort)this.daveVersion, channelId, this.userId, this.ssrc);
+
+        foreach (TransportFrame frame in earlyFrames)
+        {
+            await HandleReceivedEventAsync(frame);
+        }
+
         _ = ReceiveVoiceGatewayEventsAsync(this.vgwCancellation.Token);
 
         // this is when we tell the gateway about our local encryption keys, if DAVE is enabled
@@ -433,6 +419,57 @@ partial class VoiceConnection
         }
     }
 
+    private async Task<(VoiceGatewayMessage? message, int closeCode)> ReadExpectedAsync(List<TransportFrame> bufferedFrames, VoiceGatewayOpcode[] expected)
+    {
+        for (int index = 0; index < bufferedFrames.Count; index++)
+        {
+            TransportFrame buffered = bufferedFrames[index];
+
+            if (buffered.MessageType != WebSocketMessageType.Text || !buffered.TryGetMessage(out byte[]? bufferedPayload))
+            {
+                continue;
+            }
+
+            VoiceGatewayMessage bufferedMessage = JsonSerializer.Deserialize<VoiceGatewayMessage>(bufferedPayload)!;
+
+            if (!expected.Contains(bufferedMessage.Opcode))
+            {
+                continue;
+            }
+
+            bufferedFrames.RemoveAt(index);
+
+            return (bufferedMessage, 0);
+        }
+
+        while (true)
+        {
+            TransportFrame frame = await this.voiceGateway.ReadAsync();
+
+            if (frame.TryGetErrorCode(out int errorCode))
+            {
+                return (null, errorCode);
+            }
+
+            if (!frame.TryGetMessage(out byte[]? payload))
+            {
+                continue;
+            }
+
+            if (frame.MessageType == WebSocketMessageType.Text)
+            {
+                VoiceGatewayMessage message = JsonSerializer.Deserialize<VoiceGatewayMessage>(payload)!;
+
+                if (expected.Contains(message.Opcode))
+                {
+                    return (message, 0);
+                }
+            }
+
+            bufferedFrames.Add(frame);
+        }
+    }
+
     private async Task ReceiveVoiceGatewayEventsAsync(CancellationToken ct)
     {
         while (!ct.IsCancellationRequested)
@@ -589,10 +626,16 @@ partial class VoiceConnection
             }
         }));
 
-        TransportFrame frame = await this.voiceGateway.ReadAsync();
+        List<TransportFrame> resumeFrames = [];
+        (VoiceGatewayMessage? message, int closeCode) = await ReadExpectedAsync(resumeFrames, [VoiceGatewayOpcode.Resumed]);
 
-        if (frame.TryGetMessage(out byte[]? payload) && JsonSerializer.Deserialize<VoiceGatewayMessage>(payload).Opcode == VoiceGatewayOpcode.Resumed)
+        if (closeCode is 0)
         {
+            foreach (TransportFrame frame in resumeFrames)
+            {
+                await HandleReceivedEventAsync(frame);
+            }
+
             // resume successful, restart the receive loop 
             _ = ReceiveVoiceGatewayEventsAsync(this.vgwCancellation.Token);
             return;
@@ -600,9 +643,9 @@ partial class VoiceConnection
 
         // if we got here: resume unsuccessful, fully reconnect and log any error we got
 
-        if (frame.TryGetErrorCode(out int errorCode))
+        if (closeCode is not 0)
         {
-            this.logger.LogDebug("Failed to resume, reconnecting on close code {code}.", (VoiceGatewayCloseCode)errorCode);
+            this.logger.LogDebug("Failed to resume, reconnecting on close code {code}.", (VoiceGatewayCloseCode)closeCode);
         }
         else
         {
