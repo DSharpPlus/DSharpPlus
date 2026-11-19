@@ -472,12 +472,17 @@ partial class VoiceConnection
                 case VoiceGatewayOpcode.ClientsConnected:
 
                     VoiceClientsConnectedPayload clientsConnected = (VoiceClientsConnectedPayload)message.Payload;
-                    
-                    this.connectedUsers.AddRange(clientsConnected.UserIds);
 
-                    foreach (ulong userId in clientsConnected.UserIds)
+                    foreach (ulong uid in clientsConnected.UserIds)
                     {
-                        await this.Receiver.ProcessUserJoinedAsync(userId);
+                        if (this.connectedUsers.Contains(uid))
+                        {
+                            continue;
+                        }
+
+                        this.connectedUsers.Add(uid);
+
+                        await this.Receiver.ProcessUserJoinedAsync(uid);
                     }
 
                     this.noLongerAlone.TrySetResult();
