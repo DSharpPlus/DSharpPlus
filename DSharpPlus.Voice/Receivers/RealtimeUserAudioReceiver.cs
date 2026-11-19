@@ -38,7 +38,7 @@ internal sealed class RealtimeUserAudioReceiver : UserAudioReceiver
     public override PipeReader Reader => this.pipe.Reader;
 
     /// <inheritdoc />
-    protected internal override async ValueTask IngestAsync(uint sequence, AudioTimestamp timestamp, TimeSpan duration, byte[] audio)
+    protected internal override async ValueTask IngestAsync(uint sequence, AudioTimestamp timestamp, TimeSpan duration, ReadOnlyMemory<byte> audio)
     {
         // out of order sequence received
         if (sequence < this.highestReceivedSequence)
@@ -48,7 +48,7 @@ internal sealed class RealtimeUserAudioReceiver : UserAudioReceiver
             await this.outOfOrderFixupLock.WaitAsync();
             try
             {
-                List<(AudioTimestamp, byte[])> packets = [];
+                List<(AudioTimestamp, ReadOnlyMemory<byte>)> packets = [];
 
                 for (ushort i = (ushort)(this.lastWrittenSequence + 1); i <= this.highestReceivedSequence; i++)
                 {
@@ -63,15 +63,15 @@ internal sealed class RealtimeUserAudioReceiver : UserAudioReceiver
                     else
                     {
                         // we have a hole
-                        this.queuedPackets.Add(sequence, (timestamp, audio));
+                        this.queuedPackets.Add(sequence, (timestamp, audio.ToArray()));
                         this.highestReceivedSequence = sequence;
                         return;
                     }
                 }
 
-                foreach ((AudioTimestamp _, byte[] audioPacket) in packets)
+                foreach ((AudioTimestamp _, ReadOnlyMemory<byte> audioPacket) in packets)
                 {
-                    this.decoder.Decode(audioPacket, new PipeWriterInt16BufferWriter(this.pipe.Writer));
+                    this.decoder.Decode(audioPacket.Span, new PipeWriterInt16BufferWriter(this.pipe.Writer));
                 }
 
                 await this.pipe.Writer.FlushAsync();
@@ -88,7 +88,7 @@ internal sealed class RealtimeUserAudioReceiver : UserAudioReceiver
         }
         
         // silence received
-        if (audio is [0xF8, 0xFF, 0xFE])
+        if (audio.Span is [0xF8, 0xFF, 0xFE])
         {
             this.silentCounter++;
             AudioTimestamp lastKnownTimestamp = this.lastTimestamp;
@@ -114,7 +114,7 @@ internal sealed class RealtimeUserAudioReceiver : UserAudioReceiver
         else
         {
             this.IsSpeaking = true;
-            this.decoder.Decode(audio, new PipeWriterInt16BufferWriter(this.pipe.Writer));
+            this.decoder.Decode(audio.Span, new PipeWriterInt16BufferWriter(this.pipe.Writer));
             this.lastWrittenSequence = sequence;
             this.highestReceivedSequence = sequence;
         }

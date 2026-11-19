@@ -84,7 +84,7 @@ public sealed class DefaultAudioReceiver : AudioReceiver
     }
 
     /// <inheritdoc/>
-    protected internal override async Task ProcessAudioAsync(ulong speakingUserId, uint sequence, AudioTimestamp timestamp, TimeSpan duration, byte[] audio)
+    protected internal override async Task ProcessAudioAsync(ulong speakingUserId, uint sequence, AudioTimestamp timestamp, TimeSpan duration, ReadOnlyMemory<byte> audio)
     {
         if (!this.receivers.TryGetValue(speakingUserId, out UserAudioReceiver? receiver))
         {
@@ -92,7 +92,7 @@ public sealed class DefaultAudioReceiver : AudioReceiver
             return;
         }
 
-        if (audio.SequenceEqual(this.codec.SilenceFrame))
+        if (audio.Span.SequenceEqual(this.codec.SilenceFrame))
         {
             this.consecutivelyReceivedSilenceFrames.AddOrUpdate(speakingUserId, 1, (_, silenceFrames) => silenceFrames + 1);
 

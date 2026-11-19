@@ -51,7 +51,7 @@ public class MyCustomReceiver : AudioReceiver
     protected internal override Task ProcessUserStoppedSpeakingAsync(ulong id);
 
     // Called by the library when audio is received from a user.
-    protected internal override Task ProcessAudioAsync(ulong speakingUserId, uint sequence, AudioTimestamp timestamp, TimeSpan duration, byte[] audio);
+    protected internal override Task ProcessAudioAsync(ulong speakingUserId, uint sequence, AudioTimestamp timestamp, TimeSpan duration, ReadOnlyMemory<byte> audio);
 }
 
 // registration:

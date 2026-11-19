@@ -43,5 +43,5 @@ public abstract class AudioReceiver
     /// <param name="timestamp">The RTP timestamp of this section of audio.</param>
     /// <param name="duration">The duration of this section of audio.</param>
     /// <param name="audio">The audio data received.</param>
-    protected internal abstract Task ProcessAudioAsync(ulong speakingUserId, uint sequence, AudioTimestamp timestamp, TimeSpan duration, byte[] audio);
+    protected internal abstract Task ProcessAudioAsync(ulong speakingUserId, uint sequence, AudioTimestamp timestamp, TimeSpan duration, ReadOnlyMemory<byte> audio);
 }

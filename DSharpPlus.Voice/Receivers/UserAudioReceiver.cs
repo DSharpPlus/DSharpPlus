@@ -26,7 +26,7 @@ public abstract class UserAudioReceiver
     /// <param name="timestamp">The timestamp of this frame, relative to when this user first started speaking.</param>
     /// <param name="duration">The duration of this frame.</param>
     /// <param name="audio">The audio frame data.</param>
-    protected internal abstract ValueTask IngestAsync(uint sequence, AudioTimestamp timestamp, TimeSpan duration, byte[] audio);
+    protected internal abstract ValueTask IngestAsync(uint sequence, AudioTimestamp timestamp, TimeSpan duration, ReadOnlyMemory<byte> audio);
 
     /// <summary>
     /// Called by the library once the user disconnects.

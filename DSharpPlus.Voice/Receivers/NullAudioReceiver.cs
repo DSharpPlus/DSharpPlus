@@ -14,7 +14,7 @@ public sealed class NullAudioReceiver : AudioReceiver
         => Task.CompletedTask;
 
     /// <inheritdoc/>
-    protected internal override Task ProcessAudioAsync(ulong speakingUserId, uint sequence, AudioTimestamp timestamp, TimeSpan duration, byte[] audio)
+    protected internal override Task ProcessAudioAsync(ulong speakingUserId, uint sequence, AudioTimestamp timestamp, TimeSpan duration, ReadOnlyMemory<byte> audio)
         => Task.CompletedTask;
 
     /// <inheritdoc/>
