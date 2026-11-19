@@ -50,7 +50,7 @@ internal sealed class RealtimeUserAudioReceiver : UserAudioReceiver
             {
                 List<(AudioTimestamp, ReadOnlyMemory<byte>)> packets = [];
 
-                for (ushort i = (ushort)(this.lastWrittenSequence + 1); i <= this.highestReceivedSequence; i++)
+                for (uint i = this.lastWrittenSequence + 1; i <= this.highestReceivedSequence; i++)
                 {
                     if (i == sequence)
                     {
@@ -63,8 +63,7 @@ internal sealed class RealtimeUserAudioReceiver : UserAudioReceiver
                     else
                     {
                         // we have a hole
-                        this.queuedPackets.Add(sequence, (timestamp, audio.ToArray()));
-                        this.highestReceivedSequence = sequence;
+                        this.queuedPackets[sequence] = (timestamp, audio.ToArray());
                         return;
                     }
                 }
