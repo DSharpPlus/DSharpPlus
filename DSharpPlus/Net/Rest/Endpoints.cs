@@ -40,6 +40,7 @@ internal static class Endpoints
     public const string JOB_STATUS = "job-status";
     public const string LOGIN = "login";
     public const string ME = "@me";
+    public const string MEMBER = "member";
     public const string MEMBERS = "members";
     public const string MEMBER_COUNTS = "member-counts";
     public const string MEMBER_VERIFICATION = "member-verification";
@@ -58,6 +59,7 @@ internal static class Endpoints
     public const string ANSWERS = "answers";
     public const string RECIPIENTS = "recipients";
     public const string REGIONS = "regions";
+    public const string ROLE = "role";
     public const string ROLES = "roles";
     public const string RULES = "rules";
     public const string SEARCH = "search";
