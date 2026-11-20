@@ -15,9 +15,9 @@ public static class Utility
         {
             ReferenceAssemblies = new ReferenceAssemblies
             (
-                targetFramework: "net10.0",
-                referenceAssemblyPackage: new PackageIdentity("Microsoft.NETCore.App.Ref", "10.0.1"),
-                referenceAssemblyPath: Path.Combine("ref", "net10.0")
+                targetFramework: "net11.0",
+                referenceAssemblyPackage: new PackageIdentity("Microsoft.NETCore.App.Ref", "11.0.0"),
+                referenceAssemblyPath: Path.Combine("ref", "net11.0")
             )
         };
         test.TestState.AdditionalReferences.Add(typeof(DiscordClient).Assembly);

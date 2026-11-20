@@ -7,7 +7,6 @@
     <PackageVersion Include="DSharpPlus.Natives.Opus" Version="1.6.1.34" />
     <PackageVersion Include="DSharpPlus.Natives.Sodium" Version="1.0.22.25" />
     <PackageVersion Include="DSharpPlus.Natives.Speex" Version="1.2.1.8" />
-    <PackageVersion Include="DSharpPlus.Natives.Zstd" Version="1.5.7.21" />
     <PackageVersion Include="Microsoft.CodeAnalysis" Version="5.0.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing" Version="1.1.2" />

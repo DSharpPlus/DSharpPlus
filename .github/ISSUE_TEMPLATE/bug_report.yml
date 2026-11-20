@@ -35,10 +35,9 @@ body:
         label: What .NET version are you using? Make sure to use the latest patch release for your major version.
         multiple: false
         options:
-          - .NET 8.0
-          - .NET 9.0
           - .NET 10.0
-          - .NET 11.0 Preview
+          - .NET 11.0
+          - .NET 12.0 Preview
     validations:
       required: true
   - type: input
