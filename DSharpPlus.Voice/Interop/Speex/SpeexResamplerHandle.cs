@@ -36,5 +36,9 @@ public sealed unsafe class SpeexResamplerHandle : SafeHandleZeroOrMinusOneIsInva
         => SpeexInterop.Resample(this.Resampler, input, output, out consumed, out written);
 
     /// <inheritdoc/>
-    protected override bool ReleaseHandle() => throw new System.NotImplementedException();
+    protected override unsafe bool ReleaseHandle()
+    {
+        SpeexInterop.DestroyResampler(this.Resampler);
+        return true;
+    }
 }
