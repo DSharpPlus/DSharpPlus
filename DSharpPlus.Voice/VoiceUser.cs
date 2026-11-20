@@ -48,10 +48,11 @@ internal sealed class VoiceUser
     {
         get
         {
-            float loss = this.packetsReceived / this.packetsLost;
-            this.packetsReceived = 0;
-            this.packetsLost = 0;
-            return loss;
+            uint received = (uint)Interlocked.Exchange(ref this.packetsReceived, 0);
+            uint lost = Interlocked.Exchange(ref this.packetsLost, 0u);
+            uint expected = received + lost;
+
+            return expected == 0 ? 0f : lost / (float)expected;
         }
     }
 

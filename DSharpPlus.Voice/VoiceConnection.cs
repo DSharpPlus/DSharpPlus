@@ -267,8 +267,6 @@ public sealed partial class VoiceConnection : IAsyncDisposable
 
     private async Task RegisterSpeakingStatusAsync(uint ssrc, ulong userId, bool isSpeaking)
     {
-        this.ssrcs.TryAdd(ssrc, userId);
-
         if (this.voiceUsers.TryGetValue(userId, out VoiceUser? user))
         {
             user.IsSpeaking = isSpeaking;
@@ -282,6 +280,8 @@ public sealed partial class VoiceConnection : IAsyncDisposable
                 IsSpeaking = isSpeaking
             });
         }
+
+        this.ssrcs.TryAdd(ssrc, userId);
 
         if (isSpeaking)
         {

@@ -84,7 +84,7 @@ public sealed class DefaultAudioReceiver : AudioReceiver
     }
 
     /// <inheritdoc/>
-    protected internal override async Task ProcessAudioAsync(ulong speakingUserId, uint sequence, AudioTimestamp timestamp, TimeSpan duration, byte[] audio)
+    protected internal override async Task ProcessAudioAsync(ulong speakingUserId, uint sequence, AudioTimestamp timestamp, TimeSpan duration, ReadOnlyMemory<byte> audio)
     {
         if (!this.receivers.TryGetValue(speakingUserId, out UserAudioReceiver? receiver))
         {
@@ -92,7 +92,7 @@ public sealed class DefaultAudioReceiver : AudioReceiver
             return;
         }
 
-        if (audio.SequenceEqual(this.codec.SilenceFrame))
+        if (audio.Span.SequenceEqual(this.codec.SilenceFrame))
         {
             this.consecutivelyReceivedSilenceFrames.AddOrUpdate(speakingUserId, 1, (_, silenceFrames) => silenceFrames + 1);
 
@@ -100,7 +100,10 @@ public sealed class DefaultAudioReceiver : AudioReceiver
             // we don't want to re-trigger when it increases, that would be bad
             if (this.consecutivelyReceivedSilenceFrames[speakingUserId] == 5)
             {
-                await this.UserStoppedSpeaking?.Invoke(speakingUserId);
+                if (this.UserStoppedSpeaking?.Invoke(speakingUserId) is {} stopped)
+                {
+                    await stopped;
+                }
                 receiver.IsSpeaking = false;
             }
         }
@@ -108,14 +111,21 @@ public sealed class DefaultAudioReceiver : AudioReceiver
         {
             if (receiver.IsSpeaking != true)
             {
-                await this.UserStartedSpeaking?.Invoke(speakingUserId);
+                if (this.UserStartedSpeaking?.Invoke(speakingUserId) is {} started)
+                {
+                    await started;
+                }
                 receiver.IsSpeaking = true;
             }
 
             this.consecutivelyReceivedSilenceFrames.AddOrUpdate(speakingUserId, 0, (_, _) => 0);
         }
 
-        receiver?.Ingest(sequence, timestamp, duration, audio);
+        
+        if (receiver is {} task)
+        {
+            await task.IngestAsync(sequence, timestamp, duration, audio);
+        }
 
         return;
     }
@@ -142,7 +152,10 @@ public sealed class DefaultAudioReceiver : AudioReceiver
 
         this.receivers.TryAdd(id, receiver);
 
-        await this.UserJoined?.Invoke(id);
+        if (this.UserJoined?.Invoke(id) is {} task)
+        {
+            await task;
+        }
     }
 
     /// <inheritdoc/>
@@ -153,7 +166,10 @@ public sealed class DefaultAudioReceiver : AudioReceiver
 
         receiver?.Close();
 
-        await this.UserLeft?.Invoke(id);
+        if (this.UserLeft?.Invoke(id) is {} task)
+        {
+            await task;
+        }
     }
 
     /// <inheritdoc/>
@@ -163,7 +179,10 @@ public sealed class DefaultAudioReceiver : AudioReceiver
 
         receiver?.IsSpeaking = true;
 
-        await this.UserStartedSpeaking?.Invoke(id);
+        if (this.UserStartedSpeaking?.Invoke(id) is {} task)
+        {
+            await task;
+        }
     }
 
     /// <inheritdoc/>
@@ -173,7 +192,10 @@ public sealed class DefaultAudioReceiver : AudioReceiver
 
         receiver?.IsSpeaking = false;
 
-        await this.UserStoppedSpeaking?.Invoke(id);
+        if (this.UserStoppedSpeaking?.Invoke(id) is {} task)
+        {
+            await task;
+        }
     }
 
     private UserAudioReceiver CreateNewReceiver(UserAudioReceiveMode mode)

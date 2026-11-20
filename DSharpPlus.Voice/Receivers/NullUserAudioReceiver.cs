@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.IO.Pipelines;
+using System.Threading.Tasks;
 
 namespace DSharpPlus.Voice.Receivers;
 
@@ -18,9 +19,10 @@ internal sealed class NullUserAudioReceiver : UserAudioReceiver
     public override bool IsSpeaking => false;
 
     /// <inheritdoc />
-    protected internal override void Ingest(uint sequence, AudioTimestamp timestamp, TimeSpan duration, byte[] audio)
+    protected internal override ValueTask IngestAsync(uint sequence, AudioTimestamp timestamp, TimeSpan duration, ReadOnlyMemory<byte> audio)
     {
         // empty - we discard the audio
+        return ValueTask.CompletedTask;
     }
 
     /// <inheritdoc />
