@@ -38,7 +38,7 @@ public sealed unsafe class SpeexResamplerHandle : SafeHandleZeroOrMinusOneIsInva
     /// <inheritdoc/>
     protected override unsafe bool ReleaseHandle()
     {
-        SpeexInterop.DestroyResampler((NativeSpeexResampler*)this.handle);
+        SpeexInterop.DestroyResampler((NativeSpeexResampler*)this.Resampler);
         return true;
     }
 }
