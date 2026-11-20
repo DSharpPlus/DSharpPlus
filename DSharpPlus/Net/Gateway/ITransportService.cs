@@ -1,5 +1,6 @@
 using System;
 using System.Net.WebSockets;
+using System.Threading;
 using System.Threading.Tasks;
 
 using DSharpPlus.Net.Gateway.Compression;
@@ -19,12 +20,12 @@ public interface ITransportService : IDisposable
     /// <summary>
     /// Opens a connection to the gateway.
     /// </summary>
-    public ValueTask ConnectAsync(string url);
+    public ValueTask ConnectAsync(string url, CancellationToken ct = default);
 
     /// <summary>
     /// Reads the next message from the gateway asynchronously.
     /// </summary>
-    public ValueTask<TransportFrame> ReadAsync();
+    public ValueTask<TransportFrame> ReadAsync(CancellationToken ct = default);
 
     /// <summary>
     /// Writes the specified message to the gateway.
@@ -35,5 +36,6 @@ public interface ITransportService : IDisposable
     /// Disconnects from the gateway.
     /// </summary>
     /// <param name="closeStatus">The status message to send to the Discord gateway.</param>
-    public ValueTask DisconnectAsync(WebSocketCloseStatus closeStatus);
+    /// <param name="ct">A cancellation token for this operation.</param>
+    public ValueTask DisconnectAsync(WebSocketCloseStatus closeStatus, CancellationToken ct = default);
 }
