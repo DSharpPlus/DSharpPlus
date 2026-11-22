@@ -4321,6 +4321,230 @@ public sealed class DiscordRestApiClient
 
         return ret;
     }
+
+    public async ValueTask<IReadOnlyList<DiscordMessage>> SearchGuildMessagesAsync
+    (
+        ulong guildId,
+        int? limit = null,
+        int? offset = null,
+        ulong? maxId = null,
+        ulong? minId = null,
+        int? slop = null,
+        string? content = null,
+        IEnumerable<ulong>? channelId = null,
+        IEnumerable<string>? authorType = null,
+        IEnumerable<ulong>? authorId = null,
+        IEnumerable<ulong>? mentions = null,
+        IEnumerable<ulong>? mentionsRoleId = null,
+        bool? mentionEveryone = null,
+        IEnumerable<ulong>? repliedToUserId = null,
+        IEnumerable<ulong>? repliedToMessageId = null,
+        bool? pinned = null,
+        IEnumerable<string>? has = null,
+        IEnumerable<string>? embedType = null,
+        IEnumerable<string>? embedProvider = null,
+        IEnumerable<string>? linkHostname = null,
+        IEnumerable<string>? attachmentFilename = null,
+        IEnumerable<string>? attachmentExtension = null,
+        string? sortBy = null,
+        string? sortOrder = null,
+        bool? includeNsfw = null
+    )
+    {
+        QueryUriBuilder builder = new($"{Endpoints.GUILDS}/{guildId}/{Endpoints.MESSAGES}/{Endpoints.SEARCH}");
+
+        StringBuilder sb = new();
+
+        if (limit is not null)
+        {
+            builder.AddParameter("limit", limit.Value.ToString(CultureInfo.InvariantCulture));
+        }
+        if (offset is not null)
+        {
+            builder.AddParameter("offset", offset.Value.ToString(CultureInfo.InvariantCulture));
+        }
+        if (maxId is not null)
+        {
+            builder.AddParameter("max_id", maxId.Value.ToString(CultureInfo.InvariantCulture));
+        }
+        if (minId is not null)
+        {
+            builder.AddParameter("min_id", minId.Value.ToString(CultureInfo.InvariantCulture));
+        }
+        if (slop is not null)
+        {
+            builder.AddParameter("slop", slop.Value.ToString(CultureInfo.InvariantCulture));
+        }
+        if (content is not null)
+        {
+            builder.AddParameter("content", content);
+        }
+        if (channelId is not null)
+        {
+            ulong[] channelIdArray = channelId.ToArray();
+            int channelIdArrayCount = channelIdArray.Length;
+
+            for (int i = 0; i < channelIdArrayCount; i++)
+            {
+                sb.Append($"&channel_id={channelIdArray[i]}");
+            }
+        }
+        if (authorType is not null)
+        {
+            string[] authorTypeArray = authorType.ToArray();
+            int authorTypeArrayCount = authorTypeArray.Length;
+
+            for (int i = 0; i < authorTypeArrayCount; i++)
+            {
+                sb.Append($"&author_type={authorTypeArray[i]}");
+            }
+        }
+        if (authorId is not null)
+        {
+            ulong[] authorIdArray = authorId.ToArray();
+            int authorIdArrayCount = authorIdArray.Length;
+
+            for (int i = 0; i < authorIdArrayCount; i++)
+            {
+                sb.Append($"&author_id={authorIdArray[i]}");
+            }
+        }
+        if (mentions is not null)
+        {
+            ulong[] mentionsArray = mentions.ToArray();
+            int mentionsArrayCount = mentionsArray.Length;
+
+            for (int i = 0; i < mentionsArrayCount; i++)
+            {
+                sb.Append($"&mentions={mentionsArray[i]}");
+            }
+        }
+        if (mentionsRoleId is not null)
+        {
+            ulong[] mentionsRoleIdArray = mentionsRoleId.ToArray();
+            int mentionsRoleIdArrayCount = mentionsRoleIdArray.Length;
+
+            for (int i = 0; i < mentionsRoleIdArrayCount; i++)
+            {
+                sb.Append($"&mentions_role_id={mentionsRoleIdArray[i]}");
+            }
+        }
+        if (mentionEveryone is not null)
+        {
+            builder.AddParameter("mention_everyone", mentionEveryone.Value.ToString(CultureInfo.InvariantCulture));
+        }
+        if (repliedToUserId is not null)
+        {
+            ulong[] repliedToUserIdArray = repliedToUserId.ToArray();
+            int repliedToUserIdArrayCount = repliedToUserIdArray.Length;
+
+            for (int i = 0; i < repliedToUserIdArrayCount; i++)
+            {
+                sb.Append($"&replied_to_user_id={repliedToUserIdArray[i]}");
+            }
+        }
+        if (repliedToMessageId is not null)
+        {
+            ulong[] repliedToMessageIdArray = repliedToMessageId.ToArray();
+            int repliedToMessageIdArrayCount = repliedToMessageIdArray.Length;
+
+            for (int i = 0; i < repliedToMessageIdArrayCount; i++)
+            {
+                sb.Append($"&replied_to_message_id={repliedToMessageIdArray[i]}");
+            }
+        }
+        if (pinned is not null)
+        {
+            builder.AddParameter("pinned", pinned.Value.ToString(CultureInfo.InvariantCulture));
+        }
+        if (has is not null)
+        {
+            string[] hasArray = has.ToArray();
+            int hasArrayCount = hasArray.Length;
+
+            for (int i = 0; i < hasArrayCount; i++)
+            {
+                sb.Append($"&has={hasArray[i]}");
+            }
+        }
+        if (embedType is not null)
+        {
+            string[] embedTypeArray = embedType.ToArray();
+            int embedTypeArrayCount = embedTypeArray.Length;
+
+            for (int i = 0; i < embedTypeArrayCount; i++)
+            {
+                sb.Append($"&embed_type={embedTypeArray[i]}");
+            }
+        }
+        if (embedProvider is not null)
+        {
+            string[] embedProviderArray = embedProvider.ToArray();
+            int embedProviderArrayCount = embedProviderArray.Length;
+
+            for (int i = 0; i < embedProviderArrayCount; i++)
+            {
+                sb.Append($"&embed_provider={embedProviderArray[i]}");
+            }
+        }
+        if (linkHostname is not null)
+        {
+            string[] linkHostnameArray = linkHostname.ToArray();
+            int linkHostnameArrayCount = linkHostnameArray.Length;
+
+            for (int i = 0; i < linkHostnameArrayCount; i++)
+            {
+                sb.Append($"&link_hostname={linkHostnameArray[i]}");
+            }
+        }
+        if (attachmentFilename is not null)
+        {
+            string[] attachmentFilenameArray = attachmentFilename.ToArray();
+            int attachmentFilenameArrayCount = attachmentFilenameArray.Length;
+
+            for (int i = 0; i < attachmentFilenameArrayCount; i++)
+            {
+                sb.Append($"&attachment_filename={attachmentFilenameArray[i]}");
+            }
+        }
+        if (attachmentExtension is not null)
+        {
+            string[] attachmentExtensionArray = attachmentExtension.ToArray();
+            int attachmentExtensionArrayCount = attachmentExtensionArray.Length;
+
+            for (int i = 0; i < attachmentExtensionArrayCount; i++)
+            {
+                sb.Append($"&attachment_extension={attachmentExtensionArray[i]}");
+            }
+        }
+        if (sortBy is not null)
+        {
+            builder.AddParameter("sort_by", sortBy);
+        }
+        if (sortOrder is not null)
+        {
+            builder.AddParameter("sort_order", sortOrder);
+        }
+        if (includeNsfw is not null)
+        {
+            builder.AddParameter("include_nsfw", includeNsfw.Value.ToString(CultureInfo.InvariantCulture));
+        }
+
+        RestRequest request = new()
+        {
+            Route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.MESSAGES}/{Endpoints.SEARCH}",
+            Url = builder.Build() + sb,
+            Method = HttpMethod.Get
+        };
+
+        RestResponse response = await this.rest.ExecuteRequestAsync(request);
+
+        JArray msgsRaw = (JArray)JObject.Parse(response.Response!)["messages"]!;
+        List<DiscordMessage> msgs = [];
+        msgs.AddRange(msgsRaw.SelectMany(msgs => msgs).Select(PrepareMessage));
+
+        return msgs;
+    }
     #endregion
 
     #region Prune

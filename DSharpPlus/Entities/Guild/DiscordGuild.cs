@@ -2617,6 +2617,37 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     public async Task<DiscordPermissions> GetPermissionsForRoleAsync(ulong roleId)
         => await this.Discord.ApiClient.GetGuildRolePermissionsAsync(this.Id, roleId);
 
+    /// <summary>
+    /// Searches the current guild for messages that match a search query.
+    /// </summary>
+    /// <param name="limit">Max number of messages to return (1-25, default 25)</param>
+    /// <param name="offset">Number to offset the returned messages by (max 9975)</param>
+    /// <param name="maxId">Get messages before this message ID</param>
+    /// <param name="minId">Get messages after this message ID</param>
+    /// <param name="slop">Max number of words to skip between matching tokens in the search content (max 100, default 2)</param>
+    /// <param name="content">Filter messages by content (max 1024 characters)</param>
+    /// <param name="channelId">Filter messages by these channels (max 500)</param>
+    /// <param name="authorType">Filter messages by author type</param>
+    /// <param name="authorId">Filter messages by these authors (max 100)</param>
+    /// <param name="mentions">Filter messages that mention these users (max 100)</param>
+    /// <param name="mentionsRoleId">Filter messages that mention these roles (max 100)</param>
+    /// <param name="mentionEveryone">Filter messages that do or do not mention @everyone</param>
+    /// <param name="repliedToUserId">Filter messages that reply to these users (max 100)</param>
+    /// <param name="repliedToMessageId">Filter messages that reply to these messages (max 100)</param>
+    /// <param name="pinned">Filter messages by whether they are or are not pinned</param>
+    /// <param name="has">Filter messages by whether or not they have specific things</param>
+    /// <param name="embedType">Filter messages by embed type</param>
+    /// <param name="embedProvider">Filter messages by embed provider (case-sensitive, e.g. Tenor) (max 256 characters, max 100)</param>
+    /// <param name="linkHostname">Filter messages by link hostname (e.g. discordapp.com) (max 256 characters, max 100)</param>
+    /// <param name="attachmentFilename">Filter messages by attachment filename (max 1024 characters, max 100)</param>
+    /// <param name="attachmentExtension">Filter messages by attachment extension (e.g. txt) (max 256 characters, max 100)</param>
+    /// <param name="sortBy">The sorting algorithm to use</param>
+    /// <param name="sortOrder">The direction to sort (asc or desc, default desc)</param>
+    /// <param name="includeNsfw">Whether to include results from age-restricted channels (default false)</param>
+    /// <returns>The messages found, if any.</returns>
+    public async Task<IReadOnlyList<DiscordMessage>> SearchMessagesAsync(int? limit = null, int? offset = null, ulong? maxId = null, ulong? minId = null, int? slop = null, string? content = null, IEnumerable<ulong>? channelId = null, IEnumerable<string>? authorType = null, IEnumerable<ulong>? authorId = null, IEnumerable<ulong>? mentions = null, IEnumerable<ulong>? mentionsRoleId = null, bool? mentionEveryone = null, IEnumerable<ulong>? repliedToUserId = null, IEnumerable<ulong>? repliedToMessageId = null, bool? pinned = null, IEnumerable<string>? has = null, IEnumerable<string>? embedType = null, IEnumerable<string>? embedProvider = null, IEnumerable<string>? linkHostname = null, IEnumerable<string>? attachmentFilename = null, IEnumerable<string>? attachmentExtension = null, string? sortBy = null, string? sortOrder = null, bool? includeNsfw = null)
+        => await this.Discord.ApiClient.SearchGuildMessagesAsync(this.Id, limit, offset, maxId, minId, slop, content, channelId, authorType, authorId, mentions, mentionsRoleId, mentionEveryone, repliedToUserId, repliedToMessageId, pinned, has, embedType, embedProvider, linkHostname, attachmentFilename, attachmentExtension, sortBy, sortOrder, includeNsfw);
+
     #endregion
 
     /// <summary>
