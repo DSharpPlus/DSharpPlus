@@ -4353,8 +4353,6 @@ public sealed class DiscordRestApiClient
     {
         QueryUriBuilder builder = new($"{Endpoints.GUILDS}/{guildId}/{Endpoints.MESSAGES}/{Endpoints.SEARCH}");
 
-        StringBuilder sb = new();
-
         if (limit is not null)
         {
             builder.AddParameter("limit", limit.Value.ToString(CultureInfo.InvariantCulture));
@@ -4381,52 +4379,37 @@ public sealed class DiscordRestApiClient
         }
         if (channelId is not null)
         {
-            ulong[] channelIdArray = channelId.ToArray();
-            int channelIdArrayCount = channelIdArray.Length;
-
-            for (int i = 0; i < channelIdArrayCount; i++)
+            foreach (ulong value in channelId)
             {
-                sb.Append($"&channel_id={channelIdArray[i]}");
+                builder.AddParameter("channel_id", value.ToString(CultureInfo.InvariantCulture));
             }
         }
         if (authorType is not null)
         {
-            string[] authorTypeArray = authorType.ToArray();
-            int authorTypeArrayCount = authorTypeArray.Length;
-
-            for (int i = 0; i < authorTypeArrayCount; i++)
+            foreach (string value in authorType)
             {
-                sb.Append($"&author_type={authorTypeArray[i]}");
+                builder.AddParameter("author_type", value);
             }
         }
         if (authorId is not null)
         {
-            ulong[] authorIdArray = authorId.ToArray();
-            int authorIdArrayCount = authorIdArray.Length;
-
-            for (int i = 0; i < authorIdArrayCount; i++)
+            foreach (ulong value in authorId)
             {
-                sb.Append($"&author_id={authorIdArray[i]}");
+                builder.AddParameter("author_id", value.ToString(CultureInfo.InvariantCulture));
             }
         }
         if (mentions is not null)
         {
-            ulong[] mentionsArray = mentions.ToArray();
-            int mentionsArrayCount = mentionsArray.Length;
-
-            for (int i = 0; i < mentionsArrayCount; i++)
+            foreach (ulong value in mentions)
             {
-                sb.Append($"&mentions={mentionsArray[i]}");
+                builder.AddParameter("mentions", value.ToString(CultureInfo.InvariantCulture));
             }
         }
         if (mentionsRoleId is not null)
         {
-            ulong[] mentionsRoleIdArray = mentionsRoleId.ToArray();
-            int mentionsRoleIdArrayCount = mentionsRoleIdArray.Length;
-
-            for (int i = 0; i < mentionsRoleIdArrayCount; i++)
+            foreach (ulong value in mentionsRoleId)
             {
-                sb.Append($"&mentions_role_id={mentionsRoleIdArray[i]}");
+                builder.AddParameter("mentions_role_id", value.ToString(CultureInfo.InvariantCulture));
             }
         }
         if (mentionEveryone is not null)
@@ -4435,22 +4418,16 @@ public sealed class DiscordRestApiClient
         }
         if (repliedToUserId is not null)
         {
-            ulong[] repliedToUserIdArray = repliedToUserId.ToArray();
-            int repliedToUserIdArrayCount = repliedToUserIdArray.Length;
-
-            for (int i = 0; i < repliedToUserIdArrayCount; i++)
+            foreach (ulong value in repliedToUserId)
             {
-                sb.Append($"&replied_to_user_id={repliedToUserIdArray[i]}");
+                builder.AddParameter("replied_to_user_id", value.ToString(CultureInfo.InvariantCulture));
             }
         }
         if (repliedToMessageId is not null)
         {
-            ulong[] repliedToMessageIdArray = repliedToMessageId.ToArray();
-            int repliedToMessageIdArrayCount = repliedToMessageIdArray.Length;
-
-            for (int i = 0; i < repliedToMessageIdArrayCount; i++)
+            foreach (ulong value in repliedToMessageId)
             {
-                sb.Append($"&replied_to_message_id={repliedToMessageIdArray[i]}");
+                builder.AddParameter("replied_to_message_id", value.ToString(CultureInfo.InvariantCulture));
             }
         }
         if (pinned is not null)
@@ -4459,62 +4436,44 @@ public sealed class DiscordRestApiClient
         }
         if (has is not null)
         {
-            string[] hasArray = has.ToArray();
-            int hasArrayCount = hasArray.Length;
-
-            for (int i = 0; i < hasArrayCount; i++)
+            foreach (string value in has)
             {
-                sb.Append($"&has={hasArray[i]}");
+                builder.AddParameter("has", value);
             }
         }
         if (embedType is not null)
         {
-            string[] embedTypeArray = embedType.ToArray();
-            int embedTypeArrayCount = embedTypeArray.Length;
-
-            for (int i = 0; i < embedTypeArrayCount; i++)
+            foreach (string value in embedType)
             {
-                sb.Append($"&embed_type={embedTypeArray[i]}");
+                builder.AddParameter("embed_type", value);
             }
         }
         if (embedProvider is not null)
         {
-            string[] embedProviderArray = embedProvider.ToArray();
-            int embedProviderArrayCount = embedProviderArray.Length;
-
-            for (int i = 0; i < embedProviderArrayCount; i++)
+            foreach (string value in embedProvider)
             {
-                sb.Append($"&embed_provider={embedProviderArray[i]}");
+                builder.AddParameter("embed_provider", value);
             }
         }
         if (linkHostname is not null)
         {
-            string[] linkHostnameArray = linkHostname.ToArray();
-            int linkHostnameArrayCount = linkHostnameArray.Length;
-
-            for (int i = 0; i < linkHostnameArrayCount; i++)
+            foreach (string value in linkHostname)
             {
-                sb.Append($"&link_hostname={linkHostnameArray[i]}");
+                builder.AddParameter("link_hostname", value);
             }
         }
         if (attachmentFilename is not null)
         {
-            string[] attachmentFilenameArray = attachmentFilename.ToArray();
-            int attachmentFilenameArrayCount = attachmentFilenameArray.Length;
-
-            for (int i = 0; i < attachmentFilenameArrayCount; i++)
+            foreach (string value in attachmentFilename)
             {
-                sb.Append($"&attachment_filename={attachmentFilenameArray[i]}");
+                builder.AddParameter("attachment_filename", value);
             }
         }
         if (attachmentExtension is not null)
         {
-            string[] attachmentExtensionArray = attachmentExtension.ToArray();
-            int attachmentExtensionArrayCount = attachmentExtensionArray.Length;
-
-            for (int i = 0; i < attachmentExtensionArrayCount; i++)
+            foreach (string value in attachmentExtension)
             {
-                sb.Append($"&attachment_extension={attachmentExtensionArray[i]}");
+                builder.AddParameter("attachment_extension", value);
             }
         }
         if (sortBy is not null)
@@ -4533,7 +4492,7 @@ public sealed class DiscordRestApiClient
         RestRequest request = new()
         {
             Route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.MESSAGES}/{Endpoints.SEARCH}",
-            Url = builder.Build() + sb,
+            Url = builder.Build(),
             Method = HttpMethod.Get
         };
 
