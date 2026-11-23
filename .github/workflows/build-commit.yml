@@ -27,12 +27,12 @@ jobs:
       id-token: write # needed for trusted publishing
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
           fetch-depth: 0
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 11
       - name: Build Project
@@ -63,7 +63,7 @@ jobs:
           NUGET_URL: ${{ secrets.NUGET_URL }}
           GITHUB_URL : ${{ github.server_url }}/${{ github.repository }}
       - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: DSharpPlus-Nightly-${{ steps.nightly.outputs.version }}.zip
           path: ./build/*
@@ -73,7 +73,7 @@ jobs:
           commit_message_header=$(git log -1 --pretty=%B | head -n 1)
           echo "message_header=${commit_message_header}" >> $GITHUB_OUTPUT
       - name: Discord Webhook
-        uses: tsickert/discord-webhook@v4.0.0
+        uses: tsickert/discord-webhook@v7
         with:
           webhook-url: ${{ secrets.BUILD_WEBHOOK }}
           embed-title: DSharpPlus 5.0.0-nightly-${{ steps.nightly.outputs.version }}
@@ -94,26 +94,26 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
           fetch-depth: 0
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 11
       - name: Build Project
         run: |
           dotnet build
-          dotnet tool install -g docfx --version 2.78.5 --allow-downgrade
+          dotnet tool install -g docfx --version 2.81.0 --allow-downgrade
           docfx docs/docfx.json
       - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: ./docs/_site/
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
       - name: Reload Discord documentation
         run: |
           curl -X POST -H 'Authorization: Bot ${{ secrets.DISCORD_TOKEN }}' -H 'Content-Type: application/json' -d '{"content":"<@341606460720939008> reload"}' 'https://discord.com/api/v10/channels/379379415475552276/messages'
