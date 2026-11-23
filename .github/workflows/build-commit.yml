@@ -73,7 +73,7 @@ jobs:
           commit_message_header=$(git log -1 --pretty=%B | head -n 1)
           echo "message_header=${commit_message_header}" >> $GITHUB_OUTPUT
       - name: Discord Webhook
-        uses: tsickert/discord-webhook@v7
+        uses: tsickert/discord-webhook@v7.0.0
         with:
           webhook-url: ${{ secrets.BUILD_WEBHOOK }}
           embed-title: DSharpPlus 5.0.0-nightly-${{ steps.nightly.outputs.version }}
