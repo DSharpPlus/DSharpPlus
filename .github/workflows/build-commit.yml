@@ -43,7 +43,7 @@ jobs:
         id: nightly
         run: printf "version=%0*d" 5 $(( 1195 + 691 + ${{ github.run_number }} )) >> "$GITHUB_OUTPUT"
       - name: Login to NuGet
-        uses: NuGet/login@v1
+        uses: NuGet/login@v1.2.0
         id: nuget-login
         with:
           user: ${{ secrets.NUGET_USER }}
