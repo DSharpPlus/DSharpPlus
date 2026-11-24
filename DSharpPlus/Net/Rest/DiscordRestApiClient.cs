@@ -4321,6 +4321,189 @@ public sealed class DiscordRestApiClient
 
         return ret;
     }
+
+    public async ValueTask<IReadOnlyList<DiscordMessage>> SearchGuildMessagesAsync
+    (
+        ulong guildId,
+        int? limit = null,
+        int? offset = null,
+        ulong? maxId = null,
+        ulong? minId = null,
+        int? slop = null,
+        string? content = null,
+        IEnumerable<ulong>? channelId = null,
+        IEnumerable<string>? authorType = null,
+        IEnumerable<ulong>? authorId = null,
+        IEnumerable<ulong>? mentions = null,
+        IEnumerable<ulong>? mentionsRoleId = null,
+        bool? mentionEveryone = null,
+        IEnumerable<ulong>? repliedToUserId = null,
+        IEnumerable<ulong>? repliedToMessageId = null,
+        bool? pinned = null,
+        IEnumerable<string>? has = null,
+        IEnumerable<string>? embedType = null,
+        IEnumerable<string>? embedProvider = null,
+        IEnumerable<string>? linkHostname = null,
+        IEnumerable<string>? attachmentFilename = null,
+        IEnumerable<string>? attachmentExtension = null,
+        string? sortBy = null,
+        string? sortOrder = null,
+        bool? includeNsfw = null
+    )
+    {
+        QueryUriBuilder builder = new($"{Endpoints.GUILDS}/{guildId}/{Endpoints.MESSAGES}/{Endpoints.SEARCH}");
+
+        if (limit is not null)
+        {
+            builder.AddParameter("limit", limit.Value.ToString(CultureInfo.InvariantCulture));
+        }
+        if (offset is not null)
+        {
+            builder.AddParameter("offset", offset.Value.ToString(CultureInfo.InvariantCulture));
+        }
+        if (maxId is not null)
+        {
+            builder.AddParameter("max_id", maxId.Value.ToString(CultureInfo.InvariantCulture));
+        }
+        if (minId is not null)
+        {
+            builder.AddParameter("min_id", minId.Value.ToString(CultureInfo.InvariantCulture));
+        }
+        if (slop is not null)
+        {
+            builder.AddParameter("slop", slop.Value.ToString(CultureInfo.InvariantCulture));
+        }
+        if (content is not null)
+        {
+            builder.AddParameter("content", content);
+        }
+        if (channelId is not null)
+        {
+            foreach (ulong value in channelId)
+            {
+                builder.AddParameter("channel_id", value.ToString(CultureInfo.InvariantCulture));
+            }
+        }
+        if (authorType is not null)
+        {
+            foreach (string value in authorType)
+            {
+                builder.AddParameter("author_type", value);
+            }
+        }
+        if (authorId is not null)
+        {
+            foreach (ulong value in authorId)
+            {
+                builder.AddParameter("author_id", value.ToString(CultureInfo.InvariantCulture));
+            }
+        }
+        if (mentions is not null)
+        {
+            foreach (ulong value in mentions)
+            {
+                builder.AddParameter("mentions", value.ToString(CultureInfo.InvariantCulture));
+            }
+        }
+        if (mentionsRoleId is not null)
+        {
+            foreach (ulong value in mentionsRoleId)
+            {
+                builder.AddParameter("mentions_role_id", value.ToString(CultureInfo.InvariantCulture));
+            }
+        }
+        if (mentionEveryone is not null)
+        {
+            builder.AddParameter("mention_everyone", mentionEveryone.Value.ToString(CultureInfo.InvariantCulture));
+        }
+        if (repliedToUserId is not null)
+        {
+            foreach (ulong value in repliedToUserId)
+            {
+                builder.AddParameter("replied_to_user_id", value.ToString(CultureInfo.InvariantCulture));
+            }
+        }
+        if (repliedToMessageId is not null)
+        {
+            foreach (ulong value in repliedToMessageId)
+            {
+                builder.AddParameter("replied_to_message_id", value.ToString(CultureInfo.InvariantCulture));
+            }
+        }
+        if (pinned is not null)
+        {
+            builder.AddParameter("pinned", pinned.Value.ToString(CultureInfo.InvariantCulture));
+        }
+        if (has is not null)
+        {
+            foreach (string value in has)
+            {
+                builder.AddParameter("has", value);
+            }
+        }
+        if (embedType is not null)
+        {
+            foreach (string value in embedType)
+            {
+                builder.AddParameter("embed_type", value);
+            }
+        }
+        if (embedProvider is not null)
+        {
+            foreach (string value in embedProvider)
+            {
+                builder.AddParameter("embed_provider", value);
+            }
+        }
+        if (linkHostname is not null)
+        {
+            foreach (string value in linkHostname)
+            {
+                builder.AddParameter("link_hostname", value);
+            }
+        }
+        if (attachmentFilename is not null)
+        {
+            foreach (string value in attachmentFilename)
+            {
+                builder.AddParameter("attachment_filename", value);
+            }
+        }
+        if (attachmentExtension is not null)
+        {
+            foreach (string value in attachmentExtension)
+            {
+                builder.AddParameter("attachment_extension", value);
+            }
+        }
+        if (sortBy is not null)
+        {
+            builder.AddParameter("sort_by", sortBy);
+        }
+        if (sortOrder is not null)
+        {
+            builder.AddParameter("sort_order", sortOrder);
+        }
+        if (includeNsfw is not null)
+        {
+            builder.AddParameter("include_nsfw", includeNsfw.Value.ToString(CultureInfo.InvariantCulture));
+        }
+
+        RestRequest request = new()
+        {
+            Route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.MESSAGES}/{Endpoints.SEARCH}",
+            Url = builder.Build(),
+            Method = HttpMethod.Get
+        };
+
+        RestResponse response = await this.rest.ExecuteRequestAsync(request);
+
+        JArray msgsRaw = (JArray)JObject.Parse(response.Response!)["messages"]!;
+        List<DiscordMessage> msgs = [];
+        msgs.AddRange(msgsRaw.SelectMany(msgs => msgs).Select(PrepareMessage));
+
+        return msgs;
+    }
     #endregion
 
     #region Prune
