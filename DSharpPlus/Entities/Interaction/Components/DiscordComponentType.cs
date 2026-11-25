@@ -104,5 +104,15 @@ public enum DiscordComponentType
     /// <summary>
     /// A single checkbox component.
     /// </summary>
-    Checkbox = 23
+    Checkbox = 23,
+
+    /// <summary>
+    /// An overflow menu for further actions.
+    /// </summary>
+    OverflowMenu = 25,
+
+    /// <summary>
+    /// An action item within an overflow menu.
+    /// </summary>
+    OverflowMenuItem = 26
 }
