@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 using Newtonsoft.Json;
@@ -24,13 +25,19 @@ public sealed class DiscordOverflowMenuItemGroup
     [JsonProperty("components")]
     public IReadOnlyList<DiscordOverflowMenuItemComponent> Items { get; internal set; }
 
+    // necessary to make the collection expression construction model work
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public IEnumerator<DiscordOverflowMenuItemComponent> GetEnumerator() 
+        => this.Items.GetEnumerator();
+
     // this does nothing and is to prevent users from constructing this type outside of the intended construction
     internal DiscordOverflowMenuItemGroup()
     {
         
     }
 
-    internal static DiscordOverflowMenuItemGroup Create(string? label, ReadOnlySpan<DiscordOverflowMenuItemComponent> values)
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static DiscordOverflowMenuItemGroup Create(string? label, ReadOnlySpan<DiscordOverflowMenuItemComponent> values)
     {
         return new()
         {
@@ -39,6 +46,7 @@ public sealed class DiscordOverflowMenuItemGroup
         };
     }
 
-    internal static DiscordOverflowMenuItemGroup Create(ReadOnlySpan<DiscordOverflowMenuItemComponent> values)
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static DiscordOverflowMenuItemGroup Create(ReadOnlySpan<DiscordOverflowMenuItemComponent> values)
         => Create(null, values);
 }
