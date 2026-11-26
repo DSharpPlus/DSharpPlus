@@ -1,5 +1,6 @@
 using System;
 using DSharpPlus.Entities;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -47,6 +48,9 @@ internal sealed class DiscordComponentJsonConverter : JsonConverter
             DiscordComponentType.RadioGroup => new DiscordRadioGroupComponent(),
             DiscordComponentType.CheckboxGroup => new DiscordCheckboxGroupComponent(),
             DiscordComponentType.Checkbox => new DiscordCheckboxComponent(),
+            DiscordComponentType.OverflowMenu => new DiscordOverflowMenuComponent(),
+            DiscordComponentType.OverflowMenuItem when (int)job["style"] is 3 => new DiscordOverflowMenuLinkItemComponent(),
+            DiscordComponentType.OverflowMenuItem => new DiscordOverflowMenuItemComponent(),
             _ => new DiscordComponent() { Type = type.Value }
         };
 
