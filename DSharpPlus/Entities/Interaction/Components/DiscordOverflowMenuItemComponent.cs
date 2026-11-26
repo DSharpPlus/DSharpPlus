@@ -77,4 +77,10 @@ public class DiscordOverflowMenuItemComponent : DiscordComponent
         this.Disabled = disabled;
         this.Id = id;
     }
+
+    /// <summary>
+    /// Disables this component for the next time it is sent.
+    /// </summary>
+    public void Disable()
+        => this.Disabled = true;
 }

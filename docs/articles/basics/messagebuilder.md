@@ -81,7 +81,7 @@ Components V2 (specifically, components introduced by Components V2) do not go i
 These new components are intended for more composable display and correspondingly serve to display things, rather than the buttons and selects we mentioned earlier. A non-exhaustive list follows:
 
 - `Section Component`
-  - Several sections (3) of text with an accessory (either a thumbnail or button 👀).
+  - Several sections (3) of text with an accessory (either a thumbnail, a button or an overflow menu).
   - May support more components than just text in the future
 
 - `Text Display Component`
@@ -112,3 +112,8 @@ These new components are intended for more composable display and correspondingl
   - Can also be spoilered, blurring the entire container and components within
   - Holds action rows, and all new V2 components except containers
   - Holds up to 10 components
+
+- `Overflow Menu Component`
+  - Can also go in action rows, wherever a button would be valid (only when v2 components are enabled)
+  - Expands on click to show MORE clickable buttons
+  - Overflow menu items come as default, danger (red) or linking to an URl

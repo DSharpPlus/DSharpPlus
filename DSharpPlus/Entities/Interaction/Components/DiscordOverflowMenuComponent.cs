@@ -7,7 +7,7 @@ namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents an overflow menu.
 /// </summary>
-public sealed class DiscordOverflowMenuComponent : DiscordComponent
+public sealed class DiscordOverflowMenuComponent : DiscordActionRowPlacableComponent
 {
     /// <summary>
     /// The groups of items this overflow menu contains.
